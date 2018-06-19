@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+  <link rel="stylesheet" href="/styles.css" />
+  <title>CSV</title>
+</head>
+<body>
+<script type="text/javascript">
+function processFile() {
+ var fileSize = 0;
+ var theFile = document.getElementById("myFile").files[0];
+ if (theFile) {
+   var table = document.getElementById("myTable");
+   var headerLine = "";
+   var myReader = new FileReader();
+   myReader.onload = function(e) {
+     var content = myReader.result;
+     var lines = content.split("\r");
+     for (var count = 0; count < lines.length; count++) {
+       var row = document.createElement("tr");
+       var rowContent = lines[count].split(",");
+       for (var i = 0; i < rowContent.length; i++) {
+         if(count != 0 && count != 1){
+           if(i == 0 || i == 1 || i == 5 || i == 7 || i == 10 || i == 11){
+             if (count == 2) {
+               var cellElement = document.createElement("th");
+               if(i == 0){
+                 var cellContent = document.createTextNode("Last Name");
+               }
+               else if(i == 1){
+                 var cellContent = document.createTextNode("First Name");
+               }
+               else if(i == 5){
+                 var cellContent = document.createTextNode("Core ID");
+               }
+               else if(i == 7){
+                 var cellContent = document.createTextNode("Job Family");
+               }
+               else if(i == 10){
+                 var cellContent = document.createTextNode("Supervisor Last Name");
+               }
+               else if(i == 11){
+                 var cellContent = document.createTextNode("Supervisor First Name");
+               }
+           } else {
+              var cellElement = document.createElement("td");
+
+              if(rowContent[i].includes('"')){
+                var content = rowContent[i].replace('"','');
+              }
+              else{
+                var content = rowContent[i];
+              }
+              if(i == 0 || i == 1 || i == 5 || i == 7 || i == 10 || i == 11){
+                var cellContent = document.createTextNode(content);
+              }
+           }
+           cellElement.appendChild(cellContent);
+           row.appendChild(cellElement);
+         }
+        }
+       }
+       myTable.appendChild(row);
+    }
+  }
+   myReader.readAsText(theFile);
+ }
+ return false;
+}
+</script>
+<form onsubmit="return processFile();" action="#" name="myForm" id="aForm" method="POST">
+  <input type="file" id="myFile" name="myFile"><br>
+  <input type="submit" name="submitMe" value="Process File">
+  <input type="submit" value="Upload CSV" />
+</form>
+<section>
+  <table id="myTable"></table>
+</section>
+</body>
+</html>
