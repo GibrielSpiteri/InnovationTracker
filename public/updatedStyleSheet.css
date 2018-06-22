@@ -1,0 +1,60 @@
+.header{
+  width: 100%;
+  height: 15%;
+  border: 0px;
+  border-bottom: 2px;
+  border-color: #333;
+  border-style: solid;
+}
+
+.header_text{
+   display:inline-block;
+   width:75%;
+   text-align:center;
+}
+
+.header_h1{
+   font-family:Monotype Corsiva;
+}
+
+
+.frame {
+    height: 100%;      /* equals max image height */
+    width: 160px;
+    white-space: nowrap; /* this is required unless you put the helper span closely near the img */
+    text-align: center;
+    display:inline-block;
+    margin-left:50px;
+}
+
+.helper {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+img {
+    vertical-align: middle;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+table {
+    table-layout: fixed;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    word-wrap:break-word;
+    text-align: left;
+    padding: 8px;
+    width:33%;
+}
+
+tr:nth-child(even){background-color: #f2f2f2}
+
+th {
+    background-color: #333;
+    color: white;
+}
