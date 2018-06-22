@@ -68,10 +68,10 @@ function processFile() {
  return false;
 }
 </script>
-<form onsubmit="return processFile();" action="#" name="myForm" id="aForm" method="POST">
+<form action="/add_csv" name="myForm" id="aForm" method="POST">
   <input type="file" id="myFile" name="myFile"><br>
-  <input type="submit" name="submitMe" value="Process File">
-  <input type="submit" value="Upload CSV" />
+  <input type="submit" name="submitMe" value="Upload CSV">
+  <!-- <input type="submit" value="Upload CSV" /> -->
 </form>
 <section>
   <table id="myTable"></table>
