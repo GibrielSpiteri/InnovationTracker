@@ -32,7 +32,7 @@
       <div style="background-color:#333;" class="tab-pane fade active in " id="add_points" role="tabpanel" aria-labelledby="addPoints-tab" >
         <div style="width:70%; margin:0 auto;">
           <h2 style="color:#ffffff; text-align:center;">ADD POINTS BELOW</h2>
-          <form style="text-align:center; color:#fff;" id="form" value="form">
+          <form style="text-align:center;" id="form" value="form">
             <div id="core_id_input">
               <h2 style="display:inline-block; margin-top:10; margin-bottom:10; ">Core ID: </h2>
               <h4 style="display:inline-block; color:#333;"><input style="" id="core_id" type="text" name="core_id"></input></h4>
@@ -82,7 +82,7 @@
       </div>
       <div class="tab-pane fade" id="view_points" role="tabpanel" aria-labelledby="viewPoints-tab">
         <h2 style="color:#333; text-align:center;">VIEW POINTS BELOW</h2>
-        <form style="text-align:center; color:#fff;">
+        <form style="text-align:center;">
           <div id="core_id_input">
             <h2 style="display:inline-block; margin-top:10; margin-bottom:10; color:#333">Core ID: </h2>
             <form action="viewByID" method="get">
@@ -108,6 +108,7 @@
         data: { "CORE_ID": core_id },
         cache: false,
         success: function(response){
+          document.getElementById("userTable").innerHTML = "";
           document.getElementById("userTable").innerHTML = response;
           btn.disabled = false;
         }

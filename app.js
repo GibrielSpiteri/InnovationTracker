@@ -8,15 +8,16 @@ const path = require('path');
 var csvParser = require('csv-parse');
 var fs = require('fs');
 var $ = jQuery = require('jQuery');
-function Emp(name, coreID, job, supervisor, employeeList){
+function Emp(name, coreID, job, supervisor, employeeList, total_points){
   this.name=name;
   this.coreID = coreID;
   this.job = job;
   this.supervisor = supervisor;
   this.employeeList = employeeList;
+  this.total_points = total_points;
 }
 var all_people = []
-var faris = new Emp("","","","");
+var faris = new Emp("","","","","0");
 require('./jquery-csv/src/jquery.csv.js');
 
 var app = express();
@@ -60,8 +61,8 @@ function handleDisconnect() {
     }
     console.log('Connected');
 
-    var table1 = "CREATE TABLE IF NOT EXISTS activity(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(25), accompID INT(3), activity_desc VARCHAR(2500))";
-    connection.query(table1, function(err, result) {
+    var activity = "CREATE TABLE IF NOT EXISTS activity(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(25), accompID INT(3), activity_desc VARCHAR(2500))";
+    connection.query(activity, function(err, result) {
       if (err) throw err;
       console.log("Event table created");
     });
@@ -92,23 +93,31 @@ var server = app.listen(3005, "localhost", function() {
 })
 
 app.get('/', function(req, res) {
-  res.render('pages/newindex');
-});
-app.get('/ViewPoints', function(req, res) {
-  res.render('pages/Points');
-});
-app.get('/ViewEmps', function(req, res) {
-  res.render('pages/ViewEmps');
+  res.render('pages/UpdatedIndex');
 });
 
-var response = "";
+var response = [];
 var accomDescriptions = [];
 var accomPoints = [];
+
+app.post('/findManager', function(req, res){
+  var coreID = req.body.CORE_ID;
+  var employee = findPersonByID(coreID, faris, []);
+  console.log(employee);
+  if(employee[0] != null){
+    res.send(employee[0].name);
+  } else{
+    res.send("Invalid ID");
+  }
+});
+
 app.post('/viewPoints', function(req, res) {
 
   var empID = req.body.CORE_ID;
   //var result = findPersonByID(empID, faris, []);
   var personAccomps = [];
+
+  var results = []
   var query = "SELECT * FROM `activity` WHERE coreID="+ connection.escape(empID);
   connection.query(query, function(err, accomplish) {
     if (err) throw err;
@@ -116,38 +125,60 @@ app.post('/viewPoints', function(req, res) {
     {
       personAccomps.push(accomplish[accomplishmentTemp]);
     }
-    console.log(personAccomps);
+    //console.log(personAccomps);
   });
 
   setTimeout(function(){parseAccomplishments(personAccomps);},500);
-  // res.writeHead(200, {'Content-Type': 'text/html'});
-  // res.write('<html><head><link rel="stylesheet" href="/styles.css"></head><body>');
-  // res.write()
-  setTimeout(function(){
-    console.log("IN FINAL RESPONSE TIMEOUT");
-    console.log(personAccomps);
-    var pointCount = 0;
-    for(val in personAccomps)
-    {
-      if(val == 0){
-        response += "<h3>" + ;
-        response = "<table><tr><th>Accomplishment</th><th>Description</th><th>Points</th></tr>";
 
+  setTimeout(function(){
+    //console.log("IN FINAL RESPONSE TIMEOUT");
+    //console.log(personAccomps);
+    var pointCount = 0;
+    response[0] = null;
+    response[1] = null;
+    response[2] = null;
+    var team = findPersonByID(empID, faris, []);
+    if(team[0] != null){
+      //console.log(team);
+      response[0] = "<table><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><h4>Your Accomplishments</h4><tbody><tr><th style='text-align: center;'>Accomplishment</th><th style='text-align: center;'>Description</th><th style='text-align:center;'>Points</th></tr>";
+      for(val in personAccomps)
+      {
+        response[0] += "<tr><td>" + accomDescriptions[val] + "</td><td>" + personAccomps[val].activity_desc + "</td><td text-align:center;'>" + accomPoints[val]+ "</td></tr>";
+        pointCount += accomPoints[val];
       }
-      response += "<tr><td>";
-      response += accomDescriptions[val];
-      response += "</td><td>";
-      response += personAccomps[val].activity_desc;
-      response += "</td><td>";
-      response += accomPoints[val];
-      pointCount += accomPoints[val];
-      response += "</td></tr>";
+      response[0] += "<tr><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center;'>"
+      response[0] += pointCount;
+      response[0] += "</td></tr>";
+      response[0] += "</tbody></table";
+
+      if(team[0].employeeList != null){
+        response[1] = "<h4>Your Group</h4><table><tbody><tr><th>Name</th><th>Core ID</th><th>Total Points</th><th>Show More Details</th></tr>";
+        for(emps in team[0].employeeList){
+          if(team[0].employeeList[emps].coreID != empID){
+            response[1] += "<tr><td>" + team[0].employeeList[emps].name + "</td><td>" + team[0].employeeList[emps].coreID+ "</td><td>" + team[0].employeeList[emps].total_points + '</td><td><input type="button" id="' + team[0].employeeList[emps].coreID + '" onclick="showMoreDetails(this)" value="' + team[0].employeeList[emps].coreID + '"/></td><td>';
+          }
+        }
+        response[1] += "</tbody></table>";
+      }
+
+      if(team[2].employeeList.length > 0){
+        //console.log(team[2].employeeList)
+        response[2] = "<h4>Your Employees</h4><table><tbody><tr><th>Name</th><th>Core ID</th><th>Total Points</th><th>Show More Details</th></tr>";
+
+        for(emp in team[2].employeeList){
+            response[2] += "<tr><td>" + team[2].employeeList[emp].name + "</td><td>" + team[2].employeeList[emp].coreID+ "</td><td>" + team[2].employeeList[emp].total_points + '</td><td><input type="button" id="' + team[2].employeeList[emp].coreID + '" onclick="showMoreDetails(this)" value="' + team[2].employeeList[emp].coreID + '"/></td><td>';;
+        }
+        response[2] += "</tbody></table>";
+      }
     }
-    response += "<tr><td></td><td>Total Points</td><td>"
-    response += pointCount;
-    response += "</td></tr>";
-    response += "</table";
+    else{
+      response[0] = "Please Enter a Valid ID";
+      response[1] = null;
+      response[2] = null;
+    }
     res.send(response);
+
+
   },700);
 
 });
@@ -169,16 +200,48 @@ function parseAccomplishments(personAccomps){
 
 
 app.post('/addPoints', function(req, res) {
-  var CORE_ID =req.body.CORE_ID;
+  var CORE_ID = req.body.CORE_ID;
   var ACCOMPLISHMENT = req.body.ACCOMPLISHMENT;
   var DESCRIPTION = req.body.DESCRIPTION;
+  var MANAGER = req.body.MANAGER;
+  console.log(CORE_ID);
+  if(CORE_ID != "" && ACCOMPLISHMENT != "" && DESCRIPTION != "" && MANAGER != "" && MANAGER != "Invalid ID"){
+    var activity = "INSERT INTO `activity` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
+    connection.query(activity, function(err, result) {
+      if (err) throw err;
+      //console.log("Inserted activity");
+    });
 
-  var points = "INSERT INTO `activity` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
-  connection.query(points, function(err, result) {
-    if (err) throw err;
-    console.log("Inserted activity");
-  });
-  res.send("");
+    var newPoints;
+    setTimeout(function(){
+      var getPoints = "SELECT `points` FROM `accomplishment` WHERE accompID=" + ACCOMPLISHMENT;
+      connection.query(getPoints, function(err, result) {
+        if (err) throw err;
+        //console.log(result);
+        newPoints = result[0].points;
+      });
+    },500);
+    setTimeout(function(){
+      for(emp in all_people)
+      {
+        if(all_people[emp].coreID === CORE_ID)
+        {
+          all_people[emp].total_points += newPoints;
+        }
+      }
+      var points = "UPDATE `employees` SET `total_points` = `total_points` + " + newPoints  + " WHERE `coreID`=" + connection.escape(CORE_ID) + ";";
+      //console.log(points);
+      connection.query(points, function(err, result) {
+        if (err) throw err;
+        //console.log("SUCCESSFUL QUERY");
+      });
+    }, 700);
+    res.send("");
+}
+else{
+  res.send("Failure");
+  console.log("Error in input fields");
+}
 });
 
 app.post('/add_csv', function(req, res) {
@@ -197,27 +260,27 @@ app.post('/add_csv', function(req, res) {
       } else {
         //Reset the table
         var drop = "DROP TABLE IF EXISTS employees";
-        var create = "CREATE TABLE employees(emp_name VARCHAR(255), coreID VARCHAR(50), job VARCHAR(100), supervisor VARCHAR(255))";
+        var create = "CREATE TABLE employees(coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
         connection.query(drop, function(err, result) {
           if (err) throw err;
-          console.log("Dropped");
+          //console.log("Dropped");
         });
         connection.query(create, function(err, result) {
           if (err) throw err;
-          console.log("Created");
+          //console.log("Created");
         });
         //Insert all data
         for(let index = 2; index < data.length; index++){
 
           //data[index][0] = data[index][0].replace(/[']/g,' ');
-          var insert = "INSERT INTO `employees` (`emp_name`, `coreID`, `job`, `supervisor`) VALUES (" + connection.escape(data[index][0]) + "," +connection.escape(data[index][4]) +","+connection.escape(data[index][6]) + "," + connection.escape(data[index][9])+ ")";
+          var insert = "INSERT INTO `employees` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES (" + connection.escape(data[index][0]) + "," +connection.escape(data[index][4]) + "," + connection.escape(data[index][6]) + "," + connection.escape(data[index][9]) + "," + 0 + ")";
 
           connection.query(insert, function(err, row) {
             if (err) throw err;
             //console.log(index);
           });
         }
-        console.log("Done");
+        //console.log("Done");
       }
     });
   });
@@ -235,13 +298,15 @@ function sortEmps(){
     faris.job = res[0].job;
     faris.supervisor = res[0].supervisor;
     faris.employeeList = [];
-    console.log(faris);
+    faris.total_points = res[0].total_points;
+    //console.log(faris);
   });
 
   //Getting all the employees into a list(all_people)
   var get_all = "SELECT * FROM `employees`";
 
   connection.query(get_all, function(err, res) {
+    //console.log(res);
     if (err) throw err;
     for (var i in res) {
       //Make a new employee using their information
@@ -251,7 +316,7 @@ function sortEmps(){
       person.job = res[i].job;
       person.supervisor = res[i].supervisor;
       person.employeeList = [];
-
+      person.total_points = res[i].total_points;
       //Push this to the list of all all_people
       all_people.push(person);
     }
@@ -261,14 +326,16 @@ function sortEmps(){
   //AFTER WE GET THE DATA, PASS THIS TO A NEW FUNCTION
   //Getting the
   setTimeout(function(){recurseList(faris,all_people);},3000);
+  //Print The EMC Tree
+  //setTimeout(function(){printTree(faris,0);},5000);
+
 }
 var count = 0;
 function printFaris(faris){
-  console.log(faris.name);
+  //console.log(faris.name);
   printTree(faris, 0);
-  console.log(count);
+  //console.log(count);
 }
-
 function recurseList(person, all_people)
 {
   for(val in all_people)
@@ -277,6 +344,7 @@ function recurseList(person, all_people)
     {
       person.employeeList.push(all_people[val]);
       recurseList(all_people[val], all_people);
+
     }
   }
 
@@ -300,9 +368,10 @@ function printTree(person, currentTabs){
 function findPersonByID(coreID, person, result){
   for(emp in person.employeeList){
     if(person.employeeList[emp].coreID === coreID){
-      console.log("Manager: " + person.name);
-      console.log("Person: " + person.employeeList[emp].name);
-      result.push(person.name);
+      //console.log("Manager: " + person.name);
+      //console.log("Person: " + person.employeeList[emp].name);
+      result.push(person);
+      result.push(person.employeeList[emp].name);
       result.push(person.employeeList[emp]);
     }
     else{
@@ -312,3 +381,4 @@ function findPersonByID(coreID, person, result){
   return result;
 }
 sortEmps();
+printTree(faris, 0);
