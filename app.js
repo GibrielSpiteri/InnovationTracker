@@ -96,6 +96,10 @@ app.get('/', function(req, res) {
   res.render('pages/UpdatedIndex');
 });
 
+app.get('/login/', function(req, res) {
+  res.render('pages/AdministratorLogin');
+});
+
 var response = [];
 var accomDescriptions = [];
 var accomPoints = [];
