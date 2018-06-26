@@ -42,14 +42,15 @@ img {
 }
 
 table {
-    table-layout: fixed;
-    border-collapse: collapse;
+    table-layout:fixed;
+    word-wrap: break-word;
+    /* border-collapse: collapse; */
     width: 100%;
 }
 
 th, td {
   text-align: center;
-  margin: auto;
+  /* margin: auto; */
 }
 tr{
   text-align: center;
@@ -57,7 +58,7 @@ tr{
 tr:nth-child(even){background-color: #f2f2f2}
 
 th {
-  width:auto;
+  width:100%;
   text-align: center;
   background-color: #333;
   color: white;

@@ -140,7 +140,7 @@ app.post('/viewPoints', function(req, res) {
     var team = findPersonByID(empID, faris, []);
     if(team[0] != null){
       //console.log(team);
-      response[0] = "<table><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><h4>Your Accomplishments</h4><tbody><tr><th style='text-align: center;'>Accomplishment</th><th style='text-align: center;'>Description</th><th style='text-align:center;'>Points</th></tr>";
+      response[0] = "<table><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><h4>Your Accomplishments</h4><tbody><tr><th style='text-align: center;'>Accomplishment</th><th style='text-align: center; word-break:break-all;'>Description</th><th style='text-align:center; width:25%;'>Points</th></tr>";
       for(val in personAccomps)
       {
         response[0] += "<tr><td>" + accomDescriptions[val] + "</td><td>" + personAccomps[val].activity_desc + "</td><td text-align:center;'>" + accomPoints[val]+ "</td></tr>";
@@ -152,7 +152,7 @@ app.post('/viewPoints', function(req, res) {
       response[0] += "</tbody></table";
 
       if(team[0].employeeList != null){
-        response[1] = "<h4>Your Group</h4><table><tbody><tr><th>Name</th><th>Core ID</th><th>Total Points</th><th>Show More Details</th></tr>";
+        response[1] = "<h4>Your Group</h4><table><tbody><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr>";
         for(emps in team[0].employeeList){
           if(team[0].employeeList[emps].coreID != empID){
             response[1] += "<tr><td>" + team[0].employeeList[emps].name + "</td><td>" + team[0].employeeList[emps].coreID+ "</td><td>" + team[0].employeeList[emps].total_points + '</td><td><input type="button" id="' + team[0].employeeList[emps].coreID + '" onclick="showMoreDetails(this)" value="' + team[0].employeeList[emps].coreID + '"/></td><td>';
@@ -163,7 +163,7 @@ app.post('/viewPoints', function(req, res) {
 
       if(team[2].employeeList.length > 0){
         //console.log(team[2].employeeList)
-        response[2] = "<h4>Your Employees</h4><table><tbody><tr><th>Name</th><th>Core ID</th><th>Total Points</th><th>Show More Details</th></tr>";
+        response[2] = "<h4>Your Employees</h4><table width='100%' style='margin:0px; padding: 0;'><tbody><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr>";
 
         for(emp in team[2].employeeList){
             response[2] += "<tr><td>" + team[2].employeeList[emp].name + "</td><td>" + team[2].employeeList[emp].coreID+ "</td><td>" + team[2].employeeList[emp].total_points + '</td><td><input type="button" id="' + team[2].employeeList[emp].coreID + '" onclick="showMoreDetails(this)" value="' + team[2].employeeList[emp].coreID + '"/></td><td>';;
@@ -204,7 +204,7 @@ app.post('/addPoints', function(req, res) {
   var ACCOMPLISHMENT = req.body.ACCOMPLISHMENT;
   var DESCRIPTION = req.body.DESCRIPTION;
   var MANAGER = req.body.MANAGER;
-  console.log(CORE_ID);
+  console.log(CORE_ID + " " + ACCOMPLISHMENT + " " + DESCRIPTION + " " + MANAGER );
   if(CORE_ID != "" && ACCOMPLISHMENT != "" && DESCRIPTION != "" && MANAGER != "" && MANAGER != "Invalid ID"){
     var activity = "INSERT INTO `activity` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
     connection.query(activity, function(err, result) {
