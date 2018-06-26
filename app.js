@@ -155,6 +155,10 @@ app.post('/auth', function(req, res) {
   }
 });
 
+function updatePassword(newPass){
+  var hashNewPass = passHash.generate(newPass);
+}
+
 var response = [];
 var accomDescriptions = [];
 var accomPoints = [];
