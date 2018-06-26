@@ -17,6 +17,7 @@ function Emp(name, coreID, job, supervisor, employeeList, total_points){
   this.total_points = total_points;
 }
 var all_people = []
+var logged_in = false;
 var faris = new Emp("","","","","0");
 require('./jquery-csv/src/jquery.csv.js');
 
@@ -99,6 +100,21 @@ app.get('/', function(req, res) {
 app.get('/login/', function(req, res) {
   res.render('pages/AdministratorLogin');
 });
+
+app.post('/verifyLogin/', function(req, res) {
+  res.send('');
+});
+
+app.get('/admin/', function(req, res) {
+  if(! logged_in){
+    return res.redirect('/login/');
+  }
+  else{
+    res.render('pages/admin_page');
+  }
+});
+
+
 
 var response = [];
 var accomDescriptions = [];
