@@ -4,8 +4,8 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <!-- Style Sheets -->
-    <link rel="stylesheet" href="../../public/updatedStyleSheet.css"/>
-    <link rel="stylesheet" href="../../public/bootstrap.css"/>
+    <link rel="stylesheet" href="/updatedStyleSheet.css"/>
+    <link rel="stylesheet" href="/bootstrap.css"/>
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -13,7 +13,7 @@
 
   <header class="header">
     <div class=frame>
-      <span class="helper"></span><img srcset="../../public/updatedZebra.png" alt="null"/>
+      <span class="helper"></span><img srcset="/updatedZebra.png" alt="null"/>
     </div>
     <div class="header_text">
       <h1 class="header_h1">Innovation Tracker</h1>
@@ -38,17 +38,17 @@
                 <!-- Heading giving the user directions -->
                 <h5 style="color:#333; text-align:center;">Please enter your Username and Password to login below.</h5></br>
                 <!-- Creating the form for the user -->
-                <form id="form" value="form">
+                <form id="login_form" action="/auth" method="POST" value="form">
                   <div class="form-group row">
                     <label for="username" class="col-sm-4 col-form-label">Username</label>
                     <div class="col-sm-8">
-                      <input type="text" class="form-control" id="username" placeholder="Username">
+                      <input type="text" class="form-control" id="username" name="username" placeholder="Username">
                     </div>
                   </div>
                   <div class="form-group row">
                     <label for="password" class="col-sm-4 col-form-label">Password</label>
                     <div class="col-sm-8">
-                      <input type="password" class="form-control" id="password" placeholder="Password">
+                      <input type="password" class="form-control" id="password" name="password" placeholder="Password">
                     </div>
                   </div>
                   <div class="form-group row">
@@ -58,57 +58,6 @@
                   </div>
                 </form>
 
-
-
-                <!--
-                <form id="form" value="form">
-                  <div style="text-align: right;" id="core_id_input">
-                    <h4 style="display:block; margin: auto; color:#333;">Core ID:</h4></br>
-                    <h4 style="display:block; color:#333; margin: auto;"><input style="width:300px;" id="core_id" type="text" name="core_id"></input></h4></br>
-                  </div>
-                  <div style="text-align: right;" id="manager_field">
-                    <h4 style="display:block; margin:auto; color:#333;">Manager:</h4></br>
-                    <h4 style="display:block; color:#333; margin: auto;"><input readonly style="width:300px;" id="manager" type="text" name="manager"></input></h4></br>
-                  </div>
-                  <div style="text-align: center;" id="accomplishment_input">
-                    <h4 style="display:block; margin:auto; color:#333;">Select Accomplishment: </h4></br>
-                    <h5 style="display:block; margin:auto; color:#333;">
-                      <select style="color:#333; display:block; margin:auto;" id="accomplishment">
-                        <option value="1">Choose your Acomplisment</option>
-                        <option value="2">Identify a meaningful problem that needs a solution (1)</option>
-                        <option value="3">Identify a new product feature for the backlog (1)</option>
-                        <option value="4">Attend a Lunch and Learn (1)</option>
-                        <option value="5">Submit abstract for ZTS Expo or Srjana (1)</option>
-                        <option value="6">Attend a readout from a customer visit (1)</option>
-                        <option value="7">Attend JDM Expo, Innovation showcase, Intern project review (1)</option>
-                        <option value="8">Peer review an IP disclosure - witness, read and understand (1)</option>
-                        <option value="9">Join Eto Techspresso event (1)</option>
-                        <option value="10">Take part in brain storming session (2)</option>
-                        <option value="11">Help someone get their first patent disclosure submitted (2)</option>
-                        <option value="12">Solve a problem and implement the solution (2)</option>
-                        <option value="13">Mentoring inventors for success (2)</option>
-                        <option value="14">Teach a class, lead a Lunch and Learn, lead a techtalk, or developer conf (2)</option>
-                        <option value="15">Organize and run a brainstorming session (2)</option>
-                        <option value="16">Visit a customer and present findings (2)</option>
-                        <option value="17">Supervise a summer intern on one of their projects (2)</option>
-                        <option value="18">Collaborate across BU's for Differentiation and efficency opportunities (2)</option>
-                        <option value="19">Submit a peer reviewed IP disclosure (4)</option>
-                        <option value="20">Patent Committee decides to "pursue" your submission - Phase 2 (4)</option>
-                        <option value="21">[CUSTOM]</option>
-                    </select>
-                  </h5></br>
-                </div>
-                <div style="text-align: center;" id="description_input">
-                  <h4 style="display:block; margin:auto; color:#333;">Accomplishment Description: </h4>
-                  <h5 style="color:#333;">
-                    <textarea id="desc" name="description" rows="6" cols="68" style="resize:vertical;"></textarea>
-                  </h4>
-                </div>
-                <br>
-                <input style="color:#333; display:block; margin:auto;" onclick="addPoints()" type="button" value="Submit"></input>
-                <br><br>
-                </form>
-              -->
               </div>
             </div>
           </div>

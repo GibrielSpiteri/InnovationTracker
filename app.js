@@ -8,6 +8,9 @@ const path = require('path');
 var csvParser = require('csv-parse');
 var fs = require('fs');
 var $ = jQuery = require('jQuery');
+require('./jquery-csv/src/jquery.csv.js');
+var passHash = require('password-hash');
+
 function Emp(name, coreID, job, supervisor, employeeList, total_points){
   this.name=name;
   this.coreID = coreID;
@@ -19,7 +22,7 @@ function Emp(name, coreID, job, supervisor, employeeList, total_points){
 var all_people = []
 var logged_in = false;
 var faris = new Emp("","","","","0");
-require('./jquery-csv/src/jquery.csv.js');
+
 
 var app = express();
 app.use(express.static(path.join(__dirname, '/public')));
@@ -65,13 +68,19 @@ function handleDisconnect() {
     var activity = "CREATE TABLE IF NOT EXISTS activity(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(25), accompID INT(3), activity_desc VARCHAR(2500))";
     connection.query(activity, function(err, result) {
       if (err) throw err;
-      console.log("Event table created");
+      //console.log("Activity table created");
     });
 
     var accomplishments = "CREATE TABLE IF NOT EXISTS accomplishment(accompID INT AUTO_INCREMENT PRIMARY KEY, description VARCHAR(2500), points INT(2))";
     connection.query(accomplishments, function(err, result) {
       if (err) throw err;
-      console.log("Event table created");
+      //console.log("Accomplishment table created");
+    });
+
+    var admin_login = "CREATE TABLE IF NOT EXISTS admin(username VARCHAR(25), password VARCHAR(25))";
+    connection.query(admin_login, function(err, result) {
+      if (err) throw err;
+      //console.log("Admin table created");
     });
   });
   connection.on('error', function(err) {
@@ -93,21 +102,30 @@ var server = app.listen(3005, "localhost", function() {
   console.log("Listening at http://%s:%s", host, port);
 })
 
+
+
+
+
+
+
+
+
+
 app.get('/', function(req, res) {
   res.render('pages/UpdatedIndex');
 });
 
-app.get('/login/', function(req, res) {
+app.get('/login', function(req, res) {
   res.render('pages/AdministratorLogin');
 });
 
-app.post('/verifyLogin/', function(req, res) {
+app.post('/verifyLogin', function(req, res) {
   res.send('');
 });
 
-app.get('/admin/', function(req, res) {
+app.get('/admin', function(req, res) {
   if(! logged_in){
-    return res.redirect('/login/');
+    return res.redirect('/login');
   }
   else{
     res.render('pages/admin_page');
@@ -115,6 +133,27 @@ app.get('/admin/', function(req, res) {
 });
 
 
+app.post('/auth', function(req, res) {
+  var username = req.body.username;
+  var password = req.body.password;
+  //console.log(username + " " + password);
+  if(username == "admin"){
+    var query = "SELECT `password` FROM admin WHERE `username`=" + username;
+    connection.query(query, function(err, result) {
+      if (err) throw err;
+      if(passHash.verify(password, result.password)){
+        logged_in = true;
+        res.render('pages/admin_page');
+      }
+      else{
+        return res.redirect('/login');
+      }
+    });
+  }
+  else{
+    return res.redirect('/login');
+  }
+});
 
 var response = [];
 var accomDescriptions = [];
