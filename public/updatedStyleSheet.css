@@ -72,3 +72,23 @@ th {
 h4{
   text-align: center;
 }
+/*
+.file-field.medium .file-path-wrapper {
+  height: 3rem; }
+  .file-field.medium .file-path-wrapper .file-path {
+    height: 2.8rem; }
+
+    input[type="file"] {
+    display: none;
+}
+*/
+
+.file_element{
+  display:none;
+}
+.custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+}
