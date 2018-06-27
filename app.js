@@ -10,6 +10,7 @@ var fs = require('fs');
 var $ = jQuery = require('jQuery');
 require('./jquery-csv/src/jquery.csv.js');
 var passHash = require('password-hash');
+var session = require('express-session');
 
 function Emp(name, coreID, job, supervisor, employeeList, total_points){
   this.name=name;
@@ -19,15 +20,17 @@ function Emp(name, coreID, job, supervisor, employeeList, total_points){
   this.employeeList = employeeList;
   this.total_points = total_points;
 }
-var all_people = []
+var all_people = [];
 var logged_in = false;
 var faris = new Emp("","","","","0");
+var periodID = null;
 
 
 var app = express();
 app.use(express.static(path.join(__dirname, '/public')));
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(bodyParser.json());
+app.use(session({secret:'Innovate'}));
 app.set('view engine', 'ejs');
 const IMAGE_FOLDER = './images/'
 var StatusEnum = Object.freeze({"open":1, "closed": 2});
@@ -54,6 +57,36 @@ const db_config = {
   database: 'kiosk'
 };
 var connection;
+function executeQuery(query){
+  connection.query(query, function(err, result) {
+    if(err) throw err;
+  });
+}
+
+/**
+*
+*/
+function initializeTables(){
+  var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
+  connection.query(getCurrentPeriod, function(err, result) {
+    periodID = result[0].periodID;
+    var activity = "CREATE TABLE IF NOT EXISTS activity_" + connection.escape(result[0].periodID) + "(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(25), accompID INT(3), activity_desc VARCHAR(2500))";
+    executeQuery(activity);
+
+    var points = "CREATE TABLE IF NOT EXISTS emp_points_" + connection.escape(result[0].periodID) + "(coreID VARCHAR(25), points INT(2))";
+    executeQuery(points);
+  });
+
+  var accomplishments = "CREATE TABLE IF NOT EXISTS accomplishment(accompID INT AUTO_INCREMENT PRIMARY KEY, description VARCHAR(2500), points INT(2))";
+  executeQuery(accomplishments);
+
+  var admin_login = "CREATE TABLE IF NOT EXISTS admin(username VARCHAR(25), password VARCHAR(100))";
+  executeQuery(admin_login);
+
+  var period = "CREATE TABLE IF NOT EXISTS period(periodID INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(25), startTime DATETIME, endTime DATETIME, currentPeriod BOOLEAN)";
+  executeQuery(period);
+}
+
 
 function handleDisconnect() {
   connection = mysql.createConnection(db_config);
@@ -63,26 +96,14 @@ function handleDisconnect() {
       console.log('Error connecting to db', err);
       setTimeout(handleDisconnect, 2000);
     }
+
+
     console.log('Connected');
+    initializeTables();
 
-    var activity = "CREATE TABLE IF NOT EXISTS activity(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(25), accompID INT(3), activity_desc VARCHAR(2500))";
-    connection.query(activity, function(err, result) {
-      if (err) throw err;
-      //console.log("Activity table created");
-    });
 
-    var accomplishments = "CREATE TABLE IF NOT EXISTS accomplishment(accompID INT AUTO_INCREMENT PRIMARY KEY, description VARCHAR(2500), points INT(2))";
-    connection.query(accomplishments, function(err, result) {
-      if (err) throw err;
-      //console.log("Accomplishment table created");
-    });
-
-    var admin_login = "CREATE TABLE IF NOT EXISTS admin(username VARCHAR(25), password VARCHAR(25))";
-    connection.query(admin_login, function(err, result) {
-      if (err) throw err;
-      //console.log("Admin table created");
-    });
   });
+
   connection.on('error', function(err) {
     console.log('db error', err);
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
@@ -107,57 +128,137 @@ var server = app.listen(3005, "localhost", function() {
 
 
 
-
-
-
-
+var sesh;
 app.get('/', function(req, res) {
   res.render('pages/UpdatedIndex');
 });
 
 app.get('/login', function(req, res) {
-  res.render('pages/AdministratorLogin');
-});
-
-app.post('/verifyLogin', function(req, res) {
-  res.send('');
-});
-
-app.get('/admin', function(req, res) {
-  if(! logged_in){
-    return res.redirect('/login');
+  if(sesh.logged_in == true){
+    res.render("pages/admin_page")
+  } else {
+    res.render('pages/AdministratorLogin');
   }
-  else{
+});
+
+app.get('/admin', function(req, res){
+  sesh = req.session;
+  if( sesh.logged_in ==  null){
+    sesh.logged_in = false;
+    sesh.username = "";
+  }
+  if(! sesh.logged_in){
+    return res.redirect('/login');
+  } else {
     res.render('pages/admin_page');
   }
 });
 
 
 app.post('/auth', function(req, res) {
+  sesh = req.session;
   var username = req.body.username;
   var password = req.body.password;
   //console.log(username + " " + password);
-  if(username == "admin"){
-    var query = "SELECT `password` FROM admin WHERE `username`=" + username;
-    connection.query(query, function(err, result) {
-      if (err) throw err;
-      if(passHash.verify(password, result.password)){
-        logged_in = true;
-        res.render('pages/admin_page');
-      }
-      else{
-        return res.redirect('/login');
-      }
-    });
-  }
-  else{
-    return res.redirect('/login');
-  }
+  var query = "SELECT `password` FROM `admin` WHERE `username`= " + connection.escape(username);
+  connection.query(query, function(err, result) {
+    if (err) throw err;
+    if(passHash.verify(password, result[0].password)){
+      console.log("correct");
+      sesh.logged_in = true;
+      sesh.username = username;
+      res.render('pages/admin_page');
+    }
+    else{
+      sesh.logged_in = false;
+      sesh.username = "";
+      console.log("password incorrect");
+      return res.redirect('/login');
+    }
+  });
 });
 
-function updatePassword(newPass){
-  var hashNewPass = passHash.generate(newPass);
-}
+app.post('/updatePass', function(req, res){
+  sesh= req.session;
+  var currPass = req.body.currPass;
+  var newPass = req.body.newPass;
+  var repeatPass = req.body.repeatPass;
+  if(sesh.logged_in)
+  {
+    if(newPass == repeatPass){
+      console.log("passwords equal")
+      //Store username in future and use that as reference
+      var passCheck = "SELECT `password` FROM `admin` WHERE `username`="+connection.escape(sesh.username);
+      connection.query(passCheck, function(err, result) {
+        if (err) throw err;
+        console.log(result[0].password + " " + currPass);
+        if(passHash.verify(currPass, result[0].password)){
+          console.log("current password correct")
+          var hashNewPass = passHash.generate(String(newPass));
+          console.log(hashNewPass);
+          var updatePass = "UPDATE `admin` SET `password`=" + connection.escape(hashNewPass) + "WHERE `username`=" + connection.escape("admin");
+          connection.query(updatePass, function(err, result) {
+            console.log("Done")
+            if (err) throw err;
+            res.send("Success");
+          });
+        }
+        else{
+          console.log("Current pass fail");
+          res.send("FailureCurrent");
+        }
+      });
+    }
+    else{
+      console.log("repeat pass fail");
+      res.send("FailureRepeat");
+    }
+  }
+
+
+});
+
+app.post('/resetTables', function(req,res){
+  var periodName = req.body.periodName;
+  var currentPeriodID;
+
+  console.log("Start");
+  var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
+  connection.query(getCurrentPeriod, function(err, result) {
+    if (err) throw err;
+    console.log("Select Query");
+    if(result.length > 0){
+      console.log("Rows affected");
+      currentPeriodID = result[0].periodID;
+      var swapOut = "UPDATE `period` SET `currentPeriod` = FALSE WHERE `periodID`=" + currentPeriodID;
+      executeQuery(swapOut);
+
+      var updateCurrentPeriod = "UPDATE `period` SET `endTime`= NOW() WHERE `periodID`=" + currentPeriodID;
+      executeQuery(updateCurrentPeriod);
+    }
+
+    var newPeriodTable = "INSERT INTO `period` (`name`, `startTime`, `endTime`, `currentPeriod`) VALUES (" + connection.escape(periodName)+ ", NOW(), null, TRUE)";
+    executeQuery(newPeriodTable);
+
+    periodID += 1;
+    initializeTables();
+
+    var employees = "CREATE TABLE `employees_" + connection.escape(periodID) +"` AS SELECT * FROM `employees_" + connection.escape(periodID-1) + "`";
+    connection.query(employees, function(err, result) {
+      if (err) throw err;
+
+      var zeroPoints = "UPDATE `employees_" +connection.escape(periodID) +"` SET `total_points`=" + 0;
+      connection.query(zeroPoints, function(err, result) {
+        if (err) throw err;
+        sortEmps();
+        res.send("Success");
+      });
+    });
+
+  });
+
+
+});
 
 var response = [];
 var accomDescriptions = [];
@@ -175,13 +276,15 @@ app.post('/findManager', function(req, res){
 });
 
 app.post('/viewPoints', function(req, res) {
-
+  //console.log(faris);
+  //console.log(all_people);
   var empID = req.body.CORE_ID;
   //var result = findPersonByID(empID, faris, []);
   var personAccomps = [];
 
-  var results = []
-  var query = "SELECT * FROM `activity` WHERE coreID="+ connection.escape(empID);
+  var results = [];
+  //console.log()
+  var query = "SELECT * FROM `activity_" + connection.escape(periodID) + "` WHERE coreID="+ connection.escape(empID);
   connection.query(query, function(err, accomplish) {
     if (err) throw err;
     for(accomplishmentTemp in accomplish)
@@ -218,7 +321,7 @@ app.post('/viewPoints', function(req, res) {
         response[1] = "<h4>Your Group</h4><table><tbody><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr>";
         for(emps in team[0].employeeList){
           if(team[0].employeeList[emps].coreID != empID){
-            response[1] += "<tr><td>" + team[0].employeeList[emps].name + "</td><td>" + team[0].employeeList[emps].coreID+ "</td><td>" + team[0].employeeList[emps].total_points + '</td><td><input type="button" id="' + team[0].employeeList[emps].coreID + '" onclick="showMoreDetails(this)" value="' + team[0].employeeList[emps].coreID + '"/></td><td>';
+            response[1] += "<tr><td>" + team[0].employeeList[emps].name + "</td><td>" + team[0].employeeList[emps].coreID+ "</td><td>" + team[0].employeeList[emps].total_points + '</td><td><input type="button" id="' + team[0].employeeList[emps].coreID + '" onclick="showMoreDetails(this)" value="View"/></td><td>';
           }
         }
         response[1] += "</tbody></table>";
@@ -229,7 +332,7 @@ app.post('/viewPoints', function(req, res) {
         response[2] = "<h4>Your Employees</h4><table width='100%' style='margin:0px; padding: 0;'><tbody><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr>";
 
         for(emp in team[2].employeeList){
-            response[2] += "<tr><td>" + team[2].employeeList[emp].name + "</td><td>" + team[2].employeeList[emp].coreID+ "</td><td>" + team[2].employeeList[emp].total_points + '</td><td><input type="button" id="' + team[2].employeeList[emp].coreID + '" onclick="showMoreDetails(this)" value="' + team[2].employeeList[emp].coreID + '"/></td><td>';;
+            response[2] += "<tr><td>" + team[2].employeeList[emp].name + "</td><td>" + team[2].employeeList[emp].coreID+ "</td><td>" + team[2].employeeList[emp].total_points + '</td><td><input type="button" id="' + team[2].employeeList[emp].coreID + '" onclick="showMoreDetails(this)" value="View"/></td><td>';;
         }
         response[2] += "</tbody></table>";
       }
@@ -267,13 +370,10 @@ app.post('/addPoints', function(req, res) {
   var ACCOMPLISHMENT = req.body.ACCOMPLISHMENT;
   var DESCRIPTION = req.body.DESCRIPTION;
   var MANAGER = req.body.MANAGER;
-  console.log(CORE_ID + " " + ACCOMPLISHMENT + " " + DESCRIPTION + " " + MANAGER );
+  //console.log(CORE_ID + " " + ACCOMPLISHMENT + " " + DESCRIPTION + " " + MANAGER );
   if(CORE_ID != "" && ACCOMPLISHMENT != "" && DESCRIPTION != "" && MANAGER != "" && MANAGER != "Invalid ID"){
-    var activity = "INSERT INTO `activity` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
-    connection.query(activity, function(err, result) {
-      if (err) throw err;
-      //console.log("Inserted activity");
-    });
+    var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
+    executeQuery(activity);
 
     var newPoints;
     setTimeout(function(){
@@ -292,11 +392,17 @@ app.post('/addPoints', function(req, res) {
           all_people[emp].total_points += newPoints;
         }
       }
-      var points = "UPDATE `employees` SET `total_points` = `total_points` + " + newPoints  + " WHERE `coreID`=" + connection.escape(CORE_ID) + ";";
-      //console.log(points);
-      connection.query(points, function(err, result) {
+      var ID_Check = "SELECT `coreID` FROM `emp_points_" + connection.escape(periodID) + "` WHERE `coreID` = "  + connection.escape(CORE_ID);
+      connection.query(ID_Check, function(err, result) {
         if (err) throw err;
-        //console.log("SUCCESSFUL QUERY");
+        if(result.length == 0){
+          var newEmpPoints = "INSERT INTO `emp_points_" + connection.escape(periodID) + "` (`coreID`, `points`) VALUES (" + connection.escape(CORE_ID)+ ","+ newPoints +")";
+          executeQuery(newEmpPoints);
+        }
+        else{
+          var points = "UPDATE `emp_points_" + connection.escape(periodID) + "` SET `points`=`points` +" + newPoints;
+          executeQuery(points);
+        }
       });
     }, 700);
     res.send("");
@@ -321,53 +427,68 @@ app.post('/add_csv', function(req, res) {
       if (err) {
         console.log(err);
       } else {
+        var drop = "DROP TABLE employees_" + connection.escape(periodID);
         //Reset the table
-        var drop = "DROP TABLE IF EXISTS employees";
-        var create = "CREATE TABLE employees(coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
-        connection.query(drop, function(err, result) {
-          if (err) throw err;
-          //console.log("Dropped");
-        });
-        connection.query(create, function(err, result) {
-          if (err) throw err;
-          //console.log("Created");
-        });
+        var create = "CREATE TABLE employees_" + connection.escape(periodID) + "(coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
+        executeQuery(drop);
+        executeQuery(create);
         //Insert all data
         for(let index = 2; index < data.length; index++){
 
           //data[index][0] = data[index][0].replace(/[']/g,' ');
-          var insert = "INSERT INTO `employees` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES (" + connection.escape(data[index][0]) + "," +connection.escape(data[index][4]) + "," + connection.escape(data[index][6]) + "," + connection.escape(data[index][9]) + "," + 0 + ")";
+          var insert = "INSERT INTO `employees_" + connection.escape(periodID) + "` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES (" + connection.escape(data[index][0]) + "," +connection.escape(data[index][4]) + "," + connection.escape(data[index][6]) + "," + connection.escape(data[index][9]) + ","+ 0 +")";
 
-          connection.query(insert, function(err, row) {
-            if (err) throw err;
-            //console.log(index);
-          });
+          executeQuery(insert);
         }
-        //console.log("Done");
+        var refillPoints = "SELECT * FROM `emp_points_" + connection.escape(periodID) + "`";
+        connection.query(refillPoints, function(err, result) {
+          if (err) throw err;
+          for(emp in result){
+            var coreIDWithPoints = result[emp].coreID;
+            var thePoints = result[emp].points;
+
+            var updatePoints = "UPDATE `employees_" + connection.escape(periodID) + "` SET `total_points`=" + thePoints + " WHERE `coreID` = " + connection.escape(coreIDWithPoints);
+            executeQuery(updatePoints);
+          }
+        });
+
       }
+      setTimeout(function(){sortEmps();}, 4500);
+      setTimeout(function(){return res.redirect('/admin');}, 6010);
     });
   });
+
 });
 
-function sortEmps(){
 
+function getPeriodID(){
+  var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
+  connection.query(getCurrentPeriod, function(err, res) {
+    if (err) throw err;
+    console.log("Current Period " + res[0].periodID);
+    periodID = res[0].periodID;
+  });
+}
+
+function sortEmps(){
   //Getting faris from the database by his 'emp_name'
-  var get_faris = "SELECT * FROM `employees` WHERE `emp_name` = 'Habbaba, Mr. Faris S (Faris)'";
+  var get_faris = "SELECT * FROM `employees_" + connection.escape(periodID) + "` WHERE `emp_name` = 'Habbaba, Mr. Faris S (Faris)'";
+  faris = new Emp("","","","","0");
   connection.query(get_faris, function(err, res) {
 
     if (err) throw err;
-    faris.name=res[0].emp_name;
+    faris.name = res[0].emp_name;
     faris.coreID = res[0].coreID;
     faris.job = res[0].job;
     faris.supervisor = res[0].supervisor;
     faris.employeeList = [];
     faris.total_points = res[0].total_points;
-    //console.log(faris);
+    console.log(faris);
   });
 
   //Getting all the employees into a list(all_people)
-  var get_all = "SELECT * FROM `employees`";
-
+  var get_all = "SELECT * FROM `employees_" + connection.escape(periodID) + "`";
+  all_people = [];
   connection.query(get_all, function(err, res) {
     //console.log(res);
     if (err) throw err;
@@ -388,7 +509,7 @@ function sortEmps(){
 
   //AFTER WE GET THE DATA, PASS THIS TO A NEW FUNCTION
   //Getting the
-  setTimeout(function(){recurseList(faris,all_people);},3000);
+  setTimeout(function(){recurseList(faris,all_people);},2000);
   //Print The EMC Tree
   //setTimeout(function(){printTree(faris,0);},5000);
 
@@ -429,6 +550,7 @@ function printTree(person, currentTabs){
 }
 
 function findPersonByID(coreID, person, result){
+  //console.log(person);
   for(emp in person.employeeList){
     if(person.employeeList[emp].coreID === coreID){
       //console.log("Manager: " + person.name);
@@ -443,5 +565,6 @@ function findPersonByID(coreID, person, result){
   }
   return result;
 }
-sortEmps();
-printTree(faris, 0);
+
+getPeriodID();
+setTimeout(function(){sortEmps();},2000);
