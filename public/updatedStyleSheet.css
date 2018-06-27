@@ -60,6 +60,7 @@ tr:nth-child(even){background-color: #f2f2f2}
 th {
   width:100%;
   text-align: center;
+  border-top-color: #00c9ff;
   background-color: #333;
   color: white;
 }
