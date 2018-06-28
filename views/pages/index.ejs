@@ -4,7 +4,7 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <!-- Style Sheets -->
-    <link rel="stylesheet" href="/updatedStyleSheet.css"/>
+    <link rel="stylesheet" href="/stylesheet.css"/>
     <link rel="stylesheet" href="/bootstrap.css"/>
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -123,6 +123,9 @@
                 <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="employeeList">
 
                 </div>
+                <div id="pieChart">
+
+                </div>
                 <br>
                 <br><br>
               </form>
@@ -185,6 +188,18 @@
           document.getElementById("employeeList").innerHTML = "";
           document.getElementById("employeeList").style.visibility ="hidden";
         }
+
+        if(response[3] != null){
+          document.getElementById("pieChart").innerHTML = response[3];
+          document.getElementById("pieChart").style.visibility ="visible";
+        }
+        else{
+          document.getElementById("pieChart").innerHTML = "";
+          document.getElementById("pieChart").style.visibility ="hidden";
+        }
+
+
+
         btn.disabled = false;
       }
     });
