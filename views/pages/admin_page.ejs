@@ -26,7 +26,7 @@
     <br>
     <div style="width:100%; text-align:center;">
       <!--Center Piece with rounded edges -->
-      <div style="width:50%; margin:0 auto; border: #333 1px solid; border-radius:15px;">
+      <div style="width:56%; margin:0 auto; border: #333 1px solid; border-radius:15px;">
         <br>
         <!--Content Div with spacing from edges -->
         <div style="width:80%; margin:0 auto;">
@@ -38,9 +38,13 @@
             <li id="reset_points_tab" class="nav-item">
               <a class="nav-link" id="resetPoints-tab" data-toggle="tab" href="#reset_points" role="tab" aria-controls="resetPoints" aria-selected="false">Reset Innovation Points</a>
             </li>
+            <li>
+              <a class="nav-link" id="editAccomplishments-tab" data-toggle="tab" href="#edit_accomplishments" role="tab" aria-controls="editAccomplishments" aria-selected="false"> Edit Accomplishments </a>
+            </li>
             <li id="change_credentials_tab" class="nav-item">
               <a class="nav-link" id="changeCredentials-tab" data-toggle="tab" href="#change_credentials" role="tab" aria-controls="changeCredentials" aria-selected="false">Update Credentials</a>
             </li>
+
           </ul>
           <!-- Div containing the content -->
           <div class="tab-content" id="headerTabContent">
@@ -146,6 +150,42 @@
                   <br>
               </div>
             </div>
+
+            <div class="tab-pane fade" id="edit_accomplishments" role="tabpanel" aria-labelledby="editAccomplishments-tab" >
+              <div style="width:100%; margin:0 auto;">
+                <br>
+                <!-- Heading giving the user directions -->
+                <h5 style="color:#333; text-align:center;">Please enter the new accomlishment.</h5></br>
+                <!-- Creating the form for the user -->
+                  <div class="form-group row">
+                    <label for="currPassword" class="col-sm-4 col-form-label">Current Password</label>
+                    <div class="col-sm-8">
+                      <input type="password" class="form-control" id="currPassword" name="currPassword" placeholder="Current Password">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="newPassword" class="col-sm-4 col-form-label">New Password</label>
+                    <div class="col-sm-8">
+                      <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="New Password">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="repeatPassword" class="col-sm-4 col-form-label">Repeat New Password</label>
+                    <div class="col-sm-8">
+                      <input type="password" class="form-control" id="repeatPassword" name="repeatPassword" placeholder="Repeat New Password">
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <div class="col-sm-12">
+                      <!-- <input type="submit" onclick="changePass()" value="Change Pass"/> -->
+                      <button type="submit" class="btn btn-primary" onclick="changePass()">Change Password</button>
+                    </div>
+                  </div>
+                  <br>
+              </div>
+            </div>
+
+
           </div>
         </div>
       </div>

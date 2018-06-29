@@ -26,7 +26,10 @@ function Emp(name, coreID, job, supervisor, employeeList, total_points){
 
 //Defining Global Variables along with Constant Variables
 var all_people = [];
+var alllall_people = [];
+var pastPeriods = new Map();
 var logged_in = false;
+var tempfaris = [];
 var faris = new Emp("","","","","0");
 var periodID = null;
 const IMAGE_FOLDER = './images/'
@@ -77,24 +80,43 @@ function executeQuery(query){
 * Attempts to create various tables in the database if they don't currently exist. This relies on the PeriodID.
 */
 function initializeTables(){
-  var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
-  connection.query(getCurrentPeriod, function(err, result) {
-    periodID = result[0].periodID;
-    var activity = "CREATE TABLE IF NOT EXISTS activity_" + connection.escape(result[0].periodID) + "(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(25), accompID INT(3), activity_desc VARCHAR(2500))";
-    executeQuery(activity);
 
-    var points = "CREATE TABLE IF NOT EXISTS emp_points_" + connection.escape(result[0].periodID) + "(coreID VARCHAR(25), points INT(2))";
-    executeQuery(points);
+  var period = "CREATE TABLE IF NOT EXISTS period(periodID INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(25), startTime DATETIME, endTime DATETIME, currentPeriod BOOLEAN)";
+  executeQuery(period);
+  var firstPeriod = "SELECT * FROM `period`";
+  connection.query(firstPeriod, function(err, result) {
+    if(result.length == 0){
+      var makeFirstPeriod = "INSERT INTO `period` (`name`, `startTime`, `currentPeriod`) VALUES ('Initial Period', NOW(), TRUE)";
+        connection.query(makeFirstPeriod, function(err, result) {
+          var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
+          connection.query(getCurrentPeriod, function(err, result) {
+            periodID = result[0].periodID;
+            var activity = "CREATE TABLE IF NOT EXISTS activity_" + connection.escape(result[0].periodID) + "(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(50), accompID INT(3), activity_desc VARCHAR(2500))";
+            executeQuery(activity);
+
+            var points = "CREATE TABLE IF NOT EXISTS emp_points_" + connection.escape(result[0].periodID) + "(coreID VARCHAR(50), points INT(2))";
+            executeQuery(points);
+
+            var employees = "CREATE TABLE IF NOT EXISTS employees_" + connection.escape(result[0].periodID) + "(coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
+            executeQuery(employees);
+          });
+        });
+    }
   });
 
   var accomplishments = "CREATE TABLE IF NOT EXISTS accomplishment(accompID INT AUTO_INCREMENT PRIMARY KEY, description VARCHAR(2500), points INT(2))";
   executeQuery(accomplishments);
 
   var admin_login = "CREATE TABLE IF NOT EXISTS admin(username VARCHAR(25), password VARCHAR(100))";
-  executeQuery(admin_login);
+  connection.query(admin_login, function(err, result) {
+    if (err) throw err;
+    //Default account when the table is first created, it is recommended to update the password when you login.
+    var new_admin = "INSERT INTO `admin` (`username`, `password`) VALUES ('admin', 'sha1$5c533d80$1$5acc18ff74b44a3c9ac0308e78836e83a73eb9e0')";
+    executeQuery(new_admin);
+  });
 
-  var period = "CREATE TABLE IF NOT EXISTS period(periodID INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(25), startTime DATETIME, endTime DATETIME, currentPeriod BOOLEAN)";
-  executeQuery(period);
+
+
 }
 
 /**
@@ -121,26 +143,6 @@ function handleDisconnect() {
     }
   });
 }
-
-
-
-
-const output = require('d3node-output');
-const d3 = require('d3-node')().d3;
-const d3nPie = require('d3node-piechart');
-
-
-app.get('/outputTest', function(req, res) {
-  res.render('pages/output');
-});
-
-
-
-
-
-
-
-
 
 /**
 * Directs the user to the main application page. ~ index.ejs
@@ -182,10 +184,6 @@ app.get('/admin', function(req, res){
   } else {
     res.render('pages/admin_page');
   }
-});
-
-app.get('/graph', function(req, res) {
-  res.render("pages/graph");
 });
 
 /**
@@ -272,7 +270,12 @@ app.post('/resetTables', function(req,res){
     executeQuery(newPeriodTable);
 
     periodID += 1;
-    initializeTables();
+
+    var activity = "CREATE TABLE IF NOT EXISTS activity_" + connection.escape(periodID) + "(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(50), accompID INT(3), activity_desc VARCHAR(2500))";
+    executeQuery(activity);
+
+    var points = "CREATE TABLE IF NOT EXISTS emp_points_" + connection.escape(periodID) + "(coreID VARCHAR(50), points INT(2))";
+    executeQuery(points);
 
     var employees = "CREATE TABLE `employees_" + connection.escape(periodID) +"` AS SELECT * FROM `employees_" + connection.escape(periodID-1) + "`";
     connection.query(employees, function(err, result) {
@@ -280,7 +283,7 @@ app.post('/resetTables', function(req,res){
       var zeroPoints = "UPDATE `employees_" +connection.escape(periodID) +"` SET `total_points`=" + 0;
       connection.query(zeroPoints, function(err, result) {
         if (err) throw err;
-        sortEmps();
+        sortsortEmps();
         res.send("Success");
       });
     });
@@ -329,8 +332,8 @@ app.post('/add_csv', function(req, res) {
           }
         });
       }
-      setTimeout(function(){sortEmps();}, 4500);
-      setTimeout(function(){return res.redirect('/admin');}, 6010);
+      setTimeout(function(){sortsortEmps(periodID);}, 4500);
+      setTimeout(function(){return res.redirect('/');}, 6010);
     });
   });
 
@@ -340,7 +343,7 @@ app.post('/add_csv', function(req, res) {
 */
 app.post('/findManager', function(req, res){
   var coreID = req.body.CORE_ID;
-  var employee = findPersonByID(coreID, faris, []);
+  var employee = findPersonByID(coreID, alllfaris[periodID], []);
   if(employee[0] != null){
     res.send(employee[0].name);
   } else{
@@ -348,12 +351,25 @@ app.post('/findManager', function(req, res){
   }
 });
 
+app.post('/getPeriods', function(req, res){
+  var theOptions = "";
+  for (var [key,value] of pastPeriods) {
+    //<option value="1">Choose your Acomplisment</option>
+    theOptions += "<option value='" + key + "'>" + value +"</option>";
+  }
+  console.log(pastPeriods);
+  console.log(theOptions);
+  res.send(theOptions);
+});
+
 app.post('/viewPoints', function(req, res) {
   var empID = req.body.CORE_ID;
+  var thePeriod = req.body.PERIOD;
+  console.log(thePeriod)
   var personAccomps = [];
 
   var results = [];
-  var query = "SELECT * FROM `activity_" + connection.escape(periodID) + "` WHERE coreID="+ connection.escape(empID);
+  var query = "SELECT * FROM `activity_" + thePeriod + "` WHERE coreID="+ connection.escape(empID);
   connection.query(query, function(err, accomplish) {
     if (err) throw err;
     for(accomplishmentTemp in accomplish)
@@ -369,7 +385,8 @@ app.post('/viewPoints', function(req, res) {
     response[1] = null;
     response[2] = null;
     response[3] = null;
-    var team = findPersonByID(empID, faris, []);
+    response[4] = null;
+    var team = findPersonByID(empID, alllfaris[thePeriod], []);
 
     if(team[0] != null){
       response[0] = "<table><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><h4>Your Accomplishments</h4><tbody><tr><th style='text-align: center;'>Accomplishment</th><th style='text-align: center; word-break:break-all;'>Description</th><th style='text-align:center; width:25%;'>Points</th></tr>";
@@ -400,18 +417,17 @@ app.post('/viewPoints', function(req, res) {
       if(team[2].employeeList.length > 0){
         response[2] = "<h4>Your Employees</h4><table width='100%' style='margin:0px; padding: 0;'><tbody><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr>";
 
-        var pieString = "label,value\n";
         var needed = team[2].employeeList.length * REQUIREDPOINTS;
         var total = 0;
 
         for(emp in team[2].employeeList){
           var theEmp2 = team[2].employeeList[emp];
-          if(theEmp2.total_points <= 8)
+          if(theEmp2.total_points <= REQUIREDPOINTS)
           {
             total += theEmp2.total_points;
           }
           else {
-            total += 8;
+            total += REQUIREDPOINTS;
           }
           if(theEmp2.total_points >= REQUIREDPOINTS){
             response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#46EF62;'>" + theEmp2.total_points + '</td><td><input type="button" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" value="View"/></td>';
@@ -421,21 +437,9 @@ app.post('/viewPoints', function(req, res) {
           }
         }
         var incomplete = needed - total;
-        console.log(incomplete + " "  + total);
-        if(incomplete != 0)
-        {
-          pieString += "Incomplete-" + incomplete + "," + incomplete + "\n";
-        }
-        if(total != 0){
-          pieString += "Complete-"+total +"," + total + "\n";
-        }
-        console.log(pieString)
-        var data = d3.csvParse(pieString);
-        console.log(data);
-        var style = ".arc text {font: 20px sans-serif; text-anchor:middle; margin:auto;}.arc path {stroke: #fff;}";
-        output('public/piCharts/output'+empID, d3nPie({ data: data, style: style}));
         response[2] += "</tbody></table>";
-        response[3] = "<img src='piCharts/output"+empID+".svg' alt='Pie Chart'/>";
+        response[3] = incomplete;
+        response[4] = total;
       }
     }
     else{
@@ -443,6 +447,9 @@ app.post('/viewPoints', function(req, res) {
       response[1] = null;
       response[2] = null;
       response[3] = null;
+      response[4] = null;
+      response[5] = null;
+      response[6] = null;
     }
       res.send(response);
   },700);
@@ -465,8 +472,8 @@ app.post('/addPoints', function(req, res) {
       });
     },500);
     setTimeout(function(){
-      for(emp in all_people){
-        if(all_people[emp].coreID === CORE_ID){ all_people[emp].total_points += newPoints; }
+      for(emp in alllall_people[periodID]){
+        if((alllall_people[periodID])[emp].coreID === CORE_ID){ (alllall_people[periodID])[emp].total_points += newPoints; }
       }
       var ID_Check = "SELECT `coreID` FROM `emp_points_" + connection.escape(periodID) + "` WHERE `coreID` = "  + connection.escape(CORE_ID);
       connection.query(ID_Check, function(err, result) {
@@ -521,12 +528,14 @@ function sortEmps(){
   faris = new Emp("","","","","0");
   connection.query(get_faris, function(err, res) {
     if (err) throw err;
-    faris.name = res[0].emp_name;
-    faris.coreID = res[0].coreID;
-    faris.job = res[0].job;
-    faris.supervisor = res[0].supervisor;
-    faris.employeeList = [];
-    faris.total_points = res[0].total_points;
+    if(res.length != 0){
+      faris.name = res[0].emp_name;
+      faris.coreID = res[0].coreID;
+      faris.job = res[0].job;
+      faris.supervisor = res[0].supervisor;
+      faris.employeeList = [];
+      faris.total_points = res[0].total_points;
+    }
   });
 
   //Getting all the employees into a list(all_people)
@@ -556,13 +565,13 @@ function printFaris(faris){
   printTree(faris, 0);
 }
 
-function recurseList(person, all_people){
-  for(val in all_people)
+function recurseList(person,thePeople){
+  for(val in thePeople)
   {
-    if(all_people[val].supervisor === person.name)
+    if(thePeople[val].supervisor === person.name)
     {
-      person.employeeList.push(all_people[val]);
-      recurseList(all_people[val], all_people);
+      person.employeeList.push(thePeople[val]);
+      recurseList(thePeople[val], thePeople);
 
     }
   }
@@ -596,11 +605,72 @@ function findPersonByID(coreID, person, result){
   return result;
 }
 
+function getAllPeriods(){
+  var getThePeriods = "SELECT * FROM `period`";
+  connection.query(getThePeriods, function(req, res){
+    if(res.length != 0){
+      for(var i = res.length-1; i >= 0; i--){
+        pastPeriods.set(res[i].periodID, res[i].name);
+      }
+    }
+  });
+}
+
+function sortsortEmps(tempPeriod){
+  //Getting faris from the database by his 'emp_name'
+  var get_faris = "SELECT * FROM `employees_" + connection.escape(tempPeriod) + "` WHERE `emp_name` = 'Habbaba, Mr. Faris S (Faris)'";
+  var tempfaris = new Emp("","","","","0");
+  connection.query(get_faris, function(err, res) {
+    if (err) throw err;
+    if(res.length != 0){
+      tempfaris.name = res[0].emp_name;
+      tempfaris.coreID = res[0].coreID;
+      tempfaris.job = res[0].job;
+      tempfaris.supervisor = res[0].supervisor;
+      tempfaris.employeeList = [];
+      tempfaris.total_points = res[0].total_points;
+    }
+  });
+
+  //Getting all the employees into a list(all_people)
+  var get_all = "SELECT * FROM `employees_" + connection.escape(tempPeriod) + "`";
+  var tempall_people = [];
+  connection.query(get_all, function(err, res) {
+    if (err) throw err;
+    for (var i in res) {
+      //Make a new employee using their information
+      var person = new Emp("","","","");
+      person.name=res[i].emp_name;
+      person.coreID = res[i].coreID;
+      person.job = res[i].job;
+      person.supervisor = res[i].supervisor;
+      person.employeeList = [];
+      person.total_points = res[i].total_points;
+      //Push this to the list of all all_people
+      tempall_people.push(person);
+    }
+  });
+  setTimeout(function(){recurseList(tempfaris,tempall_people); },2000);
+  setTimeout(function(){
+    alllall_people[tempPeriod] = tempall_people;
+    alllfaris[tempPeriod] = tempfaris;
+  },3000);
+}
+
+function getAllPeoplePeriods(){
+  alllall_people = [];
+  alllfaris = [];
+  for(var key of pastPeriods.keys()){
+    sortsortEmps(key);
+  }
+}
+
 function startApplication(){
   handleDisconnect();
 
-  getPeriodID();
-  setTimeout(function(){sortEmps();},2000);
+  setTimeout(function(){getPeriodID();}, 2000);
+  setTimeout(function(){getAllPeriods();}, 3500);
+  setTimeout(function(){getAllPeoplePeriods();}, 4000);
 }
 
 var server = app.listen(3005, "localhost", function() {

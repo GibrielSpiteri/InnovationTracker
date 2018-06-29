@@ -107,6 +107,10 @@
                   <h4 style="display:block; margin:auto; color:#333;">Core ID:</h4>
                   <h4 style="display:block; color:#333; margin:auto;">
                     <input id="core_id_view" type="text" name="core_id"/>
+                    <h4 style="display:block; color:#333; margin:auto;">Past Years</h4>
+                    <select style="color:#333; margin:auto;" id="periods">
+
+                    </select>
                   </h4>
                 </div>
                 <!-- <form action="viewByID" method="get"> -->
@@ -120,17 +124,34 @@
                 <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="groupList">
 
                 </div>
-                <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="employeeList">
+                <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="employeeList" onClick="chart()">
 
                 </div>
-                <div id="pieChart">
+                <br>
+                <button style="visibility: hidden;" type="Button" class="btn btn-info" data-toggle="modal" data-target="#myChart" id="chartDisplayButton">Display Chart</button>
+                <!-- Modal -->
+                <div class="modal fade" id="myChart" role="dialog">
+                  <div class="modal-dialog">
 
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Below is the graph representing your employees progress.</h4>
+                      </div>
+                      <div class="modal-body">
+                        <div id="pieChart" style="height: 0; width: 100%; visibility:hidden;">
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
+
                 <br>
                 <br><br>
               </form>
             </div>
-
           </div>
         </div>
       </div>
@@ -162,10 +183,14 @@
     var btn = document.getElementById("viewPointButton");
     btn.disabled = true;
     var core_id = document.getElementById("core_id_view").value;
+    var period = document.getElementById("periods").value;
+    console.log(period);
     $.ajax({
       type: "POST",
       url: "/viewPoints",
-      data: { "CORE_ID": core_id },
+      data: { "CORE_ID": core_id,
+              "PERIOD": period
+      },
       cache: false,
       success: function(response){
         document.getElementById("userTable").innerHTML = response[0];
@@ -188,14 +213,38 @@
           document.getElementById("employeeList").innerHTML = "";
           document.getElementById("employeeList").style.visibility ="hidden";
         }
-
-        if(response[3] != null){
-          document.getElementById("pieChart").innerHTML = response[3];
+        var total = null;
+        var incomplete = null;
+        if(response[3] != null && response[4] != null){
+          //console.log("IN CHART");
+          var incomplete = {y: response[3], label: "Points Needed: "};
+          var total = {y: response[4], label: "Completed Points: "};
+          var chart = new CanvasJS.Chart("pieChart", {
+          	animationEnabled: true,
+          	title: {
+          		text: "Your Employees Progression"
+          	},
+          	data: [{
+          		type: "pie",
+          		startAngle: 240,
+          		yValueFormatString: "##0 Points",
+          		indexLabel: "{label} {y}",
+          		dataPoints: [
+                incomplete,
+			          total
+          		]
+          	}]
+          });
+          chart.render();
+          document.getElementById("chartDisplayButton").style.visibility ="visible";
           document.getElementById("pieChart").style.visibility ="visible";
+          document.getElementById("pieChart").style.height ="400px";
         }
         else{
+          document.getElementById("chartDisplayButton").style.visibility ="hidden";
           document.getElementById("pieChart").innerHTML = "";
           document.getElementById("pieChart").style.visibility ="hidden";
+          document.getElementById("pieChart").style.height ="0px";
         }
 
 
@@ -244,5 +293,18 @@
     document.getElementById("core_id_view").value = id;
     document.getElementById("viewPointButton").click();
   }
+
+  window.onload = function(){
+    console.log("window load");
+    $.ajax({
+      type: "POST",
+      url: "/getPeriods",
+      cache: false,
+      success: function(response){
+        document.getElementById("periods").innerHTML = response;
+      }
+    });
+  }
   </script>
+  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 </html>
