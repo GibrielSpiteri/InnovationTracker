@@ -92,3 +92,17 @@ h4{
     padding: 6px 12px;
     cursor: pointer;
 }
+
+#myProgress {
+  width: 100%;
+  background-color: #333;
+}
+
+#myBar {
+  width: 0%;
+  height: 30px;
+  background-color: #d8d415;
+  text-align: center;
+  line-height: 30px;
+  color: white;
+}

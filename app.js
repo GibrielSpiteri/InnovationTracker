@@ -333,7 +333,7 @@ app.post('/add_csv', function(req, res) {
         });
       }
       setTimeout(function(){sortsortEmps(periodID);}, 4500);
-      setTimeout(function(){return res.redirect('/');}, 6010);
+      setTimeout(function(){return res.redirect('/admin');}, 6010);
     });
   });
 

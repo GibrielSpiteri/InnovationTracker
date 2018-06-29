@@ -10,17 +10,20 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
-
-  <header class="header">
+  <div id="myProgress">
+    <div style="height:2px;" id="myBar"></div>
+  </div>
+  <header class="header" style="background-color:#333;">
     <div class=frame>
       <span class="helper"></span><img srcset="/updatedZebra.png" alt="null"/>
     </div>
     <div class="header_text">
-      <h1 class="header_h1">Innovation Tracker</h1>
+      <h1 class="header_h1" style="color:#ffffff;">Innovation Tracker</h1>
     </div>
   </header>
 
   <body>
+    <div style="background-color:#878783 ; height:2px;"></div>
     <br>
     <br>
     <div style="width:100%; text-align:center;">
@@ -161,13 +164,25 @@
   <script>
   var typingTimer;                //timer identifier
   var doneTypingInterval = 500;  //time in ms
-  $('#core_id').keyup(function(){
+  $('#core_id').focusout(function(){
     clearTimeout(typingTimer);
     if($('#core_id').val()){
       typingTimer = setTimeout(findManager, doneTypingInterval);
     }
   });
   function findManager(){
+    var elem = document.getElementById("myBar");
+    var width = 0;
+    var id = setInterval(frame, 0);
+    function frame() {
+      if (width >= 100) {
+        clearInterval(id);
+        elem.style.width = "0%";
+      } else {
+        width++;
+        elem.style.width = width + '%';
+      }
+    }
     var core_id = document.getElementById("core_id").value;
     $.ajax({
       type: "POST",
