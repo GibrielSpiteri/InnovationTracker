@@ -4,8 +4,8 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <!-- Style Sheets -->
-    <link rel="stylesheet" href="../../public/stylesheet.css"/>
-    <link rel="stylesheet" href="../../public/bootstrap.css"/>
+    <link rel="stylesheet" href="/stylesheet.css"/>
+    <link rel="stylesheet" href="/bootstrap.css"/>
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -15,7 +15,7 @@
   </div>
   <header class="header" style="background-color:#333;">
     <div class=frame>
-      <span class="helper"></span><img srcset="../../public/updatedZebra.png" alt="null"/>
+      <span class="helper"></span><img srcset="/updatedZebra.png" alt="null"/>
     </div>
     <div class="header_text">
       <h1 class="header_h1" style="color:#ffffff;">Innovation Tracker</h1>
@@ -113,27 +113,28 @@
             <!-- View Points tab content tab -->
             <div class="tab-pane fade" id="view_points" role="tabpanel" aria-labelledby="viewPoints-tab">
               <br>
-              <!-- <form>
+              <form>
                 <div style="text-align:center;" id="core_id_input">
-                  <h4 style="display:block; margin:auto; color:#333;">Core ID:</h4>
+                  <!-- <h4 style="display:block; margin:auto; color:#333;">Core ID:</h4> -->
                   <h4 style="display:block; color:#333; margin:auto;">
-                    <input id="core_id_view" type="text" name="core_id"/><input style="color:#333;" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/>
+                    <!-- <input id="core_id_view" type="text" name="core_id"/><input style="color:#333;" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/> -->
                     <h4 style="display:block; color:#333; margin:auto;">Past Years</h4>
                     <select style="color:#333; margin:auto;" id="periods">
                     </select>
                   </h4>
                 </div>
-              </br> -->
+              </br>
             <form style="color:#333; text-align:left;" id="form" value="form">
               <div class="form-row">
-                <div class="form-group col-md-6">
-                  <label for="core_id">Core ID:</label>
-                  <input type="text" class="form-control" id="core_id" name="core_id">
+                <div class="input-group" style="">
+                  <label for="core_id_view">Core ID:</label>
+                  <input type="text" class="form-control" id="core_id_view" name="core_id_view">
+                  <label for="viewPointButton" style="visibility:hidden;">Submit Button</label>
+                  <input style="color:#333;" class="form-control btn btn-warning" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/>
                 </div>
                 <div class="form-group col-md-2"></div>
                 <div class="form-group col-md-2">
-                  <label for="viewPointButton" style="visibility:hidden;">Submit Button</label>
-                  <input style="color:#333;" class="form-control btn btn-warning" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/>
+
                 </div>
               </div>
 
