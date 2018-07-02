@@ -1,4 +1,4 @@
-<html lang="en">
+<html lang="en" style="overflow-y: scroll;">
 
   <head>
     <meta charset="utf-8"/>
@@ -11,11 +11,11 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <div id="myProgress">
-    <div style="height:2px;" id="myBar"></div>
+    <div style="height:3px;" id="myBar"></div>
   </div>
-  <header class="header" style="background-color:#333;">
+  <header class="header" style="background-color:#333E47;">
     <div class=frame>
-      <span class="helper"></span><img srcset="/updatedZebra.png" alt="null"/>
+      <span class="logoImg"></span><img srcset="/zebra.png" alt="logo"/>
     </div>
     <div class="header_text">
       <h1 class="header_h1" style="color:#ffffff;">Innovation Tracker</h1>
@@ -28,10 +28,10 @@
     <br>
     <div style="width:100%; text-align:center;">
       <!--Center Piece with rounded edges -->
-      <div style="width:50%; margin:0 auto; border: #333 1px solid; border-radius:15px;">
+      <div style="width:50%; margin:auto; border: #333E47 1px solid; border-radius:15px;">
         <br>
         <!--Content Div with spacing from edges -->
-        <div style="width:80%; margin:0 auto;">
+        <div style="width:80%; margin:auto;">
           <!--Unorderd list of header tabs -->
           <ul class="nav nav-tabs" id="headerTabs" role="tablist">
             <!-- Add Points Tab -->
@@ -49,7 +49,6 @@
             <div class="tab-pane fade active in " id="add_points" role="tabpanel" aria-labelledby="addPoints-tab" >
               <div style="width:100%; margin:0 auto;">
                 <br>
-                <form style="color:#333; text-align:left;" id="form" value="form">
                   <div class="form-row">
                     <div class="form-group col-md-6">
                       <label for="core_id">Core ID:</label>
@@ -100,55 +99,54 @@
                   </div>
                   <div class="form-row">
                     <div class="form-group col-md-12">
-                      <label for="description">Description</label>
-                      <textarea style="resize:none;" class="form-control" id="description" name="description" rows="3" maxlength="300"></textarea>
+                      <label for="desc">Description</label>
+                      <textarea style="resize:none;" class="form-control" id="desc" name="desc" rows="3" maxlength="300"></textarea>
                     </div>
                   </div>
                   <div style="text-align:center;">
-                    <button type="submit" class="btn btn-warning">Submit</button>
+                    <input type="submit" onclick="addPoints()" class="btn btn-warning"></input>
                   </div>
-                </form>
               </div>
             </div>
             <!-- View Points tab content tab -->
             <div class="tab-pane fade" id="view_points" role="tabpanel" aria-labelledby="viewPoints-tab">
               <br>
-              <form>
+              <!-- <form>
                 <div style="text-align:center;" id="core_id_input">
-                  <!-- <h4 style="display:block; margin:auto; color:#333;">Core ID:</h4> -->
+                  <h4 style="display:block; margin:auto; color:#333;">Core ID:</h4>
                   <h4 style="display:block; color:#333; margin:auto;">
-                    <!-- <input id="core_id_view" type="text" name="core_id"/><input style="color:#333;" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/> -->
+                    <input id="core_id_view" type="text" name="core_id"/><input style="color:#333;" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/>
                     <h4 style="display:block; color:#333; margin:auto;">Past Years</h4>
                     <select style="color:#333; margin:auto;" id="periods">
                     </select>
                   </h4>
-                </div>
+                </div> -->
               </br>
-            <form style="color:#333; text-align:left;" id="form" value="form">
               <div class="form-row">
-                <div class="input-group" style="">
+                <div class="form-group col-md-6">
                   <label for="core_id_view">Core ID:</label>
                   <input type="text" class="form-control" id="core_id_view" name="core_id_view">
-                  <label for="viewPointButton" style="visibility:hidden;">Submit Button</label>
-                  <input style="color:#333;" class="form-control btn btn-warning" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/>
                 </div>
                 <div class="form-group col-md-2"></div>
                 <div class="form-group col-md-2">
-<<<<<<< HEAD
-
-=======
                   <label for="viewPointButton" style="visibility:hidden;">Submit Button</label>
-                  <button class="btn btn-primary" onclick="viewPoints()" id="viewPointButton" type="submit">Submit form</button>
+                  <a class="btn btn-warning" onclick="viewPoints()" id="viewPointButton" type="submit">Submit form</a>
                   <!-- <input style="color:#333;" class="form-control btn btn-warning" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/> -->
                 </div>
+                <div class="form-group col-md-2"></div>
               </div>
               <div class="form-row">
                 <div class="form-group col-md-6">
                   <label for="periods">Choose a period:</label>
                   <select class="form-control" id="periods" name="periods"></select>
->>>>>>> 8396f4904129b16ff14992a2d2ee8e08f653e960
+                </div>
+                <div class="form-group col-md-6">
+
                 </div>
               </div>
+              <br><br><br>
+              <br><br><br>
+              <br><br><br>
 
               <div id="accordion">
                 <div class="card">
@@ -161,7 +159,7 @@
                   </div>
 
                   <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
-                    <div class="card-body" style="visibility: hidden; border:#333 1px solid;" id="userTable">
+                    <div class="card-body" style="visibility: hidden; border:#333 1px solid; text-align:center;" id="userTable">
                       <!-- <div class="raisedBox" >
 
                       </div> -->
@@ -194,7 +192,7 @@
                   </div>
                   <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
                     <div class="card-body">
-                      <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="employeeList" onClick="chart()">
+                      <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="employeeList">
 
                       </div>
                       <button style="visibility: hidden;" type="Button" class="btn btn-info" data-toggle="modal" data-target="#myChart" id="chartDisplayButton">Display Chart</button>
@@ -229,7 +227,6 @@
 
                 <br>
                 <br><br>
-              </form>
             </div>
           </div>
         </div>
@@ -287,7 +284,24 @@
         document.getElementById("userTable").innerHTML = response[0];
         document.getElementById("userTable").style.visibility ="visible";
         document.getElementById("btnCollapseOne").style.visibility ="visible";
-        document.getElementById("btnCollapseOne").click();
+
+        document.getElementById("collapseOne").style = "";
+
+        $("#btnCollapseOne").attr("aria-expanded","true");
+        $("#btnCollapseOne").removeClass("collapsed");
+        $("#collapseOne").addClass("in");
+        $("#collapseOne").attr("aria-expanded","true");
+
+        $("#btnCollapseTwo").attr("aria-expanded","false");
+        $("#btnCollapseTwo").addClass("collapsed");
+        $("#collapseTwo").removeClass("in");
+        $("#collapseTwo").attr("aria-expanded","false");
+
+        $("#btnCollapseThree").attr("aria-expanded","false");
+        $("#btnCollapseThree").addClass("collapsed");
+        $("#collapseThree").removeClass("in");
+        $("#collapseThree").attr("aria-expanded","false");
+
         if(response[1] != null){
           document.getElementById("groupList").innerHTML = response[1];
           document.getElementById("groupList").style.visibility ="visible";
