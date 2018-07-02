@@ -4,8 +4,8 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <!-- Style Sheets -->
-    <link rel="stylesheet" href="/stylesheet.css"/>
-    <link rel="stylesheet" href="/bootstrap.css"/>
+    <link rel="stylesheet" href="../../public/stylesheet.css"/>
+    <link rel="stylesheet" href="../../public/bootstrap.css"/>
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -15,7 +15,7 @@
   </div>
   <header class="header" style="background-color:#333;">
     <div class=frame>
-      <span class="helper"></span><img srcset="/updatedZebra.png" alt="null"/>
+      <span class="helper"></span><img srcset="../../public/updatedZebra.png" alt="null"/>
     </div>
     <div class="header_text">
       <h1 class="header_h1" style="color:#ffffff;">Innovation Tracker</h1>
@@ -49,22 +49,31 @@
             <div class="tab-pane fade active in " id="add_points" role="tabpanel" aria-labelledby="addPoints-tab" >
               <div style="width:100%; margin:0 auto;">
                 <br>
-                <!-- Heading giving the user directions -->
-                <h5 style="color:#333; text-align:center;">Complete the fields below and press "Submit" to update your innovation score.</h5></br>
-                <!-- Creating the form for the user -->
-                <form id="form" value="form">
-                  <div style="text-align: right;" id="core_id_input">
-                    <h4 style="display:block; margin: auto; color:#333;">Core ID:</h4></br>
-                    <h4 style="display:block; color:#333; margin: auto;"><input style="width:300px;" id="core_id" type="text" name="core_id"></input></h4></br>
+                <form style="color:#333; text-align:left;" id="form" value="form">
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="core_id">Core ID:</label>
+                      <input type="text" class="form-control" id="core_id" name="core_id">
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="name">Name:</label>
+                      <input type="text" class="form-control" id="name" name="name" readonly>
+                    </div>
                   </div>
-                  <div style="text-align: right;" id="manager_field">
-                    <h4 style="display:block; margin:auto; color:#333;">Manager:</h4></br>
-                    <h4 style="display:block; color:#333; margin: auto;"><input readonly style="width:300px;" id="manager" type="text" name="manager"></input></h4></br>
+                  <div class="form-row">
+                    <div class="form-group col-md-6">
+                      <label for="manager">Manager:</label>
+                      <input type="text" class="form-control" id="manager" name="manager" readonly>
+                    </div>
+                    <div class="form-group col-md-6">
+                      <label for="name">Location:</label>
+                      <input type="text" class="form-control" id="location" name="location" readonly>
+                    </div>
                   </div>
-                  <div style="text-align: center;" id="accomplishment_input">
-                    <h4 style="display:block; margin:auto; color:#333;">Select Accomplishment: </h4></br>
-                    <h5 style="display:block; margin:auto; color:#333;">
-                      <select style="color:#333; display:block; margin:auto;" id="accomplishment">
+                  <div class="form-row">
+                    <div class="form-group col-md-12">
+                      <label for="accomplishment">Select an Accomplishment</label>
+                      <select class="form-control" id="accomplishment" name="accomplishment">
                         <option value="1">Choose your Acomplisment</option>
                         <option value="2">Identify a meaningful problem that needs a solution (1)</option>
                         <option value="3">Identify a new product feature for the backlog (1)</option>
@@ -86,18 +95,18 @@
                         <option value="19">Submit a peer reviewed IP disclosure (4)</option>
                         <option value="20">Patent Committee decides to "pursue" your submission - Phase 2 (4)</option>
                         <option value="21">[CUSTOM]</option>
-                    </select>
-                  </h5></br>
-                </div>
-                <div style="text-align: center;" id="description_input">
-                  <h4 style="display:block; margin:auto; color:#333;">Accomplishment Description: </h4>
-                  <h5 style="color:#333;">
-                    <textarea id="desc" name="description" rows="6" cols="68" style="resize:vertical;"></textarea>
-                  </h4>
-                </div>
-                <br>
-                <input style="color:#333; display:block; margin:auto;" onclick="addPoints()" type="button" value="Submit"></input>
-                <br><br>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group col-md-12">
+                      <label for="description">Description</label>
+                      <textarea style="resize:none;" class="form-control" id="description" name="description" rows="3" maxlength="300"></textarea>
+                    </div>
+                  </div>
+                  <div style="text-align:center;">
+                    <button type="submit" class="btn btn-warning">Submit</button>
+                  </div>
                 </form>
               </div>
             </div>
@@ -112,7 +121,6 @@
                     <input id="core_id_view" type="text" name="core_id"/>
                     <h4 style="display:block; color:#333; margin:auto;">Past Years</h4>
                     <select style="color:#333; margin:auto;" id="periods">
-
                     </select>
                   </h4>
                 </div>
