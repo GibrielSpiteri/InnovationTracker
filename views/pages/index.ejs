@@ -53,7 +53,7 @@
                 <h5 style="color:#333; text-align:center;">Complete the fields below and press "Submit" to update your innovation score.</h5></br>
                 <!-- Creating the form for the user -->
                 <form id="form" value="form">
-                  <div style="text-align: right;" id="core_id_input">
+                  <div style="" id="core_id_input">
                     <h4 style="display:block; margin: auto; color:#333;">Core ID:</h4></br>
                     <h4 style="display:block; color:#333; margin: auto;"><input style="width:300px;" id="core_id" type="text" name="core_id"></input></h4></br>
                   </div>
@@ -109,47 +109,91 @@
                 <div style="text-align:center;" id="core_id_input">
                   <h4 style="display:block; margin:auto; color:#333;">Core ID:</h4>
                   <h4 style="display:block; color:#333; margin:auto;">
-                    <input id="core_id_view" type="text" name="core_id"/>
+                    <input id="core_id_view" type="text" name="core_id"/><input style="color:#333;" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/>
                     <h4 style="display:block; color:#333; margin:auto;">Past Years</h4>
                     <select style="color:#333; margin:auto;" id="periods">
 
                     </select>
                   </h4>
                 </div>
-                <!-- <form action="viewByID" method="get"> -->
-                  <input style="color:#333;" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/>
-                <!-- </form> -->
               </br>
-                <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="userTable">
 
+              <div id="accordion">
+                <div class="card">
+                  <div class="card-header" id="headingOne">
+                    <h5 class="mb-0">
+                      <a class="btn btn-link" id="btnCollapseOne" style="visibility: hidden;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                        Your Accomplishments
+                      </a>
+                    </h5>
+                  </div>
+
+                  <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                    <div class="card-body" style="visibility: hidden; border:#333 1px solid;" id="userTable">
+                      <!-- <div class="raisedBox" >
+
+                      </div> -->
+                    </div>
+                  </div>
                 </div>
+                <div class="card">
+                  <div class="card-header" id="headingTwo">
+                    <h5 class="mb-0">
+                      <a class="btn btn-link collapsed" id="btnCollapseTwo" style="visibility: hidden;" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Your Group
+                      </a>
+                    </h5>
+                  </div>
+                  <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+                    <div class="card-body">
+                      <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="groupList">
 
-                <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="groupList">
-
-                </div>
-                <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="employeeList" onClick="chart()">
-
-                </div>
-                <br>
-                <button style="visibility: hidden;" type="Button" class="btn btn-info" data-toggle="modal" data-target="#myChart" id="chartDisplayButton">Display Chart</button>
-                <!-- Modal -->
-                <div class="modal fade" id="myChart" role="dialog">
-                  <div class="modal-dialog">
-
-                    <!-- Modal content-->
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title">Below is the graph representing your employees progress.</h4>
                       </div>
-                      <div class="modal-body">
-                        <div id="pieChart" style="height: 0; width: 100%; visibility:hidden;">
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="headingThree">
+                    <h5 class="mb-0">
+                      <a class="btn btn-link collapsed" id="btnCollapseThree" style="visibility: hidden;" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Your Employees
+                      </a>
+                    </h5>
+                  </div>
+                  <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+                    <div class="card-body">
+                      <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="employeeList" onClick="chart()">
+
+                      </div>
+                      <button style="visibility: hidden;" type="Button" class="btn btn-info" data-toggle="modal" data-target="#myChart" id="chartDisplayButton">Display Chart</button>
+                      <!-- Modal -->
+                      <div class="modal fade" id="myChart" role="dialog">
+                        <div class="modal-dialog">
+
+                          <!-- Modal content-->
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                              <h4 class="modal-title">Below is the graph representing your employees progress.</h4>
+                            </div>
+                            <div class="modal-body">
+                              <div id="pieChart" style="height: 0; width: 100%; visibility:hidden;">
+                              </div>
+                            </div>
+                          </div>
+
                         </div>
                       </div>
                     </div>
-
                   </div>
                 </div>
+              </div>
+
+
+
+
+                <br>
+
 
                 <br>
                 <br><br>
@@ -210,23 +254,28 @@
       success: function(response){
         document.getElementById("userTable").innerHTML = response[0];
         document.getElementById("userTable").style.visibility ="visible";
-
+        document.getElementById("btnCollapseOne").style.visibility ="visible";
+        document.getElementById("btnCollapseOne").click();
         if(response[1] != null){
           document.getElementById("groupList").innerHTML = response[1];
           document.getElementById("groupList").style.visibility ="visible";
+          document.getElementById("btnCollapseTwo").style.visibility ="visible";
         }
         else{
           document.getElementById("groupList").innerHTML = "";
           document.getElementById("groupList").style.visibility ="hidden";
+          document.getElementById("btnCollapseTwo").style.visibility ="hidden";
         }
 
         if(response[2] != null){
           document.getElementById("employeeList").innerHTML = response[2];
           document.getElementById("employeeList").style.visibility ="visible";
+          document.getElementById("btnCollapseThree").style.visibility ="visible";
         }
         else{
           document.getElementById("employeeList").innerHTML = "";
           document.getElementById("employeeList").style.visibility ="hidden";
+          document.getElementById("btnCollapseThree").style.visibility ="hidden";
         }
         var total = null;
         var incomplete = null;
