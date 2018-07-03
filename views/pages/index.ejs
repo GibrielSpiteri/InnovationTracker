@@ -4,8 +4,8 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <!-- Style Sheets -->
-    <link rel="stylesheet" href="../../public/stylesheet.css"/>
-    <link rel="stylesheet" href="../../public/bootstrap.css"/>
+    <link rel="stylesheet" href="/stylesheet.css"/>
+    <link rel="stylesheet" href="/bootstrap.css"/>
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -15,7 +15,7 @@
   </div>
   <header class="header" style="background-color:#333E47;">
     <div class=frame>
-      <span class="logoImg"></span><img srcset="../../public/zebra.png" alt="logo"/>
+      <span class="logoImg"></span><img srcset="/zebra.png" alt="logo"/>
     </div>
     <div class="header_text">
       <h2 class="header_h1" style="color:#ffffff;">Innovation Tracker</h2>
@@ -114,7 +114,7 @@
               </div>
             </div>
             <!-- View Points tab content tab -->
-            <div class="tab-pane fade" id="view_points" style="height:43%;" role="tabpanel" aria-labelledby="viewPoints-tab">
+            <div class="tab-pane fade" id="view_points" style="min-height:43%;" role="tabpanel" aria-labelledby="viewPoints-tab">
               <br>
               <!-- <form>
                 <div style="text-align:center;" id="core_id_input">
@@ -191,8 +191,9 @@
                     <div class="card-body">
                       <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="employeeList">
 
-                      </div>
-                      <button style="visibility: hidden;" type="Button" class="btn btn-info" data-toggle="modal" data-target="#myChart" id="chartDisplayButton">Display Chart</button>
+                      </div></br>
+
+                      <button style="visibility: hidden;" type="Button" class="btn btn-primary" data-toggle="modal" data-target="#myChart" id="chartDisplayButton">Display Chart</button>
                       <!-- Modal -->
                       <div class="modal fade" id="myChart" role="dialog">
                         <div class="modal-dialog">
@@ -229,46 +230,19 @@
             <div class="tab-pane fade" id="leaderboard" style="height:43%;" role="tabpanel" aria-labelledby="leaderboard-tab">
               <br>
               <h4>Below are the employees with the highest innovation score<h4>
-                <div class="list-group">
-                  <div class="list-group-item">
-                    <span style="float:right;">
-                      <div style="width:30%;">
-                        <div class="bg-primary" style="display:inline-block; color:white; width:128px; height:20px; text-align:center;">
-                          <p>16 Points</p>
-                        </div>
-                      </div>
-                    </span>
-                    <span style="float:left;">1. Jay Paul White</span>​
-                  </div>
-                  <div class="list-group-item">
-                    <span style="float:right;">
-                      <div style="width:30%;">
-                        <div class="bg-primary" style="display:inline-block; color:white; width:104px; height:20px; text-align:center;">
-                          <p>13 Points</p>
-                        </div>
-                      </div>
-                    </span>
-                    <span style="float:left;">2. Faris ---</span>​
-                  </div>
-                  <div class="list-group-item">
-                    <span style="float:right;">
-                      <div style="width:30%;">
-                        <div class="bg-primary" style="display:inline-block; color:white; width:72px; height:20px; text-align:center;">
-                          <p>9 Points</p>
-                        </div>
-                      </div>
-                    </span>
-                    <span style="float:left;">3. Lori Fahmi</span>​
-                  </div>
+                <div class="list-group" id="leaderboardTable">
+
                 </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <br>
   </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script>
+
   var typingTimer;                //timer identifier
   var doneTypingInterval = 500;  //time in ms
   $('#core_id').focusout(function(){
@@ -277,6 +251,7 @@
       typingTimer = setTimeout(findManager, doneTypingInterval);
     }
   });
+
   function findManager(){
     var elem = document.getElementById("myBar");
     var width = 0;
@@ -439,7 +414,15 @@
   }
 
   window.onload = function(){
-    console.log("window load");
+    $.ajax({
+      type: "POST",
+      url: "/leaderboard",
+      cache: false,
+      success: function(response){
+        document.getElementById("leaderboardTable").innerHTML= response
+      }
+    });
+
     $.ajax({
       type: "POST",
       url: "/getPeriods",

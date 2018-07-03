@@ -321,16 +321,35 @@ function compareValues(key, order='asc') {
 app.post('/leaderboard', function(req, res){
   var everyonesPoints = [];
   var scoreboard = "<table class='table table-striped table-hover'><thead class='thead-dark'><tr><th>Name</th><th>Points</th></tr></thead><tbody>"
-
+  var html = "";
   for(emp in allall_people[periodID]){
     everyonesPoints.push(allall_people[periodID][emp]);
   }
   everyonesPoints.sort(compareValues('total_points', 'desc'));
   for(var i = 0; i < 5; i++){
+    var textcolor = '#FFFFFF'
+    var bgcolor = '';
+    if(i == 0){
+      bgcolor = 'gold';
+
+    }
+    else if (i == 1) {
+      bgcolor = 'silver';
+    }
+    else if (i == 2) {
+      bgcolor = '#b87333';
+    }
+    else{
+      bgcolor = '';
+      textcolor = '#000000'
+    }
+    var barWidth = everyonesPoints[i].total_points * 7;
+    html += "<div class='list-group-item'><span style='width:40%; float:right; text-align:left;'> <div style='display:inline-block; color:" + textcolor + "; width:" + barWidth + "px; background-color:"+bgcolor + "; height:20px; text-align:center; font-size:14px;'> <span style='vertical-align:middle; line-height: 20px;'>" + everyonesPoints[i].total_points + "</span> </div> </span> <span style='float:left;'>" + (i+1) + ". " + everyonesPoints[i].name + "</span>​ </div> "
+    //html += "<div class='list-group-item'><span style='width:40%; float:right; text-align:left'><div style='display:inline-block; color:"+ textcolor + "; width: " + (barWidth) + "px; height:20px; text-align:center; font-size:14px;'> <span style=' vertical-align: middle; line-height: 20px; background-color:" + color +"'>" + everyonesPoints[i].total_points + "</span> </div> </div> </span><span style='float:left; display:inline-block;'>" + (i + 1) + ". " + everyonesPoints[i].name +"</span>​</div>"
     scoreboard += "<tr><td>"  + everyonesPoints[i].name + "</td><td>" + everyonesPoints[i].total_points + "</td></tr>";
   }
   scoreboard += "</tbody></table>";
-  res.send(scoreboard);
+  res.send(html);
 });
 
 
@@ -431,7 +450,6 @@ app.post('/viewPoints', function(req, res) {
     response[3] = null;
     response[4] = null;
     var team = findPersonByID(empID, allfaris[thePeriod], []);
-
     if(team[0] != null){
       response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><h4>Your Accomplishments</h4><thead class='thead-dark'><tr><th>Accomplishment</th><th>Description</th><th>Points</th></tr></thead><tbody>";
       for(val in personAccomps)
@@ -449,10 +467,10 @@ app.post('/viewPoints', function(req, res) {
           var theEmp = team[0].employeeList[emps];
           if(theEmp.coreID != empID){
             if(theEmp.total_points >= REQUIREDPOINTS){
-              response[1] += "<tr><td>" + theEmp.name + "</td><td>" + theEmp.coreID+ "</td><td style='color:#46EF62;'>" + theEmp.total_points + '</td><td><input type="button" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" value="View"/></td>';
+              response[1] += "<tr><td>" + theEmp.name + "</td><td>" + theEmp.coreID+ "</td><td style='color:#46EF62;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td>';
             }
             else{
-              response[1] += "<tr><td>" + theEmp.name + "</td><td>" + theEmp.coreID+ "</td><td style='color:#FD4343;'>" + theEmp.total_points + '</td><td><input type="button" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" value="View"/></td>';
+              response[1] += "<tr><td>" + theEmp.name + "</td><td>" + theEmp.coreID+ "</td><td style='color:#FD4343;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td>';
             }
           }
         }
@@ -474,10 +492,10 @@ app.post('/viewPoints', function(req, res) {
             total += REQUIREDPOINTS;
           }
           if(theEmp2.total_points >= REQUIREDPOINTS){
-            response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#46EF62;'>" + theEmp2.total_points + '</td><td><input type="button" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" value="View"/></td>';
+            response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#46EF62;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td>';
           }
           else{
-            response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#FD4343;'>" + theEmp2.total_points + '</td><td><input type="button" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" value="View"/></td>';
+            response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#FD4343;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td>';
           }
         }
         var incomplete = needed - total;
