@@ -4,12 +4,13 @@ html{
 
 .header{
   width: 100%;
-  height: 15%;
+  height: 9%;
   border: 0px;
   border-bottom: 2px;
   border-color: #333;
   border-style: solid;
 }
+
 
 .header_text{
    display:inline-block;
@@ -24,6 +25,8 @@ html{
     text-align: center;
     display:inline-block;
     margin-left:50px;
+    padding-top:0;
+    margin-top:0;
 }
 
 .helper {
@@ -93,13 +96,13 @@ h4{
 
 #myProgress {
   width: 100%;
-  background-color: #FFD200;
+  background-color: #333E47;
 }
 
 #myBar {
   width: 0%;
   height: 30px;
-  background-color: #333E47;
+  background-color: #FFD200;
   text-align: center;
   line-height: 30px;
   color: white;

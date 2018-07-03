@@ -1,0 +1,28 @@
+#myProgress {
+  width: 100%;
+  background-color: #007CB0;
+}
+
+#myBar {
+  width: 0%;
+  height:3px;
+  background-color: #FFD200;
+  text-align: center;
+  color: white;
+}
+
+.outerDiv {
+    display: inline-flex;  // <-- This is responsible for vertical alignment
+    height: 400px;
+    color: white;
+}
+
+.innerDiv {
+    margin: auto 0px;   // <-- This is responsible for vertical alignment
+}
+
+#gradient{
+    height: 100%;
+    background: #007CB0; /* For browsers that do not support gradients */
+    background: linear-gradient(to top right, #3f5f91, #123a7a); /* Standard syntax (must be last) */
+}

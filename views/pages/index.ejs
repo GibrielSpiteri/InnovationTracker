@@ -4,21 +4,21 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <!-- Style Sheets -->
-    <link rel="stylesheet" href="/stylesheet.css"/>
-    <link rel="stylesheet" href="/bootstrap.css"/>
+    <link rel="stylesheet" href="../../public/stylesheet.css"/>
+    <link rel="stylesheet" href="../../public/bootstrap.css"/>
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <div id="myProgress">
-    <div style="height:3px;" id="myBar"></div>
+    <div style="height:2px;" id="myBar"></div>
   </div>
   <header class="header" style="background-color:#333E47;">
     <div class=frame>
-      <span class="logoImg"></span><img srcset="/zebra.png" alt="logo"/>
+      <span class="logoImg"></span><img srcset="../../public/zebra.png" alt="logo"/>
     </div>
     <div class="header_text">
-      <h1 class="header_h1" style="color:#ffffff;">Innovation Tracker</h1>
+      <h2 class="header_h1" style="color:#ffffff;">Innovation Tracker</h2>
     </div>
   </header>
 
@@ -42,11 +42,15 @@
             <li id="view_points_tab" class="nav-item">
               <a class="nav-link" id="viewPoints-tab" data-toggle="tab" href="#view_points" role="tab" aria-controls="viewPoints" aria-selected="false">View Points</a>
             </li>
+            <!-- Leaderboard Tab -->
+            <li id="leaderboard_tab" class="nav-item">
+              <a class="nav-link" id="leaderboard-tab" data-toggle="tab" href="#leaderboard" role="tab" aria-controls="leaderboard" aria-selected="false">Leaderboard</a>
+            </li>
           </ul>
           <!-- Div containing the content -->
           <div class="tab-content" id="headerTabContent">
             <!-- Add Points tab content tab -->
-            <div class="tab-pane fade active in " id="add_points" role="tabpanel" aria-labelledby="addPoints-tab" >
+            <div class="tab-pane fade active in " id="add_points" role="tabpanel" style="height:43%;" aria-labelledby="addPoints-tab" >
               <div style="width:100%; margin:0 auto;">
                 <br>
                   <div class="form-row">
@@ -104,12 +108,13 @@
                     </div>
                   </div>
                   <div style="text-align:center;">
-                    <input type="submit" onclick="addPoints()" class="btn btn-warning"></input>
+                    <input type="submit" onclick="addPoints()" class="btn btn-primary"></input>
                   </div>
+                  <br>
               </div>
             </div>
             <!-- View Points tab content tab -->
-            <div class="tab-pane fade" id="view_points" role="tabpanel" aria-labelledby="viewPoints-tab">
+            <div class="tab-pane fade" id="view_points" style="height:43%;" role="tabpanel" aria-labelledby="viewPoints-tab">
               <br>
               <!-- <form>
                 <div style="text-align:center;" id="core_id_input">
@@ -121,31 +126,23 @@
                     </select>
                   </h4>
                 </div> -->
-              </br>
               <div class="form-row">
                 <div class="form-group col-md-6">
                   <label for="core_id_view">Core ID:</label>
                   <input type="text" class="form-control" id="core_id_view" name="core_id_view">
                 </div>
-                <div class="form-group col-md-2"></div>
-                <div class="form-group col-md-2">
-                  <label for="viewPointButton" style="visibility:hidden;">Submit Button</label>
-                  <a class="btn btn-warning" onclick="viewPoints()" id="viewPointButton" type="submit">Submit form</a>
-                  <!-- <input style="color:#333;" class="form-control btn btn-warning" id="viewPointButton" onclick="viewPoints()" type="button" value="Submit"/> -->
-                </div>
-                <div class="form-group col-md-2"></div>
-              </div>
-              <div class="form-row">
                 <div class="form-group col-md-6">
                   <label for="periods">Choose a period:</label>
                   <select class="form-control" id="periods" name="periods"></select>
                 </div>
-                <div class="form-group col-md-6">
 
+              </div>
+              <br>
+              <div class="form-row">
+                <div class="form-group col-md-12">
+                  <a class="btn btn-primary" onclick="viewPoints()" id="viewPointButton" type="submit">Submit</a>
                 </div>
               </div>
-              <br><br><br>
-              <br><br><br>
               <br><br><br>
 
               <div id="accordion">
@@ -227,6 +224,43 @@
 
                 <br>
                 <br><br>
+            </div>
+            <!-- Leaderboard tab content tab -->
+            <div class="tab-pane fade" id="leaderboard" style="height:43%;" role="tabpanel" aria-labelledby="leaderboard-tab">
+              <br>
+              <h4>Below are the employees with the highest innovation score<h4>
+                <div class="list-group">
+                  <div class="list-group-item">
+                    <span style="float:right;">
+                      <div style="width:30%;">
+                        <div class="bg-primary" style="display:inline-block; color:white; width:128px; height:20px; text-align:center;">
+                          <p>16 Points</p>
+                        </div>
+                      </div>
+                    </span>
+                    <span style="float:left;">1. Jay Paul White</span>​
+                  </div>
+                  <div class="list-group-item">
+                    <span style="float:right;">
+                      <div style="width:30%;">
+                        <div class="bg-primary" style="display:inline-block; color:white; width:104px; height:20px; text-align:center;">
+                          <p>13 Points</p>
+                        </div>
+                      </div>
+                    </span>
+                    <span style="float:left;">2. Faris ---</span>​
+                  </div>
+                  <div class="list-group-item">
+                    <span style="float:right;">
+                      <div style="width:30%;">
+                        <div class="bg-primary" style="display:inline-block; color:white; width:72px; height:20px; text-align:center;">
+                          <p>9 Points</p>
+                        </div>
+                      </div>
+                    </span>
+                    <span style="float:left;">3. Lori Fahmi</span>​
+                  </div>
+                </div>
             </div>
           </div>
         </div>
