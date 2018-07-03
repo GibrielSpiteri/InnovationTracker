@@ -26,7 +26,7 @@ function Emp(name, coreID, job, supervisor, employeeList, total_points){
 
 //Defining Global Variables along with Constant Variables
 var all_people = [];
-var alllall_people = [];
+var allall_people = [];
 var pastPeriods = new Map();
 var logged_in = false;
 var tempfaris = [];
@@ -148,9 +148,11 @@ function handleDisconnect() {
 * Directs the user to the main application page. ~ index.ejs
 */
 app.get('/', function(req, res) {
+  res.render('pages/leaderboard');
+});
+app.get('/i', function(req, res) {
   res.render('pages/index');
 });
-
 /**
 * Directs the user to the admin login page if they are not already logged in. ~ AdministratorLogin.ejs
 * Makes use of session variable 'sesh' to track the login state.
@@ -289,6 +291,48 @@ app.post('/resetTables', function(req,res){
     });
   });
 });
+function compareValues(key, order='asc') {
+  return function(a, b) {
+    if(!a.hasOwnProperty(key) ||
+       !b.hasOwnProperty(key)) {
+  	  return 0;
+    }
+
+    const varA = (typeof a[key] === 'string') ?
+      a[key].toUpperCase() : a[key];
+    const varB = (typeof b[key] === 'string') ?
+      b[key].toUpperCase() : b[key];
+
+    let comparison = 0;
+    if (varA > varB) {
+      comparison = 1;
+    } else if (varA < varB) {
+      comparison = -1;
+    }
+    return (
+      (order == 'desc') ?
+      (comparison * -1) : comparison
+    );
+  };
+}
+
+
+
+app.post('/leaderboard', function(req, res){
+  var everyonesPoints = [];
+  var scoreboard = "<table class='table table-striped table-hover'><thead class='thead-dark'><tr><th>Name</th><th>Points</th></tr></thead><tbody>"
+
+  for(emp in allall_people[periodID]){
+    everyonesPoints.push(allall_people[periodID][emp]);
+  }
+  everyonesPoints.sort(compareValues('total_points', 'desc'));
+  for(var i = 0; i < 5; i++){
+    scoreboard += "<tr><td>"  + everyonesPoints[i].name + "</td><td>" + everyonesPoints[i].total_points + "</td></tr>";
+  }
+  scoreboard += "</tbody></table>";
+  res.send(scoreboard);
+});
+
 
 /**
 * Accessed through the admin page.
@@ -343,7 +387,7 @@ app.post('/add_csv', function(req, res) {
 */
 app.post('/findManager', function(req, res){
   var coreID = req.body.CORE_ID;
-  var employee = findPersonByID(coreID, alllfaris[periodID], []);
+  var employee = findPersonByID(coreID, allfaris[periodID], []);
   if(employee[0] != null){
     res.send(employee[0].name);
   } else{
@@ -386,10 +430,10 @@ app.post('/viewPoints', function(req, res) {
     response[2] = null;
     response[3] = null;
     response[4] = null;
-    var team = findPersonByID(empID, alllfaris[thePeriod], []);
+    var team = findPersonByID(empID, allfaris[thePeriod], []);
 
     if(team[0] != null){
-      response[0] = "<table><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><h4>Your Accomplishments</h4><tbody><tr><th style='text-align: center;'>Accomplishment</th><th style='text-align: center; word-break:break-all;'>Description</th><th style='text-align:center; width:25%;'>Points</th></tr>";
+      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><h4>Your Accomplishments</h4><thead class='thead-dark'><tr><th>Accomplishment</th><th>Description</th><th>Points</th></tr></thead><tbody>";
       for(val in personAccomps)
       {
         response[0] += "<tr><td>" + accomDescriptions[val] + "</td><td>" + personAccomps[val].activity_desc + "</td><td text-align:center;'>" + accomPoints[val]+ "</td></tr>";
@@ -400,7 +444,7 @@ app.post('/viewPoints', function(req, res) {
       response[0] += "</td></tr>";
       response[0] += "</tbody></table";
       if(team[0].employeeList != null){
-        response[1] = "<h4>Your Group</h4><table><tbody><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr>";
+        response[1] = "<h4>Your Group</h4><table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr></thead><tbody>";
         for(emps in team[0].employeeList){
           var theEmp = team[0].employeeList[emps];
           if(theEmp.coreID != empID){
@@ -415,7 +459,7 @@ app.post('/viewPoints', function(req, res) {
         response[1] += "</tbody></table>";
       }
       if(team[2].employeeList.length > 0){
-        response[2] = "<h4>Your Employees</h4><table width='100%' style='margin:0px; padding: 0;'><tbody><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr>";
+        response[2] = "<h4>Your Employees</h4><table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr></thead><tbody>";
 
         var needed = team[2].employeeList.length * REQUIREDPOINTS;
         var total = 0;
@@ -472,8 +516,8 @@ app.post('/addPoints', function(req, res) {
       });
     },500);
     setTimeout(function(){
-      for(emp in alllall_people[periodID]){
-        if((alllall_people[periodID])[emp].coreID === CORE_ID){ (alllall_people[periodID])[emp].total_points += newPoints; }
+      for(emp in allall_people[periodID]){
+        if((allall_people[periodID])[emp].coreID === CORE_ID){ (allall_people[periodID])[emp].total_points += newPoints; }
       }
       var ID_Check = "SELECT `coreID` FROM `emp_points_" + connection.escape(periodID) + "` WHERE `coreID` = "  + connection.escape(CORE_ID);
       connection.query(ID_Check, function(err, result) {
@@ -652,14 +696,14 @@ function sortsortEmps(tempPeriod){
   });
   setTimeout(function(){recurseList(tempfaris,tempall_people); },2000);
   setTimeout(function(){
-    alllall_people[tempPeriod] = tempall_people;
-    alllfaris[tempPeriod] = tempfaris;
+    allall_people[tempPeriod] = tempall_people;
+    allfaris[tempPeriod] = tempfaris;
   },3000);
 }
 
 function getAllPeoplePeriods(){
-  alllall_people = [];
-  alllfaris = [];
+  allall_people = [];
+  allfaris = [];
   for(var key of pastPeriods.keys()){
     sortsortEmps(key);
   }
