@@ -148,9 +148,6 @@ function handleDisconnect() {
 * Directs the user to the main application page. ~ index.ejs
 */
 app.get('/', function(req, res) {
-  res.render('pages/leaderboard');
-});
-app.get('/i', function(req, res) {
   res.render('pages/index');
 });
 /**
@@ -420,15 +417,12 @@ app.post('/getPeriods', function(req, res){
     //<option value="1">Choose your Acomplisment</option>
     theOptions += "<option value='" + key + "'>" + value +"</option>";
   }
-  console.log(pastPeriods);
-  console.log(theOptions);
   res.send(theOptions);
 });
 
 app.post('/viewPoints', function(req, res) {
   var empID = req.body.CORE_ID;
   var thePeriod = req.body.PERIOD;
-  console.log(thePeriod)
   var personAccomps = [];
 
   var results = [];
