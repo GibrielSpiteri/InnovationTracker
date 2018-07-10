@@ -4,8 +4,8 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
     <!-- Style Sheets -->
-    <link rel="stylesheet" href="../../public/stylesheet.css"/>
-    <link rel="stylesheet" href="../../public/bootstrap.css"/>
+    <link rel="stylesheet" href="/stylesheet.css"/>
+    <link rel="stylesheet" href="/bootstrap.css"/>
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
@@ -15,7 +15,7 @@
   </div>
   <header class="header" style="background-color:#333E47;">
     <div class=frame>
-      <span class="logoImg"></span><img srcset="../../public/zebra.png" alt="logo"/>
+      <span class="logoImg"></span><img srcset="/zebra.png" alt="logo"/>
     </div>
     <div class="header_text">
       <h2 class="header_h1" style="color:#ffffff;">Innovation Tracker</h2>
@@ -107,9 +107,16 @@
                       <textarea style="resize:none;" class="form-control" id="desc" name="desc" rows="3" maxlength="300"></textarea>
                     </div>
                   </div>
-                  <div style="text-align:center;">
-                    <input type="submit" onclick="addPoints()" class="btn btn-primary"></input>
+                  <div class="form-group row">
+                    <div class="col-sm-12">
+                      <button type="submit" onclick="addPoints()" class="btn btn-primary">Submit</button>
+                    </div>
                   </div>
+                  <!-- <div class="form-row">
+                    <div class="form-group col-md-12" style="text-align:left;">
+                      <input type="submit" onclick="addPoints()" class="btn btn-primary"></input>
+                    </div>
+                  </div> -->
                   <br>
               </div>
             </div>
