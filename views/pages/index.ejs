@@ -53,6 +53,7 @@
             <div class="tab-pane fade active in " id="add_points" role="tabpanel" style="height:50%;" aria-labelledby="addPoints-tab" >
               <div style="width:100%; margin:0 auto;">
                 <br>
+                <form>
                   <div class="form-row">
                     <div class="form-group col-md-6" style="text-align:left;">
                       <label for="core_id">Core ID:</label>
@@ -120,6 +121,8 @@
                     </div>
                   </div> -->
                   <br>
+                </form>
+
               </div>
             </div>
 
@@ -237,7 +240,10 @@
     <br>
   </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <!-- <script src="https://cdn.rawgit.com/PascaleBeier/bootstrap-validate/1.0.10/dist/bootstrap-validate.js"></script> -->
   <script>
+  // bootstrapValidate('#core_id', 'min:5:Enter at least 5 Characters');
+
   //Functions that occur when the window is reloaded - Loading the leaderboard and periods
   window.onload = function(){
     $.ajax({
@@ -273,27 +279,28 @@
   });
   */
 
-  $('#core_id').keypress(function(e) {
-    if(e.which == '13') {
-      //Enter key just got pressed
-      if($('#core_id').val()){
-        var elem = document.getElementById("myBar");
-        if(elem.style.width.substring(0,elem.style.width.length-1) == "0")
-          typingTimer = setTimeout(findInformation, 0);
-      }else{
-        document.getElementById("valid").style.visibility = "hidden";
-        document.getElementById("name").value = "";
-        document.getElementById("manager").value = "";
-      }
-    }
-  });
+  //Checks the information when the user presses enter in the coreID input field
+  // $('#core_id').keypress(function(e) {
+  //   if(e.which == '13') {
+  //     //Enter key just got pressed
+  //     if($('#core_id').val()){
+  //       var elem = document.getElementById("myBar");
+  //       if(elem.style.width.substring(0,elem.style.width.length-1) == "0")
+  //         findInformation();
+  //     }else{
+  //       document.getElementById("valid").style.visibility = "hidden";
+  //       document.getElementById("name").value = "";
+  //       document.getElementById("manager").value = "";
+  //     }
+  //   }
+  // });
 
   //Checks when a user leaves a specified element
   $('#core_id').focusout(function(){
     if($('#core_id').val()){
       var elem = document.getElementById("myBar");
       if(elem.style.width.substring(0,elem.style.width.length-1) == "0")
-        typingTimer = setTimeout(findInformation, 0);
+        findInformation();
     }else{
       document.getElementById("valid").style.visibility = "hidden";
       document.getElementById("name").value = "";
@@ -303,6 +310,7 @@
 
   //Function to find the manager and input the manager into the text box
   function findInformation(){
+    console.log("In findInformation");
     //Loads the progress bar across the top of the screen
     var elem = document.getElementById("myBar");
     var width = 0;
@@ -324,6 +332,7 @@
       data: { "CORE_ID": core_id },
       cache: false,
       success: function(response){
+        console.log("Successful Request");
         if(response[0] == "Invalid ID")
         {
           document.getElementById("valid").style.visibility = "visible";
@@ -355,80 +364,95 @@
       },
       cache: false,
       success: function(response){
-        document.getElementById("userTable").innerHTML = response[0];
-        document.getElementById("userTable").style.visibility ="visible";
-        document.getElementById("btnCollapseOne").style.visibility ="visible";
-        document.getElementById("collapseOne").style = "";
-
-        $("#btnCollapseOne").attr("aria-expanded","true");
-        $("#btnCollapseOne").removeClass("collapsed");
-        $("#collapseOne").addClass("in");
-        $("#collapseOne").attr("aria-expanded","true");
-
-        $("#btnCollapseTwo").attr("aria-expanded","false");
-        $("#btnCollapseTwo").addClass("collapsed");
-        $("#collapseTwo").removeClass("in");
-        $("#collapseTwo").attr("aria-expanded","false");
-
-        $("#btnCollapseThree").attr("aria-expanded","false");
-        $("#btnCollapseThree").addClass("collapsed");
-        $("#collapseThree").removeClass("in");
-        $("#collapseThree").attr("aria-expanded","false");
-
-        if(response[1] != null){
-          document.getElementById("groupList").innerHTML = response[1];
-          document.getElementById("groupList").style.visibility ="visible";
-          document.getElementById("btnCollapseTwo").style.visibility ="visible";
-        }
-        else{
+        if(response[0] == "invalid")
+        {
+          document.getElementById("userTable").innerHTML = "";
           document.getElementById("groupList").innerHTML = "";
+          document.getElementById("employeeList").innerHTML = "";
+          document.getElementById("userTable").style.visibility ="hidden";
+          document.getElementById("btnCollapseOne").style.visibility ="hidden";
           document.getElementById("groupList").style.visibility ="hidden";
           document.getElementById("btnCollapseTwo").style.visibility ="hidden";
-        }
-
-        if(response[2] != null){
-          document.getElementById("employeeList").innerHTML = response[2];
-          document.getElementById("employeeList").style.visibility ="visible";
-          document.getElementById("btnCollapseThree").style.visibility ="visible";
-        }
-        else{
-          document.getElementById("employeeList").innerHTML = "";
           document.getElementById("employeeList").style.visibility ="hidden";
           document.getElementById("btnCollapseThree").style.visibility ="hidden";
-        }
-        var total = null;
-        var incomplete = null;
-        if(response[3] != null && response[4] != null){
-          var incomplete = {y: response[3], label: "Points Needed: "};
-          var total = {y: response[4], label: "Completed Points: "};
-          var chart = new CanvasJS.Chart("pieChart", {
-          	animationEnabled: true,
-          	title: {
-          		text: "Your Employees Progression"
-          	},
-          	data: [{
-          		type: "pie",
-          		startAngle: 240,
-          		yValueFormatString: "##0 Points",
-          		indexLabel: "{label} {y}",
-          		dataPoints: [
-                incomplete,
-			          total
-          		]
-          	}]
-          });
-          chart.render();
-          document.getElementById("chartDisplayButton").style.visibility ="visible";
-          document.getElementById("pieChart").style.visibility ="visible";
-          document.getElementById("pieChart").style.height ="400px";
+          setTimeout(alert("Please enter a valid Employee ID"),1000);
         }
         else{
-          document.getElementById("chartDisplayButton").style.visibility ="hidden";
-          document.getElementById("pieChart").innerHTML = "";
-          document.getElementById("pieChart").style.visibility ="hidden";
-          document.getElementById("pieChart").style.height ="0px";
+          document.getElementById("userTable").innerHTML = response[0];
+          document.getElementById("userTable").style.visibility ="visible";
+          document.getElementById("btnCollapseOne").style.visibility ="visible";
+          document.getElementById("collapseOne").style = "";
+
+          $("#btnCollapseOne").attr("aria-expanded","true");
+          $("#btnCollapseOne").removeClass("collapsed");
+          $("#collapseOne").addClass("in");
+          $("#collapseOne").attr("aria-expanded","true");
+
+          $("#btnCollapseTwo").attr("aria-expanded","false");
+          $("#btnCollapseTwo").addClass("collapsed");
+          $("#collapseTwo").removeClass("in");
+          $("#collapseTwo").attr("aria-expanded","false");
+
+          $("#btnCollapseThree").attr("aria-expanded","false");
+          $("#btnCollapseThree").addClass("collapsed");
+          $("#collapseThree").removeClass("in");
+          $("#collapseThree").attr("aria-expanded","false");
+
+          if(response[1] != null){
+            document.getElementById("groupList").innerHTML = response[1];
+            document.getElementById("groupList").style.visibility ="visible";
+            document.getElementById("btnCollapseTwo").style.visibility ="visible";
+          }
+          else{
+            document.getElementById("groupList").innerHTML = "";
+            document.getElementById("groupList").style.visibility ="hidden";
+            document.getElementById("btnCollapseTwo").style.visibility ="hidden";
+          }
+
+          if(response[2] != null){
+            document.getElementById("employeeList").innerHTML = response[2];
+            document.getElementById("employeeList").style.visibility ="visible";
+            document.getElementById("btnCollapseThree").style.visibility ="visible";
+          }
+          else{
+            document.getElementById("employeeList").innerHTML = "";
+            document.getElementById("employeeList").style.visibility ="hidden";
+            document.getElementById("btnCollapseThree").style.visibility ="hidden";
+          }
+          var total = null;
+          var incomplete = null;
+          if(response[3] != null && response[4] != null){
+            var incomplete = {y: response[3], label: "Points Needed: "};
+            var total = {y: response[4], label: "Completed Points: "};
+            var chart = new CanvasJS.Chart("pieChart", {
+            	animationEnabled: true,
+            	title: {
+            		text: "Your Employees Progression"
+            	},
+            	data: [{
+            		type: "pie",
+            		startAngle: 240,
+            		yValueFormatString: "##0 Points",
+            		indexLabel: "{label} {y}",
+            		dataPoints: [
+                  incomplete,
+  			          total
+            		]
+            	}]
+            });
+            chart.render();
+            document.getElementById("chartDisplayButton").style.visibility ="visible";
+            document.getElementById("pieChart").style.visibility ="visible";
+            document.getElementById("pieChart").style.height ="400px";
+          }
+          else{
+            document.getElementById("chartDisplayButton").style.visibility ="hidden";
+            document.getElementById("pieChart").innerHTML = "";
+            document.getElementById("pieChart").style.visibility ="hidden";
+            document.getElementById("pieChart").style.height ="0px";
+          }
+          btn.disabled = false;
         }
-        btn.disabled = false;
       }
     });
     return false;
