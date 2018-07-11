@@ -11,7 +11,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <div id="myProgress">
-    <div style="height:2px;" id="myBar"></div>
+    <div style="height:2px; width:0%;" id="myBar"></div>
   </div>
   <header class="header" style="background-color:#333E47;">
     <div class=frame>
@@ -50,17 +50,18 @@
           <!-- Div containing the content -->
           <div class="tab-content" id="headerTabContent">
             <!-- Add Points tab content tab -->
-            <div class="tab-pane fade active in " id="add_points" role="tabpanel" style="height:43%;" aria-labelledby="addPoints-tab" >
+            <div class="tab-pane fade active in " id="add_points" role="tabpanel" style="height:50%;" aria-labelledby="addPoints-tab" >
               <div style="width:100%; margin:0 auto;">
                 <br>
                   <div class="form-row">
                     <div class="form-group col-md-6" style="text-align:left;">
                       <label for="core_id">Core ID:</label>
-                      <input type="text" class="form-control" id="core_id" name="core_id">
+                      <input type="text" class="form-control" id="core_id" name="core_id" style="text-transform:uppercase;">
                     </div>
-                    <div class="form-group col-md-6" style="text-align:left;">
-                      <label style="visibility: hidden;" for="valid">Valid</label>
-                      <input style="visibility: hidden; border:0; pointer-events: none;" type="text" class="form-control noshadow" id="valid" name="valid">
+                    <div class="form-group col-md-6 no-border" style="text-align:left;">
+                      <label style="visibility: hidden;" class="control-label" for="valid">Valid</label>
+                      <h4 style="visibility: hidden; text-align:left; vertical-align:middle" id="valid" name="valid">Invalid ID</h4>
+                      <!-- <input style="visibility: hidden; border:0; pointer-events: none;" type="text" ng-class="{'no-border': toggle}" class="form-control no-border" id="valid" name="valid"> -->
                     </div>
                   </div>
                   <div class="form-row">
@@ -107,6 +108,7 @@
                       <textarea style="resize:none;" class="form-control" id="desc" name="desc" rows="3" maxlength="300"></textarea>
                     </div>
                   </div>
+
                   <div class="form-group row">
                     <div class="col-sm-12">
                       <button type="submit" onclick="addPoints()" class="btn btn-primary">Submit</button>
@@ -122,12 +124,12 @@
             </div>
 
             <!-- View Points tab content tab -->
-            <div class="tab-pane fade" id="view_points" style="min-height:43%;" role="tabpanel" aria-labelledby="viewPoints-tab">
+            <div class="tab-pane fade" id="view_points" style="min-height:50%;" role="tabpanel" aria-labelledby="viewPoints-tab">
               <br>
               <div class="form-row">
                 <div class="form-group col-md-6" style="text-align:left;">
                   <label for="core_id_view">Core ID:</label>
-                  <input type="text" class="form-control" id="core_id_view" name="core_id_view">
+                  <input style="text-transform:uppercase;" type="text" class="form-control" id="core_id_view" name="core_id_view">
                 </div>
                 <div class="form-group col-md-6" style="text-align:left;">
                   <label for="periods">Choose a period:</label>
@@ -219,7 +221,7 @@
             </div>
 
             <!-- Leaderboard tab content tab -->
-            <div class="tab-pane fade" id="leaderboard" style="height:43%;" role="tabpanel" aria-labelledby="leaderboard-tab">
+            <div class="tab-pane fade" id="leaderboard" style="height:50%;" role="tabpanel" aria-labelledby="leaderboard-tab">
               <br>
               <h4>Below are the employees with the highest innovation score<h4>
 
@@ -271,10 +273,31 @@
   });
   */
 
+  $('#core_id').keypress(function(e) {
+    if(e.which == '13') {
+      //Enter key just got pressed
+      if($('#core_id').val()){
+        var elem = document.getElementById("myBar");
+        if(elem.style.width.substring(0,elem.style.width.length-1) == "0")
+          typingTimer = setTimeout(findInformation, 0);
+      }else{
+        document.getElementById("valid").style.visibility = "hidden";
+        document.getElementById("name").value = "";
+        document.getElementById("manager").value = "";
+      }
+    }
+  });
+
   //Checks when a user leaves a specified element
   $('#core_id').focusout(function(){
     if($('#core_id').val()){
-      typingTimer = setTimeout(findInformation, 0);
+      var elem = document.getElementById("myBar");
+      if(elem.style.width.substring(0,elem.style.width.length-1) == "0")
+        typingTimer = setTimeout(findInformation, 0);
+    }else{
+      document.getElementById("valid").style.visibility = "hidden";
+      document.getElementById("name").value = "";
+      document.getElementById("manager").value = "";
     }
   });
 
@@ -303,13 +326,11 @@
       success: function(response){
         if(response[0] == "Invalid ID")
         {
-          document.getElementById("valid").value = response[0];
           document.getElementById("valid").style.visibility = "visible";
           document.getElementById("name").value = "";
           document.getElementById("manager").value = "";
         }
         else{
-          document.getElementById("valid").value = "";
           document.getElementById("valid").style.visibility = "hidden";
           document.getElementById("name").value = response[0];
           document.getElementById("manager").value = response[1];

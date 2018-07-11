@@ -11,7 +11,7 @@ const fs = require('fs');
 const passHash = require('password-hash');
 const session = require('express-session');
 const $ = jQuery = require('jQuery');
-require('./jquery-csv/src/jquery.csv.js');
+// require('./jquery-csv/src/jquery.csv.js');
 
 
 //Creating the Employee class
@@ -58,7 +58,7 @@ var upload = multer({storage:storage})
 
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
 const db_config = {
-  host: 'localhost',
+  host: '10.61.32.135',
   port: '3306',
   user: 'root',
   password: 'Zebra123',
@@ -737,7 +737,7 @@ function startApplication(){
   setTimeout(function(){getAllPeoplePeriods();}, 4000);
 }
 
-var server = app.listen(3005, "10.61.32.135", function() {
+var server = app.listen(3005, "localhost", function() {
   var host = server.address().address;
   var port = server.address().port;
 
