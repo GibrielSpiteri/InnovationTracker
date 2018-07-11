@@ -109,7 +109,7 @@
                   </div>
                   <div class="form-group row">
                     <div class="col-sm-12">
-                      <button type="submit" onclick="addPoints()" class="btn btn-primary">Submit</button>
+                      <button id="submitPoints"type="submit" onclick="addPoints()" class="btn btn-primary">Submit</button>
                     </div>
                   </div>
                   <!-- <div class="form-row">
@@ -257,26 +257,13 @@
     });
   }
 
-  //Checks when the user stops typing - Not currently used.
-  /*
-  var typingTimer;
-  //Time waited before calling the function - milliseconds
-  var doneTypingInterval = 500;
-  //#core_id is the element id
-  $('#core_id').keyup(function(){
-    clearTimeout(typingTimer);
-    if($('#core_id').val()){
-      typingTimer = setTimeout(findManager, doneTypingInterval);
-    }
-  });
-  */
-
   //Checks when a user leaves a specified element
   $('#core_id').focusout(function(){
     if($('#core_id').val()){
-      typingTimer = setTimeout(findInformation, 0);
+      setTimeout(findInformation, 0);
     }
   });
+
 
   //Function to find the manager and input the manager into the text box
   function findInformation(){
