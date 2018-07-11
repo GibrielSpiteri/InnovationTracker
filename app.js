@@ -11,7 +11,7 @@ const fs = require('fs');
 const passHash = require('password-hash');
 const session = require('express-session');
 const $ = jQuery = require('jQuery');
-require('./jquery-csv/src/jquery.csv.js');
+// require('./jquery-csv/src/jquery.csv.js');
 
 
 //Creating the Employee class
