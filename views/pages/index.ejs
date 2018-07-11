@@ -112,7 +112,7 @@
 
                   <div class="form-group row">
                     <div class="col-sm-12">
-                      <button type="submit" onclick="addPoints()" class="btn btn-primary">Submit</button>
+                      <button id="submitPoints"type="submit" onclick="addPoints()" class="btn btn-primary">Submit</button>
                     </div>
                   </div>
                   <!-- <div class="form-row">
@@ -279,6 +279,7 @@
   });
   */
 
+<<<<<<< HEAD
   //Checks the information when the user presses enter in the coreID input field
   // $('#core_id').keypress(function(e) {
   //   if(e.which == '13') {
@@ -294,6 +295,35 @@
   //     }
   //   }
   // });
+=======
+  /* Buttons are clicked when enter is pressed */
+  document.querySelector("#add_points").addEventListener("keyup", event => {
+    if(event.key !== "Enter") return;
+    document.querySelector("#submitPoints").click();
+    event.preventDefault();
+  });
+
+  document.querySelector("#view_points").addEventListener("keyup", event => {
+    if(event.key !== "Enter") return;
+    document.querySelector("#viewPointButton").click();
+    event.preventDefault();
+  });
+
+  $('#core_id').keypress(function(e) {
+    if(e.which == '13') {
+      //Enter key just got pressed
+      if($('#core_id').val()){
+        var elem = document.getElementById("myBar");
+        if(elem.style.width.substring(0,elem.style.width.length-1) == "0")
+          typingTimer = setTimeout(findInformation, 0);
+      }else{
+        document.getElementById("valid").style.visibility = "hidden";
+        document.getElementById("name").value = "";
+        document.getElementById("manager").value = "";
+      }
+    }
+  });
+>>>>>>> 7bc53c88d6c99c202bb072b7baefc1022b15ba40
 
   //Checks when a user leaves a specified element
   $('#core_id').focusout(function(){
@@ -307,6 +337,7 @@
       document.getElementById("manager").value = "";
     }
   });
+
 
   //Function to find the manager and input the manager into the text box
   function findInformation(){

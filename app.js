@@ -58,7 +58,7 @@ var upload = multer({storage:storage})
 
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
 const db_config = {
-  host: '10.61.32.135',
+  host: 'localhost',
   port: '3306',
   user: 'root',
   password: 'Zebra123',
@@ -737,7 +737,7 @@ function startApplication(){
   setTimeout(function(){getAllPeoplePeriods();}, 4000);
 }
 
-var server = app.listen(3005, "localhost", function() {
+var server = app.listen(3005, "10.61.32.135", function() {
   var host = server.address().address;
   var port = server.address().port;
 
