@@ -18,7 +18,7 @@
       <span class="logoImg"></span><img srcset="/zebra.png" alt="logo"/>
     </div>
     <div class="header_text">
-      <h2 class="header_h1" style="color:#ffffff;">Innovation Tracker</h2>
+      <h2 class="header_h1" style="color:#ffffff; padding-left:20px;">Innovation Tracker</h2>
     </div>
   </header>
 
@@ -59,18 +59,18 @@
                       <input type="text" class="form-control" id="core_id" name="core_id">
                     </div>
                     <div class="form-group col-md-6" style="text-align:left;">
-                      <label for="name">Name:</label>
-                      <input type="text" class="form-control" id="name" name="name" readonly>
+                      <label style="visibility: hidden;" for="valid">Valid</label>
+                      <input style="visibility: hidden; border:0; pointer-events: none;" type="text" class="form-control noshadow" id="valid" name="valid">
                     </div>
                   </div>
                   <div class="form-row">
                     <div class="form-group col-md-6" style="text-align:left;">
-                      <label for="manager">Manager:</label>
-                      <input type="text" class="form-control" id="manager" name="manager" readonly>
+                      <label for="name">Name:</label>
+                      <input type="text" class="form-control" id="name" name="name" readonly>
                     </div>
                     <div class="form-group col-md-6" style="text-align:left;">
-                      <label for="name">Location:</label>
-                      <input type="text" class="form-control" id="location" name="location" readonly>
+                      <label for="manager">Manager:</label>
+                      <input type="text" class="form-control" id="manager" name="manager" readonly>
                     </div>
                   </div>
                   <div class="form-row">
@@ -97,7 +97,7 @@
                         <option value="18">Collaborate across BU's for Differentiation and efficency opportunities (2)</option>
                         <option value="19">Submit a peer reviewed IP disclosure (4)</option>
                         <option value="20">Patent Committee decides to "pursue" your submission - Phase 2 (4)</option>
-                        <option value="21">[CUSTOM]</option>
+                        <option value="21">[CUSTOM] (1)</option>
                       </select>
                     </div>
                   </div>
@@ -274,12 +274,12 @@
   //Checks when a user leaves a specified element
   $('#core_id').focusout(function(){
     if($('#core_id').val()){
-      typingTimer = setTimeout(findManager, 0);
+      typingTimer = setTimeout(findInformation, 0);
     }
   });
 
   //Function to find the manager and input the manager into the text box
-  function findManager(){
+  function findInformation(){
     //Loads the progress bar across the top of the screen
     var elem = document.getElementById("myBar");
     var width = 0;
@@ -297,11 +297,24 @@
     var core_id = document.getElementById("core_id").value;
     $.ajax({
       type: "POST",
-      url: "/findManager",
+      url: "/findInformation",
       data: { "CORE_ID": core_id },
       cache: false,
       success: function(response){
-        document.getElementById("manager").value = response;
+        if(response[0] == "Invalid ID")
+        {
+          document.getElementById("valid").value = response[0];
+          document.getElementById("valid").style.visibility = "visible";
+          document.getElementById("name").value = "";
+          document.getElementById("manager").value = "";
+        }
+        else{
+          document.getElementById("valid").value = "";
+          document.getElementById("valid").style.visibility = "hidden";
+          document.getElementById("name").value = response[0];
+          document.getElementById("manager").value = response[1];
+        }
+
       }
     });
   }

@@ -324,26 +324,29 @@ app.post('/leaderboard', function(req, res){
   }
   everyonesPoints.sort(compareValues('total_points', 'desc'));
   for(var i = 0; i < 5; i++){
-    var textcolor = '#FFFFFF'
-    var bgcolor = '';
-    if(i == 0){
-      bgcolor = 'gold';
+    if(everyonesPoints[i] != null && everyonesPoints[i].total_points != null && everyonesPoints[i].total_points > 0)
+    {
+      var textcolor = '#FFFFFF'
+      var bgcolor = '';
+      if(i == 0){
+        bgcolor = 'gold';
 
+      }
+      else if (i == 1) {
+        bgcolor = 'silver';
+      }
+      else if (i == 2) {
+        bgcolor = '#b87333';
+      }
+      else{
+        bgcolor = '';
+        textcolor = '#000000'
+      }
+      var barWidth = everyonesPoints[i].total_points * 7;
+      html += "<div class='list-group-item'><span style='width:40%; float:right; text-align:left;'> <div style='display:inline-block; color:" + textcolor + "; width:" + barWidth + "px; background-color:"+bgcolor + "; height:20px; text-align:center; font-size:14px;'> <span style='vertical-align:middle; line-height: 20px;'>" + everyonesPoints[i].total_points + "</span> </div> </span> <span style='float:left;'>" + (i+1) + ". " + everyonesPoints[i].name + "</span>​ </div> "
+      //html += "<div class='list-group-item'><span style='width:40%; float:right; text-align:left'><div style='display:inline-block; color:"+ textcolor + "; width: " + (barWidth) + "px; height:20px; text-align:center; font-size:14px;'> <span style=' vertical-align: middle; line-height: 20px; background-color:" + color +"'>" + everyonesPoints[i].total_points + "</span> </div> </div> </span><span style='float:left; display:inline-block;'>" + (i + 1) + ". " + everyonesPoints[i].name +"</span>​</div>"
+      scoreboard += "<tr><td>"  + everyonesPoints[i].name + "</td><td>" + everyonesPoints[i].total_points + "</td></tr>";
     }
-    else if (i == 1) {
-      bgcolor = 'silver';
-    }
-    else if (i == 2) {
-      bgcolor = '#b87333';
-    }
-    else{
-      bgcolor = '';
-      textcolor = '#000000'
-    }
-    var barWidth = everyonesPoints[i].total_points * 7;
-    html += "<div class='list-group-item'><span style='width:40%; float:right; text-align:left;'> <div style='display:inline-block; color:" + textcolor + "; width:" + barWidth + "px; background-color:"+bgcolor + "; height:20px; text-align:center; font-size:14px;'> <span style='vertical-align:middle; line-height: 20px;'>" + everyonesPoints[i].total_points + "</span> </div> </span> <span style='float:left;'>" + (i+1) + ". " + everyonesPoints[i].name + "</span>​ </div> "
-    //html += "<div class='list-group-item'><span style='width:40%; float:right; text-align:left'><div style='display:inline-block; color:"+ textcolor + "; width: " + (barWidth) + "px; height:20px; text-align:center; font-size:14px;'> <span style=' vertical-align: middle; line-height: 20px; background-color:" + color +"'>" + everyonesPoints[i].total_points + "</span> </div> </div> </span><span style='float:left; display:inline-block;'>" + (i + 1) + ". " + everyonesPoints[i].name +"</span>​</div>"
-    scoreboard += "<tr><td>"  + everyonesPoints[i].name + "</td><td>" + everyonesPoints[i].total_points + "</td></tr>";
   }
   scoreboard += "</tbody></table>";
   res.send(html);
@@ -401,14 +404,19 @@ app.post('/add_csv', function(req, res) {
 /**
 *
 */
-app.post('/findManager', function(req, res){
+app.post('/findInformation', function(req, res){
   var coreID = req.body.CORE_ID;
   var employee = findPersonByID(coreID, allfaris[periodID], []);
+  var information = [];
+  console.log(employee);
   if(employee[0] != null){
-    res.send(employee[0].name);
+    information[0] = employee[1];
+    information[1] = employee[0].name;
   } else{
-    res.send("Invalid ID");
+    information[0] = "Invalid ID";
+    information[1] = "Invalid ID";
   }
+  res.send(information);
 });
 
 app.post('/getPeriods', function(req, res){
@@ -445,10 +453,10 @@ app.post('/viewPoints', function(req, res) {
     response[4] = null;
     var team = findPersonByID(empID, allfaris[thePeriod], []);
     if(team[0] != null){
-      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><h4>Your Accomplishments</h4><thead class='thead-dark'><tr><th>Accomplishment</th><th>Description</th><th>Points</th></tr></thead><tbody>";
+      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><h4>Your Accomplishments</h4><thead class='thead-dark'><tr><th style='text-align:center;'>Accomplishment</th><th style='text-align:center;'>Description</th><th style='text-align:center;'>Points</th></tr></thead><tbody>";
       for(val in personAccomps)
       {
-        response[0] += "<tr><td>" + accomDescriptions[val] + "</td><td>" + personAccomps[val].activity_desc + "</td><td text-align:center;'>" + accomPoints[val]+ "</td></tr>";
+        response[0] += "<tr><td>" + accomDescriptions[val] + "</td><td style='word-break: break-all;'>" + personAccomps[val].activity_desc + "</td><td text-align:center;'>" + accomPoints[val]+ "</td></tr>";
         pointCount += accomPoints[val];
       }
       response[0] += "<tr><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center;'>"
@@ -729,7 +737,7 @@ function startApplication(){
   setTimeout(function(){getAllPeoplePeriods();}, 4000);
 }
 
-var server = app.listen(3005, "localhost", function() {
+var server = app.listen(3005, "10.61.32.135", function() {
   var host = server.address().address;
   var port = server.address().port;
 

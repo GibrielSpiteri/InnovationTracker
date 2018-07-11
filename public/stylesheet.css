@@ -11,7 +11,12 @@ html{
   border-style: solid;
 }
 
-
+.header_h1{
+  text-align:center;
+  margin-left:auto;
+  margin-right:auto;
+  width:50%;
+}
 .header_text{
    display:inline-block;
    width:75%;
@@ -99,4 +104,8 @@ h4{
   text-align: center;
   line-height: 30px;
   color: white;
+}
+
+.noshadow {
+  box-shadow: 0 1px 3px rgba(0,0,0,0), 0 0px 0px rgba(0,0,0,0);
 }
