@@ -379,7 +379,7 @@ app.post('/add_csv', function(req, res) {
         for(let row = 2; row < data.length; row++){
           /* THESE ARE THE LINES TO EDIT INCASE THE CSV FILES FORMATTING IS CHANGED. */
           var insert = "INSERT INTO `employees_" + connection.escape(periodID) + "` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES ("
-          insert += connection.escape(data[row][0]) /*<- 0 is the column with the employees name*/+ "," +connection.escape(data[row][4])/*<- 4 is the column with the employees unique ID*/ + ","
+          insert += connection.escape(data[row][0]) /*<- 0 is the column with the employees name*/+ "," +connection.escape(data[row][4].toUpperCase())/*<- 4 is the column with the employees unique ID*/ + ","
           insert += connection.escape(data[row][6]) /*<- 6 is the column with the employees job*/+ "," + connection.escape(data[row][9]) /*<- 9 is the column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ +")";
           /*FINSIH EDITTING*/
           executeQuery(insert);
@@ -390,7 +390,7 @@ app.post('/add_csv', function(req, res) {
           for(emp in result){
             var coreIDWithPoints = result[emp].coreID;
             var thePoints = result[emp].points;
-            var updatePoints = "UPDATE `employees_" + connection.escape(periodID) + "` SET `total_points`=" + thePoints + " WHERE `coreID` = " + connection.escape(coreIDWithPoints);
+            var updatePoints = "UPDATE `employees_" + connection.escape(periodID) + "` SET `total_points`=" + thePoints + " WHERE `coreID` = " + connection.escape(coreIDWithPoints.toUpperCase());
             executeQuery(updatePoints);
           }
         });
@@ -406,9 +406,9 @@ app.post('/add_csv', function(req, res) {
 */
 app.post('/findInformation', function(req, res){
   var coreID = req.body.CORE_ID;
+  coreID = coreID.toUpperCase();
   var employee = findPersonByID(coreID, allfaris[periodID], []);
   var information = [];
-  console.log(employee);
   if(employee[0] != null){
     information[0] = employee[1];
     information[1] = employee[0].name;
@@ -429,7 +429,7 @@ app.post('/getPeriods', function(req, res){
 });
 
 app.post('/viewPoints', function(req, res) {
-  var empID = req.body.CORE_ID;
+  var empID = req.body.CORE_ID.toUpperCase();
   var thePeriod = req.body.PERIOD;
   var personAccomps = [];
 
@@ -507,7 +507,7 @@ app.post('/viewPoints', function(req, res) {
       }
     }
     else{
-      response[0] = "Please Enter a Valid ID";
+      response[0] = "invalid";
       response[1] = null;
       response[2] = null;
       response[3] = null;
@@ -525,7 +525,7 @@ app.post('/addPoints', function(req, res) {
   var DESCRIPTION = req.body.DESCRIPTION;
   var MANAGER = req.body.MANAGER;
   if(CORE_ID != "" && ACCOMPLISHMENT != "" && DESCRIPTION != "" && MANAGER != "" && MANAGER != "Invalid ID"){
-    var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
+    var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID.toUpperCase()) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
     executeQuery(activity);
     var newPoints;
     setTimeout(function(){
