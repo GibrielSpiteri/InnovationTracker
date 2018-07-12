@@ -292,6 +292,7 @@
     event.preventDefault();
   });
 
+
   $('#core_id').keypress(function(e) {
     if(e.which == '13') {
       //Enter key just got pressed
@@ -476,31 +477,47 @@
     var accomplishment = document.getElementById("accomplishment").value;
     var description = document.getElementById("desc").value;
     var manager = document.getElementById("manager").value;
-    $.ajax({
-      type: "POST",
-      url: "/addPoints",
-      data: { "CORE_ID": core_id,
-      "ACCOMPLISHMENT": accomplishment,
-      "DESCRIPTION": description,
-      "MANAGER": manager
-     },
-      cache: false,
-      success: function(response){
-        if(response == "Failure"){
-          alert("Improper Inputs");
+    if(core_id == ""){
+      alert("Please enter a Core ID or Employee ID");
+    }
+    else if(manager == ""){
+      alert("Please enter a valid Core ID or Employee ID")
+    }
+    else if(accomplishment == 1){
+      alert("Please select an Accomplishment");
+    }
+    else if(description == ""){
+      alert("Please enter a brief Description of your work");
+    }
+    else{
+      $.ajax({
+        type: "POST",
+        url: "/addPoints",
+        data: { "CORE_ID": core_id,
+        "ACCOMPLISHMENT": accomplishment,
+        "DESCRIPTION": description,
+        "MANAGER": manager
+       },
+        cache: false,
+        success: function(response){
+          if(response == "Failure"){
+
+            alert("Error sending Response");
+          }
+          else{
+            document.getElementById("add_points_tab").classList.remove('active');
+            document.getElementById("view_points_tab").classList.add('active');
+            document.getElementById("add_points").classList.remove('active');
+            document.getElementById("add_points").classList.remove('in');
+            document.getElementById("view_points").classList.add('active');
+            document.getElementById("view_points").classList.add('in');
+            document.getElementById("core_id_view").value = core_id;
+            document.getElementById("viewPointButton").click();
+          }
         }
-        else{
-          document.getElementById("add_points_tab").classList.remove('active');
-          document.getElementById("view_points_tab").classList.add('active');
-          document.getElementById("add_points").classList.remove('active');
-          document.getElementById("add_points").classList.remove('in');
-          document.getElementById("view_points").classList.add('active');
-          document.getElementById("view_points").classList.add('in');
-          document.getElementById("core_id_view").value = core_id;
-          document.getElementById("viewPointButton").click();
-        }
-      }
-    });
+      });
+    }
+
     return false;
   }
 
@@ -511,5 +528,5 @@
   }
 
   </script>
-  <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+  <script src="/canvasjs.min.js"></script>
 </html>
