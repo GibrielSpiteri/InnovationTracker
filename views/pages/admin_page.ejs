@@ -9,6 +9,7 @@
     <!-- JS -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="icon" href="/favicon.ico">
   </head>
 
   <header class="header" style="background-color:#333E47;">
@@ -102,6 +103,20 @@
                     <br>
                     <div id="AcomplishmentTable">
 
+                    </div>
+
+                    <div class="modal fade" id="deleteAlert" role="dialog">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button id="closeModal" type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title">Are you sure you want to delete?</h4>
+                          </div>
+                          <div class="modal-body">
+                              <button type="Button" class="btn btn-primary" data-toggle="modal" id="deleteConfirm">Yes, Delete</button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -227,24 +242,32 @@
       }
     });
   }
+
+  function confirmDelete(id){
+
+
+  }
   function deleteAccomplishment(id){
-    $.ajax({
-      type: "POST",
-      url: "/deleteAccomplishments",
-      data: {
-        "ID": id
-      },
-      cache: false,
-      success: function(response){
-        if(response){
-          loadAccomps();
-          alert("Successfully Deleted");
+    document.getElementById('deleteConfirm').onclick = function() {
+      $.ajax({
+        type: "POST",
+        url: "/deleteAccomplishments",
+        data: {
+          "ID": id
+        },
+        cache: false,
+        success: function(response){
+          if(response){
+            loadAccomps();
+            document.getElementById('closeModal').click();
+            alert("Successfully Deleted");
+          }
+          else{
+            alert("Error Deleting");
+          }
         }
-        else{
-          alert("Error Deleting");
-        }
-      }
-    });
+      });
+    }
   }
   function insertAccomp(){
     var desc = document.getElementById('newDesc').value;
