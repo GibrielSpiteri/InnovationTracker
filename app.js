@@ -242,8 +242,15 @@ function initializeTables(){
   connection.query(admin_login, function(err, result) {
     if (err) throw err;
     //Default account when the table is first created, it is recommended to update the password when you login.
-    var new_admin = "INSERT INTO `admin` (`username`, `password`) VALUES ('admin', 'sha1$5c533d80$1$5acc18ff74b44a3c9ac0308e78836e83a73eb9e0')";
-    executeQuery(new_admin);
+    var selectAdmin ="SELECT * FROM `admin`";
+    connection.query(selectAdmin, function(err, result){
+      if(err) throw err
+      if(result.length == 0){
+        var new_admin = "INSERT INTO `admin` (`username`, `password`) VALUES ('admin', 'sha1$5c533d80$1$5acc18ff74b44a3c9ac0308e78836e83a73eb9e0')";
+        executeQuery(new_admin);
+      }
+    });
+
   });
 
 
