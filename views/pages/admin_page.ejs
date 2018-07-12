@@ -12,13 +12,17 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
 
-  <header class="header">
-    <div class=frame>
-      <span class="helper"></span><img srcset="/updatedZebra.png" alt="null"/>
-    </div>
-    <div class="header_text">
-      <h1 class="header_h1">Innovation Tracker</h1>
-    </div>
+  <header class="header" style="background-color:#333E47;">
+    <nav class="navbar navbar-default" role="navigation" style="background-color:#333E47;">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#" style="font-size:30px; color:#ffffff; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:30px;">Innovation Tracker</a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-left">
+            <li><a class="navbar-brand" href="#" style="font-size:30px; color:#ffffff; min-height:80px;"><span><img src="/zebra.png" alt="zebra"/></span></a></li>
+        </ul>
+      </div>
+    </nav>
   </header>
 
   <body>
@@ -35,14 +39,14 @@
             <li id="upload_csv_tab" class="nav-item active">
               <a class="nav-link" id="uploadCsv-tab" data-toggle="tab" href="#upload_csv" role="tab" aria-controls="uploadCsv" aria-selected="true">Upload New Employee List</a>
             </li>
-            <li id="reset_points_tab" class="nav-item">
-              <a class="nav-link" id="resetPoints-tab" data-toggle="tab" href="#reset_points" role="tab" aria-controls="resetPoints" aria-selected="false">Reset Innovation Points</a>
-            </li>
             <li>
               <a class="nav-link" id="editAccomplishments-tab" data-toggle="tab" href="#edit_accomplishments" role="tab" aria-controls="editAccomplishments" aria-selected="false"> Edit Accomplishments </a>
             </li>
             <li id="change_credentials_tab" class="nav-item">
               <a class="nav-link" id="changeCredentials-tab" data-toggle="tab" href="#change_credentials" role="tab" aria-controls="changeCredentials" aria-selected="false">Update Credentials</a>
+            </li>
+            <li id="logout_tab" class="nav-item">
+              <a class="nav-link" id="logout-tab" data-toggle="tab" href="#logout" role="tab" aria-controls="logOut" aria-selected="false">Logout</a>
             </li>
 
           </ul>
@@ -73,50 +77,35 @@
                 </form>
               </div>
             </div>
-
-            <!-- Add Points tab content tab -->
-            <div class="tab-pane fade" id="reset_points" role="tabpanel" aria-labelledby="resetPoints-tab" >
+            <div class="tab-pane fade" id="edit_accomplishments" role="tabpanel" aria-labelledby="editAccomplishments-tab" >
               <div style="width:100%; margin:0 auto;">
                 <br>
+                <!-- Heading giving the user directions -->
+                <h5 style="color:#333; text-align:center;">Please enter the new accomlishment.</h5></br>
                 <!-- Creating the form for the user -->
-                <form id="form" value="form">
                   <div class="form-group row">
-                    <div class="col-sm-12">
-                      <label for="repeatPassword" class="col-sm-12 col-form-label">In order to reset the current point period, press the "RESET" button below. This will disable employees from
-                        updating their innovation points for this period. Employees will be able to view their innovation points from the current period when they enter their id under the View Points tab.</label>
+                    <label for="newDesc" class="col-sm-4 col-form-label">Description</label>
+                    <div class="col-sm-8">
+                      <input type="text" class="form-control" id="newDesc" name="newDesc" placeholder="Filed for a new Patent">
                     </div>
                   </div>
                   <div class="form-group row">
-                    <div class="col-sm-12">
-                      <button type="Button" class="btn btn-danger" data-toggle="modal" data-target="#myModal" id="resetButton">RESET</button>
-                      <!-- Modal -->
-                      <div class="modal fade" id="myModal" role="dialog">
-                        <div class="modal-dialog">
-
-                          <!-- Modal content-->
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <button type="button" class="close" data-dismiss="modal">&times;</button>
-                              <h4 class="modal-title">CONFIRM CYCLE RESET, THIS WILL FREEZE ALL EMPLOYEES FROM UPDATING THEIR CURRENT ACHIEVEMENTS</h4>
-                            </div>
-                            <div class="modal-body">
-
-                              <div style="margin:0 auto;" id="periodName">
-                                <h5 style="display:block; margin: auto; color:#333;">Enter the new period's name:</h5></br>
-                                <h5 style="display:block; color:#333; margin: auto;"><input style="width:300px;" id="period_name" type="text" name="period_name_input"></input></h5></br>
-                              </div>
-                              <input type="button" class="btn btn-danger" id="confirmReset" data-dismiss="modal" onclick="resetPeriod()" value="Confirm Reset"/>
-                            </div>
-                          </div>
-
-                        </div>
-                      </div>
-
+                    <label for="newPoints" class="col-sm-4 col-form-label">New Password</label>
+                    <div class="col-sm-8">
+                      <input type="number" class="form-control" id="newPoints" name="newPoints" placeholder="4">
                     </div>
                   </div>
-                </form>
+
+                  <div class="form-group row">
+                    <div class="col-sm-12">
+                      <!-- <input type="submit" onclick="changePass()" value="Change Pass"/> -->
+                      <button type="submit" class="btn btn-primary" onclick="insertAccomp()">Add Accomplishment</button>
+                    </div>
+                  </div>
+                  <br>
               </div>
             </div>
+
             <div class="tab-pane fade" id="change_credentials" role="tabpanel" aria-labelledby="changeCredentials-tab" >
               <div style="width:100%; margin:0 auto;">
                 <br>
@@ -151,32 +140,15 @@
               </div>
             </div>
 
-            <div class="tab-pane fade" id="edit_accomplishments" role="tabpanel" aria-labelledby="editAccomplishments-tab" >
+
+            <!-- Add Points tab content tab -->
+            <div class="tab-pane fade" id="logout" role="tabpanel" aria-labelledby="logOut-tab" >
               <div style="width:100%; margin:0 auto;">
                 <br>
-                <!-- Heading giving the user directions -->
-                <h5 style="color:#333; text-align:center;">Please enter the new accomlishment.</h5></br>
                 <!-- Creating the form for the user -->
-                  <div class="form-group row">
-                    <label for="newDesc" class="col-sm-4 col-form-label">Description</label>
-                    <div class="col-sm-8">
-                      <input type="text" class="form-control" id="newDesc" name="newDesc" placeholder="Filed for a new Patent">
-                    </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="newPoints" class="col-sm-4 col-form-label">New Password</label>
-                    <div class="col-sm-8">
-                      <input type="number" class="form-control" id="newPoints" name="newPoints" placeholder="4">
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <div class="col-sm-12">
-                      <!-- <input type="submit" onclick="changePass()" value="Change Pass"/> -->
-                      <button type="submit" class="btn btn-primary" onclick="insertAccomp()">Add Accomplishment</button>
-                    </div>
-                  </div>
-                  <br>
+                <form action="/logout" method="POST">
+                  <button type="submit" class="btn btn-primary">Logout</button>
+                </form>
               </div>
             </div>
 

@@ -308,12 +308,20 @@ app.get('/admin', function(req, res){
     sesh.logged_in = false;
     sesh.username = "";
   }
-  if(! sesh.logged_in){
+  if(!sesh.logged_in){
     return res.redirect('/login');
   } else {
     res.render('pages/admin_page');
   }
 });
+
+app.post("/logout", function(req, res){
+  sesh = req.session;
+  sesh.logged_in = false;
+  sesh.username = "";
+  return res.redirect("/");
+});
+
 
 /**
 * Authenication request for the admin login.

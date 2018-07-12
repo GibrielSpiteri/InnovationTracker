@@ -13,13 +13,18 @@
   <div id="myProgress">
     <div style="height:2px; width:0%;" id="myBar"></div>
   </div>
+
   <header class="header" style="background-color:#333E47;">
-    <div class=frame>
-      <span class="logoImg"></span><img srcset="/zebra.png" alt="logo"/>
-    </div>
-    <div class="header_text">
-      <h2 class="header_h1" style="color:#ffffff; padding-left:20px;">Innovation Tracker</h2>
-    </div>
+    <nav class="navbar navbar-default" role="navigation" style="background-color:#333E47;">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#" style="font-size:30px; color:#ffffff; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:30px;">Innovation Tracker</a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-left">
+            <li><a class="navbar-brand" href="#" style="font-size:30px; color:#ffffff; min-height:80px;"><span><img src="/zebra.png" alt="zebra"/></span></a></li>
+        </ul>
+      </div>
+    </nav>
   </header>
 
   <body>
@@ -53,55 +58,53 @@
             <div class="tab-pane fade active in " id="add_points" role="tabpanel" style="min-height:50%;" aria-labelledby="addPoints-tab" >
               <div style="width:100%; margin:0 auto;">
                 <br>
-                <form>
-                  <div class="form-row">
-                    <div class="form-group col-md-6" style="text-align:left;">
-                      <label for="core_id">Core ID:</label>
-                      <input type="text" class="form-control" id="core_id" name="core_id" style="text-transform:uppercase;">
-                    </div>
-                    <div class="form-group col-md-6 no-border" style="text-align:left;">
-                      <label style="visibility: hidden;" class="control-label" for="valid">Valid</label>
-                      <h4 style="visibility: hidden; text-align:left; vertical-align:middle" id="valid" name="valid">Invalid ID</h4>
-                      <!-- <input style="visibility: hidden; border:0; pointer-events: none;" type="text" ng-class="{'no-border': toggle}" class="form-control no-border" id="valid" name="valid"> -->
-                    </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6" style="text-align:left;">
+                    <label for="core_id">Core ID:</label>
+                    <input type="text" class="form-control" id="core_id" name="core_id" style="text-transform:uppercase;">
                   </div>
-                  <div class="form-row">
-                    <div class="form-group col-md-6" style="text-align:left;">
-                      <label for="name">Name:</label>
-                      <input type="text" class="form-control" id="name" name="name" readonly>
-                    </div>
-                    <div class="form-group col-md-6" style="text-align:left;">
-                      <label for="manager">Manager:</label>
-                      <input type="text" class="form-control" id="manager" name="manager" readonly>
-                    </div>
+                  <div class="form-group col-md-6 no-border" style="text-align:left;">
+                    <label style="visibility: hidden;" class="control-label" for="valid">Valid</label>
+                    <h4 style="visibility: hidden; text-align:left; vertical-align:middle" id="valid" name="valid">Invalid ID</h4>
+                    <!-- <input style="visibility: hidden; border:0; pointer-events: none;" type="text" ng-class="{'no-border': toggle}" class="form-control no-border" id="valid" name="valid"> -->
                   </div>
-                  <div class="form-row">
-                    <div class="form-group col-md-12" style="text-align:left;">
-                      <label for="accomplishment">Select an Accomplishment</label>
-                      <div id="accompList">
-                        
-                      </div>
-                    </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6" style="text-align:left;">
+                    <label for="name">Name:</label>
+                    <input type="text" class="form-control" id="name" name="name" readonly>
                   </div>
-                  <div class="form-row">
-                    <div class="form-group col-md-12" style="text-align:left;">
-                      <label for="desc">Description</label>
-                      <textarea style="resize:none;" class="form-control" id="desc" name="desc" rows="3" maxlength="300"></textarea>
-                    </div>
+                  <div class="form-group col-md-6" style="text-align:left;">
+                    <label for="manager">Manager:</label>
+                    <input type="text" class="form-control" id="manager" name="manager" readonly>
                   </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-12" style="text-align:left;">
+                    <label for="accomplishment">Select an Accomplishment</label>
+                    <div id="accompList">
 
-                  <div class="form-group row">
-                    <div class="col-sm-12">
-                      <button id="submitPoints"type="submit" onclick="addPoints()" class="btn btn-primary">Submit</button>
                     </div>
                   </div>
-                  <!-- <div class="form-row">
-                    <div class="form-group col-md-12" style="text-align:left;">
-                      <input type="submit" onclick="addPoints()" class="btn btn-primary"></input>
-                    </div>
-                  </div> -->
-                  <br>
-                </form>
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-12" style="text-align:left;">
+                    <label for="desc">Description</label>
+                    <textarea style="resize:none;" class="form-control" id="desc" name="desc" rows="3" maxlength="300"></textarea>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-sm-12">
+                    <button id="submitPoints"type="submit" onclick="addPoints()" class="btn btn-primary">Submit</button>
+                  </div>
+                </div>
+                <!-- <div class="form-row">
+                  <div class="form-group col-md-12" style="text-align:left;">
+                    <input type="submit" onclick="addPoints()" class="btn btn-primary"></input>
+                  </div>
+                </div> -->
+                <br>
 
               </div>
             </div>
@@ -249,7 +252,6 @@
       url: "/leaderboard",
       cache: false,
       success: function(response){
-        console.log(response);
         CanvasJS.addColorSet("goldSilverBronze", [ "red","#014D65","#b87333","silver","gold"]);
         var chart = new CanvasJS.Chart("leaderboardTable", {
         	animationEnabled: true,
@@ -342,7 +344,6 @@
 
   //Function to find the manager and input the manager into the text box
   function findInformation(){
-    console.log("In findInformation");
     //Loads the progress bar across the top of the screen
     var elem = document.getElementById("myBar");
     var width = 0;
@@ -364,7 +365,6 @@
       data: { "CORE_ID": core_id },
       cache: false,
       success: function(response){
-        console.log("Successful Request");
         if(response[0] == "Invalid ID")
         {
           document.getElementById("valid").style.visibility = "visible";
@@ -457,7 +457,6 @@
           }
           var total = null;
           var incomplete = null;
-          console.log(response[3] + " " + response[4]);
           if(response[3] != null && response[4] != null){
             var incomplete = {y: response[3], label: "Points Needed: "};
             var total = {y: response[4], label: "Completed Points: "};
