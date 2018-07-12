@@ -20,6 +20,11 @@
         <ul class="nav navbar-nav navbar-left">
             <li><a class="navbar-brand" href="" style="font-size:30px; color:#ffffff; min-height:80px;"><span><img src="/zebra.png" alt="zebra"/></span></a></li>
         </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li><a class="navbar-brand" href="#" style="font-size:30px; color:#333E47; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:30px;"><span><form action="/logout" method="POST">
+              <button style="font-size: 20px;" type="submit" class="btn btn-light">Logout</button>
+            </form></span></a></li>
+        </ul>
       </div>
     </nav>
   </header>
@@ -43,9 +48,6 @@
             </li>
             <li id="change_credentials_tab" class="nav-item">
               <a class="nav-link" id="changeCredentials-tab" data-toggle="tab" href="#change_credentials" role="tab" aria-controls="changeCredentials" aria-selected="false">Update Credentials</a>
-            </li>
-            <li id="logout_tab" class="nav-item">
-              <a class="nav-link" id="logout-tab" data-toggle="tab" href="#logout" role="tab" aria-controls="logOut" aria-selected="false">Logout</a>
             </li>
 
           </ul>
@@ -87,7 +89,7 @@
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label for="newPoints" class="col-sm-4 col-form-label">New Password</label>
+                  <label for="newPoints" class="col-sm-4 col-form-label">Point Value</label>
                   <div class="col-sm-8">
                     <input type="number" class="form-control" id="newPoints" name="newPoints" placeholder="4">
                   </div>
@@ -138,18 +140,6 @@
                     </div>
                   </div>
                   <br>
-              </div>
-            </div>
-
-
-            <!-- Add Points tab content tab -->
-            <div class="tab-pane fade" id="logout" role="tabpanel" aria-labelledby="logOut-tab" >
-              <div style="width:100%; margin:0 auto;">
-                <br>
-                <!-- Creating the form for the user -->
-                <form action="/logout" method="POST">
-                  <button type="submit" class="btn btn-primary">Logout</button>
-                </form>
               </div>
             </div>
 

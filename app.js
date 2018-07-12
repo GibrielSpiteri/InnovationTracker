@@ -242,8 +242,15 @@ function initializeTables(){
   connection.query(admin_login, function(err, result) {
     if (err) throw err;
     //Default account when the table is first created, it is recommended to update the password when you login.
-    var new_admin = "INSERT INTO `admin` (`username`, `password`) VALUES ('admin', 'sha1$5c533d80$1$5acc18ff74b44a3c9ac0308e78836e83a73eb9e0')";
-    executeQuery(new_admin);
+    var selectAdmin ="SELECT * FROM `admin`";
+    connection.query(selectAdmin, function(err, result){
+      if(err) throw err
+      if(result.length == 0){
+        var new_admin = "INSERT INTO `admin` (`username`, `password`) VALUES ('admin', 'sha1$5c533d80$1$5acc18ff74b44a3c9ac0308e78836e83a73eb9e0')";
+        executeQuery(new_admin);
+      }
+    });
+
   });
 
 
@@ -320,7 +327,7 @@ app.post("/logout", function(req, res){
   sesh = req.session;
   sesh.logged_in = false;
   sesh.username = "";
-  return res.redirect("/");
+  return res.redirect("/login");
 });
 
 
@@ -584,7 +591,6 @@ app.post('/deleteAccomplishments', function(req,res){
   var queryAccomps = 'DELETE FROM `accomplishment` WHERE accompID=' + connection.escape(deleteID);
 
   connection.query(queryAccomps, function(err, result) {
-    console.log(result);
     if(err){
       res.send("ERROR");
       throw err;
@@ -599,11 +605,13 @@ app.post('/deleteAccomplishments', function(req,res){
 });
 
 app.post('/deleteAccomplishmentsTable', function(req,res){
-  var htmlResponse = '</br><table class="table table-striped table-hover table-responsive"><tr><th>Remove Item#</th><th style="text-align:center;">Description</th><th>Points</th></tr>';
+  var htmlResponse = '</br><table class="table table-striped table-hover table-responsive"><tr><th style="text-align:center;">Description</th><th>Points</th><th>Remove Item</th></tr>';
   var queryAccomps = 'SELECT * FROM `accomplishment`';
   connection.query(queryAccomps, function(err, result) {
     for(item in result){
-      htmlResponse += '<tr><td style="text-align:left" "><input  type="button" onclick="deleteAccomplishment(' + result[item].accompID + ')" value="Remove #' + result[item].accompID + '" style="width:107px"/></td><td>' + result[item].description + '</td><td>' + result[item].points + '</td></tr>';
+      if(item != 0){
+        htmlResponse += '<tr><td>' + result[item].description + '</td><td>' + result[item].points + '</td><td><img onclick="deleteAccomplishment(' + result[item].accompID + ')" src="/delete.png" height="25px" width="25px" style="cursor: pointer;"/></td></tr>';
+      }
     }
     htmlResponse += '</table>';
     res.send(htmlResponse);
@@ -645,7 +653,7 @@ app.post('/viewPoints', function(req, res) {
     response[4] = null;
     var team = findPersonByID(empID, allfaris[thePeriod], []);
     if(team[0] != null){
-      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><thead class='thead-dark'><tr><th style='text-align:center;'>Accomplishment</th><th style='text-align:center;'>Description</th><th style='text-align:center;'>Points</th></tr></thead><tbody>";
+      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><thead class='thead-dark'><tr><th style='text-align:center; width:40%'>Accomplishment</th><th style='text-align:center; width:45%'>Description</th><th style='text-align:center; width:14%'>Points</th></tr></thead><tbody>";
       for(val in personAccomps)
       {
         response[0] += "<tr><td>" + accomDescriptions[val] + "</td><td style='word-break: break-all;'>" + personAccomps[val].activity_desc + "</td><td text-align:center;'>" + accomPoints[val]+ "</td></tr>";
@@ -944,7 +952,7 @@ function addToUnderFarisList(person){
   }
 }
 
-var server = app.listen(3005, "localhost", function() {
+var server = app.listen(3005, "10.61.32.135", function() {
   var host = server.address().address;
   var port = server.address().port;
 
