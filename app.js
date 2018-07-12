@@ -27,6 +27,9 @@ function Emp(name, coreID, job, supervisor, employeeList, total_points){
 //Defining Global Variables along with Constant Variables
 var all_people = [];
 var allall_people = [];
+var allfaris = [];
+var allEmployeesUnderFaris = [];
+var splitListOfPeople = [];
 var pastPeriods = new Map();
 var logged_in = false;
 var tempfaris = [];
@@ -53,18 +56,145 @@ var storage = multer.diskStorage({
     cb(null, file.fieldname + '-' + Date.now() + '.jpg')
   }
 });
+var transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: 'Zebra.mail.bot@gmail.com', // Your email id
+    pass: '^.j\"gk)253{j]hCJr&gZ9N\'^Th5Fh3V9/K5gU^7aW64whrn(xwB+TksM)9ZQ'
+  }
+});
 var upload = multer({storage:storage})
+var schedule = require('node-schedule');
 
+//Occurs every January 1st
+// var j = schedule.scheduleJob('0 * * * *', function(){
+var yearlyReset = schedule.scheduleJob('0 0 1 1 *', function(){
+  resetPeriod();
+});
+
+var monthlyEmailGroupOne = schedule.scheduleJob('0 0 1 * *', function(){
+  makeListOfAllPeopleUnderFaris();
+  createSplitListOfEmployees();
+  sendMonthlyEmailToGroup(0);
+});
+
+var monthlyEmailGroupTwo = schedule.scheduleJob('0 0 2 * *', function(){
+  sendMonthlyEmailToGroup(1);
+});
+
+var monthlyEmailGroupThree = schedule.scheduleJob('0 0 3 * *', function(){
+  sendMonthlyEmailToGroup(2);
+});
+
+var monthlyEmailGroupFour = schedule.scheduleJob('0 0 4 * *', function(){
+  sendMonthlyEmailToGroup(3);
+});
+
+var monthlyEmailGroupFive = schedule.scheduleJob('0 0 5 * *', function(){
+  sendMonthlyEmailToGroup(4);
+});
 
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
 const db_config = {
-  host: 'localhost',
+  host: '10.61.32.135',
   port: '3306',
   user: 'root',
   password: 'Zebra123',
   database: 'kiosk'
 };
 
+function resetPeriod(){
+  console.log("Beginning to reset the Innovation Period");
+  setTimeout(function(){
+    console.log("5")
+  }, 1000);
+  setTimeout(function(){
+    console.log("4")
+  }, 2000);
+  setTimeout(function(){
+    console.log("3")
+  }, 3000);
+  setTimeout(function(){
+    console.log("2")
+  }, 4000);
+  setTimeout(function(){
+    console.log("1")
+  }, 5000);
+  setTimeout(function(){
+    console.log("Resetting Period");
+    var current_date = new Date();
+    console.log("Current Date : ");
+    console.log(current_date);
+    console.log("Current Year : " + current_date.getFullYear());
+    var current_year = current_date.getFullYear();
+    console.log(current_year+1);
+    var next_year = current_year+1;
+    var periodName = current_year + " - " + next_year;
+    console.log(periodName);
+    resetTables(periodName);
+  }, 6000);
+}
+
+function sendCheckInnovationEmail(name, coreID, delay){
+  var newName = name;
+  var newCoreID = coreID;
+  var newDelay = delay;
+  setTimeout(function(){
+    var findPoints = "SELECT * FROM `employees_" + connection.escape(periodID) + "` WHERE `coreID` = " + connection.escape(newCoreID);
+    connection.query(findPoints, function(err, result) {
+      if (err) throw err;
+      var points = result[0].total_points;
+      var content = "No HTML Here"
+      var html_content = 'Hello ' + newName + ', this is your monthly innovation score update. You currently have ' + points + ' points and need a total of ' + REQUIREDPOINTS + ' Points.';
+      var email = newCoreID + "@zebra.com";
+      var mailOptions = {
+        from: 'Zebra.mail.bot@gmail.com', // sender address
+        // to: email, // list of receivers
+        to: "Jeremy.Herrmann@stonybrook.edu",
+        subject: 'Monthly Innovation Score Update', // Subject line
+        text: content,
+        html: html_content
+      };
+      transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Message sent: ' + info.response);
+        }
+      });
+    });
+  }, newDelay);
+
+}
+
+function sendMonthlyEmailToGroup(groupNumber){
+  var employeeEmailList = splitListOfPeople[groupNumber];
+  for(employeeEmail in employeeEmailList){
+    var name = employeeEmailList[employeeEmail].name;
+    var refinedNames = name.split(", ");
+    refinedNames = refinedNames[1] + " " + refinedNames[0];
+    if(refinedNames.indexOf("(") >= 0){
+      refinedNames = refinedNames.substring(0, refinedNames.indexOf("(")) + refinedNames.substring(refinedNames.indexOf(")")+2, refinedNames.length)
+    }
+    var coreID = employeeEmailList[employeeEmail].coreID;
+    sendCheckInnovationEmail(refinedNames, coreID, (3000*employeeEmail));
+    // sendCheckInnovationEmail("Herrmann, Mr. Jeremy", "DCW673");
+  }
+  console.log("List Size: " + employeeEmailList.length);
+}
+
+function createSplitListOfEmployees(){
+  for(var x = 0; x < 5; x++)
+    splitListOfPeople[x] = [];
+  for(var x = 0; x < allEmployeesUnderFaris.length; x++)
+  {
+    splitListOfPeople[Math.floor(x/100)].push(allEmployeesUnderFaris[x]);
+  }
+}
+
+function displayTree(){
+  printFaris(allfaris[periodID]);
+}
 
 /**
 * Function made to execute a given query and if an error occurs, throw the error.
@@ -245,14 +375,7 @@ app.post('/updatePass', function(req, res){
   }
 });
 
-/**
-* Accessed through the admin page.
-* This function ends the current tracking period and starts the next tracking period.
-* Points will no longer be added to the previous tracking period.
-* All the employees accomplishments and points are saved in their respective tables to be viewed online.
-*/
-app.post('/resetTables', function(req,res){
-  var periodName = req.body.periodName;
+function resetTables(periodName){
   var currentPeriodID;
   var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
   connection.query(getCurrentPeriod, function(err, result) {
@@ -283,11 +406,22 @@ app.post('/resetTables', function(req,res){
       connection.query(zeroPoints, function(err, result) {
         if (err) throw err;
         sortsortEmps();
-        res.send("Success");
       });
     });
   });
+}
+
+/**
+* Accessed through the admin page.
+* This function ends the current tracking period and starts the next tracking period.
+* Points will no longer be added to the previous tracking period.
+* All the employees accomplishments and points are saved in their respective tables to be viewed online.
+*/
+app.post('/resetTables', function(req,res){
+  var periodName = req.body.periodName;
+  resetTables(periodName);
 });
+
 function compareValues(key, order='asc') {
   return function(a, b) {
     if(!a.hasOwnProperty(key) ||
@@ -660,9 +794,11 @@ function sortEmps(){
 
 }
 
-function printFaris(faris){
-  printTree(faris, 0);
+function printFaris(farisObject){
+  console.log(farisObject.name);
+  printTree(farisObject, 0);
 }
+
 
 function recurseList(person,thePeople){
   for(val in thePeople)
@@ -679,15 +815,13 @@ function recurseList(person,thePeople){
 
 function printTree(person, currentTabs){
   for(emp in person.employeeList){
-
     var tabs = "\t";
     for(let i = 0; i < currentTabs; i++){
       tabs += "\t";
     }
+    console.log(tabs + person.employeeList[emp].name);
     printTree(person.employeeList[emp], currentTabs+1);
   }
-
-
 }
 
 function findPersonByID(coreID, person, result){
@@ -772,7 +906,22 @@ function startApplication(){
   setTimeout(function(){getAllPeoplePeriods();}, 4000);
 }
 
-var server = app.listen(3005, "10.61.32.135", function() {
+function makeListOfAllPeopleUnderFaris(){
+  var currentFaris = allfaris[periodID];
+  addToUnderFarisList(currentFaris);
+  //console.log(allEmployeesUnderFaris.length);
+}
+
+function addToUnderFarisList(person){
+  //console.log(person);
+  allEmployeesUnderFaris.push(person);
+  for(emp in person.employeeList)
+  {
+    addToUnderFarisList(person.employeeList[emp]);
+  }
+}
+
+var server = app.listen(3005, "localhost", function() {
   var host = server.address().address;
   var port = server.address().port;
 
