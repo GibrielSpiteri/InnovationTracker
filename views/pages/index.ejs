@@ -53,7 +53,6 @@
             <div class="tab-pane fade active in " id="add_points" role="tabpanel" style="min-height:50%;" aria-labelledby="addPoints-tab" >
               <div style="width:100%; margin:0 auto;">
                 <br>
-                <form>
                   <div class="form-row">
                     <div class="form-group col-md-6" style="text-align:left;">
                       <label for="core_id">Core ID:</label>
@@ -79,7 +78,7 @@
                     <div class="form-group col-md-12" style="text-align:left;">
                       <label for="accomplishment">Select an Accomplishment</label>
                       <div id="accompList">
-                        
+
                       </div>
                     </div>
                   </div>
@@ -101,7 +100,6 @@
                     </div>
                   </div> -->
                   <br>
-                </form>
 
               </div>
             </div>
@@ -204,7 +202,7 @@
             </div>
 
             <!-- Leaderboard tab content tab -->
-            <div class="tab-pane fade" id="leaderboard" style="min-height:50%;" role="tabpanel" aria-labelledby="leaderboard-tab">
+            <div class="tab-pane fade" id="leaderboard" style="min-height:70%;" role="tabpanel" aria-labelledby="leaderboard-tab">
               <br>
                 <!-- Below is the div that contains the employees with the top five innovation scores -->
               <div class="list-group" id="leaderboardTable" style="visibility:hidden;"></div>
@@ -249,7 +247,6 @@
       url: "/leaderboard",
       cache: false,
       success: function(response){
-        console.log(response);
         CanvasJS.addColorSet("goldSilverBronze", [ "red","#014D65","#b87333","silver","gold"]);
         var chart = new CanvasJS.Chart("leaderboardTable", {
         	animationEnabled: true,
@@ -342,7 +339,6 @@
 
   //Function to find the manager and input the manager into the text box
   function findInformation(){
-    console.log("In findInformation");
     //Loads the progress bar across the top of the screen
     var elem = document.getElementById("myBar");
     var width = 0;
@@ -364,7 +360,6 @@
       data: { "CORE_ID": core_id },
       cache: false,
       success: function(response){
-        console.log("Successful Request");
         if(response[0] == "Invalid ID")
         {
           document.getElementById("valid").style.visibility = "visible";
@@ -457,7 +452,6 @@
           }
           var total = null;
           var incomplete = null;
-          console.log(response[3] + " " + response[4]);
           if(response[3] != null && response[4] != null){
             var incomplete = {y: response[3], label: "Points Needed: "};
             var total = {y: response[4], label: "Completed Points: "};
@@ -553,5 +547,5 @@
   }
 
   </script>
-  <script src="/jquery.canvasjs.min.js"></script>
+  <script src="/canvasjs.min.js"></script>
 </html>
