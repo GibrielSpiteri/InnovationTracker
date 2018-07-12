@@ -317,39 +317,20 @@ function compareValues(key, order='asc') {
 
 app.post('/leaderboard', function(req, res){
   var everyonesPoints = [];
-  var scoreboard = "<table class='table table-striped table-hover'><thead class='thead-dark'><tr><th>Name</th><th>Points</th></tr></thead><tbody>"
-  var html = "";
+  var scoreboard = [];
   for(emp in allall_people[periodID]){
     everyonesPoints.push(allall_people[periodID][emp]);
   }
   everyonesPoints.sort(compareValues('total_points', 'desc'));
   for(var i = 0; i < 5; i++){
-    if(everyonesPoints[i] != null && everyonesPoints[i].total_points != null && everyonesPoints[i].total_points > 0)
-    {
-      var textcolor = '#FFFFFF'
-      var bgcolor = '';
-      if(i == 0){
-        bgcolor = 'gold';
-
-      }
-      else if (i == 1) {
-        bgcolor = 'silver';
-      }
-      else if (i == 2) {
-        bgcolor = '#b87333';
-      }
-      else{
-        bgcolor = '';
-        textcolor = '#000000'
-      }
-      var barWidth = everyonesPoints[i].total_points * 7;
-      html += "<div class='list-group-item'><span style='width:40%; float:right; text-align:left;'> <div style='display:inline-block; color:" + textcolor + "; width:" + barWidth + "px; background-color:"+bgcolor + "; height:20px; text-align:center; font-size:14px;'> <span style='vertical-align:middle; line-height: 20px;'>" + everyonesPoints[i].total_points + "</span> </div> </span> <span style='float:left;'>" + (i+1) + ". " + everyonesPoints[i].name + "</span>​ </div> "
-      //html += "<div class='list-group-item'><span style='width:40%; float:right; text-align:left'><div style='display:inline-block; color:"+ textcolor + "; width: " + (barWidth) + "px; height:20px; text-align:center; font-size:14px;'> <span style=' vertical-align: middle; line-height: 20px; background-color:" + color +"'>" + everyonesPoints[i].total_points + "</span> </div> </div> </span><span style='float:left; display:inline-block;'>" + (i + 1) + ". " + everyonesPoints[i].name +"</span>​</div>"
-      scoreboard += "<tr><td>"  + everyonesPoints[i].name + "</td><td>" + everyonesPoints[i].total_points + "</td></tr>";
+    if(everyonesPoints[i] != null && everyonesPoints[i].total_points != null && everyonesPoints[i].total_points > 0){
+      scoreboard[i] = [everyonesPoints[i].total_points, everyonesPoints[i].name]
+    }
+    else{
+      scoreboard[i] = [null, null];
     }
   }
-  scoreboard += "</tbody></table>";
-  res.send(html);
+  res.send(scoreboard);
 });
 
 
@@ -419,6 +400,60 @@ app.post('/findInformation', function(req, res){
   res.send(information);
 });
 
+app.post('/getAccomplishments', function(req,res){
+  var htmlResponse = '<select class="form-control" id="accomplishment" name="accomplishment">';
+  var queryAccomps = "Select * FROM `accomplishment`";
+  connection.query(queryAccomps, function(err, result) {
+    if (err) throw err;
+    for(var item in result){
+      if(item == 0){
+        htmlResponse += '<option value="' + result[item].accompID +'">' + result[item].description + '</option>';
+      }
+      else{
+        htmlResponse += '<option value="' + result[item].accompID +'">' + result[item].description +'(' +result[item].points + ')' + '</option>';
+      }
+
+      if(item == result.length - 1){
+        htmlResponse += '<option value="' + (result[item].accompID + 1) +'"> [CUSTOM](1) </option>';
+      }
+    }
+    htmlResponse += '</select>';
+    res.send(htmlResponse);
+  });
+});
+
+app.post('/addAccomplishments', function(req,res){
+  var insertDescription = req.body.DESCRIPTION;
+  var insertPoints = req.body.POINTS;
+  var queryAccomps = 'INSERT INTO `accomplishment` (`description`, `points`) VALUES (' + connection.escape(insertDescription) + ',' + connection.escape(insertPoints) + ')';
+  connection.query(queryAccomps, function(err, result) {
+    if (err){
+      res.send(false);
+      throw err;
+    }
+    res.send(true);
+  });
+});
+
+app.post('/deleteAccomplishments', function(req,res){
+  var deleteID = req.body.ID
+  var queryAccomps = 'DELETE FROM `accomplishment` WHERE accompID=' + connection.escape(deleteID);
+  connection.query(queryAccomps, function(err, result) {
+    if(err){
+      res.send("ERROR");
+      throw err;
+    }
+    if(result.affectedRows < 0){
+      res.send("ERROR");
+    }
+    else{
+      res.send("SUCCESS");
+    }
+  });
+});
+
+
+
 app.post('/getPeriods', function(req, res){
   var theOptions = "";
   for (var [key,value] of pastPeriods) {
@@ -453,7 +488,7 @@ app.post('/viewPoints', function(req, res) {
     response[4] = null;
     var team = findPersonByID(empID, allfaris[thePeriod], []);
     if(team[0] != null){
-      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><h4>Your Accomplishments</h4><thead class='thead-dark'><tr><th style='text-align:center;'>Accomplishment</th><th style='text-align:center;'>Description</th><th style='text-align:center;'>Points</th></tr></thead><tbody>";
+      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><thead class='thead-dark'><tr><th style='text-align:center;'>Accomplishment</th><th style='text-align:center;'>Description</th><th style='text-align:center;'>Points</th></tr></thead><tbody>";
       for(val in personAccomps)
       {
         response[0] += "<tr><td>" + accomDescriptions[val] + "</td><td style='word-break: break-all;'>" + personAccomps[val].activity_desc + "</td><td text-align:center;'>" + accomPoints[val]+ "</td></tr>";
@@ -464,7 +499,7 @@ app.post('/viewPoints', function(req, res) {
       response[0] += "</td></tr>";
       response[0] += "</tbody></table";
       if(team[0].employeeList != null){
-        response[1] = "<h4>Your Group</h4><table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr></thead><tbody>";
+        response[1] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr></thead><tbody>";
         for(emps in team[0].employeeList){
           var theEmp = team[0].employeeList[emps];
           if(theEmp.coreID != empID){
@@ -479,7 +514,7 @@ app.post('/viewPoints', function(req, res) {
         response[1] += "</tbody></table>";
       }
       if(team[2].employeeList.length > 0){
-        response[2] = "<h4>Your Employees</h4><table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr></thead><tbody>";
+        response[2] = "<table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr></thead><tbody>";
 
         var needed = team[2].employeeList.length * REQUIREDPOINTS;
         var total = 0;
@@ -525,7 +560,7 @@ app.post('/addPoints', function(req, res) {
   var DESCRIPTION = req.body.DESCRIPTION;
   var MANAGER = req.body.MANAGER;
   if(CORE_ID != "" && ACCOMPLISHMENT != "" && DESCRIPTION != "" && MANAGER != "" && MANAGER != "Invalid ID"){
-    var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID.toUpperCase()) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
+  var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID.toUpperCase()) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
     executeQuery(activity);
     var newPoints;
     setTimeout(function(){

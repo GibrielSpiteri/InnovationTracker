@@ -44,7 +44,7 @@
             </li>
             <!-- Leaderboard Tab -->
             <li id="leaderboard_tab" class="nav-item">
-              <a class="nav-link" id="leaderboard-tab" data-toggle="tab" href="#leaderboard" role="tab" aria-controls="leaderboard" aria-selected="false">Leaderboard</a>
+              <a class="nav-link" id="leaderboard-tab" onclick="loadLeaderboard()" data-toggle="tab" href="#leaderboard" role="tab" aria-controls="leaderboard" aria-selected="false">Leaderboard</a>
             </li>
           </ul>
           <!-- Div containing the content -->
@@ -78,29 +78,9 @@
                   <div class="form-row">
                     <div class="form-group col-md-12" style="text-align:left;">
                       <label for="accomplishment">Select an Accomplishment</label>
-                      <select class="form-control" id="accomplishment" name="accomplishment">
-                        <option value="1">Choose your Acomplisment</option>
-                        <option value="2">Identify a meaningful problem that needs a solution (1)</option>
-                        <option value="3">Identify a new product feature for the backlog (1)</option>
-                        <option value="4">Attend a Lunch and Learn (1)</option>
-                        <option value="5">Submit abstract for ZTS Expo or Srjana (1)</option>
-                        <option value="6">Attend a readout from a customer visit (1)</option>
-                        <option value="7">Attend JDM Expo, Innovation showcase, Intern project review (1)</option>
-                        <option value="8">Peer review an IP disclosure - witness, read and understand (1)</option>
-                        <option value="9">Join Eto Techspresso event (1)</option>
-                        <option value="10">Take part in brain storming session (2)</option>
-                        <option value="11">Help someone get their first patent disclosure submitted (2)</option>
-                        <option value="12">Solve a problem and implement the solution (2)</option>
-                        <option value="13">Mentoring inventors for success (2)</option>
-                        <option value="14">Teach a class, lead a Lunch and Learn, lead a techtalk, or developer conf (2)</option>
-                        <option value="15">Organize and run a brainstorming session (2)</option>
-                        <option value="16">Visit a customer and present findings (2)</option>
-                        <option value="17">Supervise a summer intern on one of their projects (2)</option>
-                        <option value="18">Collaborate across BU's for Differentiation and efficency opportunities (2)</option>
-                        <option value="19">Submit a peer reviewed IP disclosure (4)</option>
-                        <option value="20">Patent Committee decides to "pursue" your submission - Phase 2 (4)</option>
-                        <option value="21">[CUSTOM] (1)</option>
-                      </select>
+                      <div id="accompList">
+                        
+                      </div>
                     </div>
                   </div>
                   <div class="form-row">
@@ -151,51 +131,51 @@
 
                 <div class="card">
                   <div class="card-header" id="headingOne">
-                    <h5 class="mb-0">
-                      <a class="btn btn-link" id="btnCollapseOne" style="border:solid black 1px; width:100%; color:black; visibility: hidden;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                    <!-- <h5 class="mb-0"> -->
+                      <a class="btn btn-link" id="btnCollapseOne" style="width:100%; color:blue; visibility: hidden; border:solid black 1px;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                         Your Accomplishments
                       </a>
-                    </h5>
+                    <!-- </h5> -->
                   </div>
 
                   <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
-                    <div class="card-body" style="visibility: hidden; border:#333 1px solid; text-align:center;" id="userTable"> <!-- MAKE THIS THE SAME AS THE OTHER TABLES -->
+                    <div class="card-body" style="visibility: hidden; text-align:center; border:solid black 1px;" id="userTable"> <!-- MAKE THIS THE SAME AS THE OTHER TABLES -->
                       <!--ADD A RAISED TABLE HERE -->
                     </div>
                   </div>
                 </div>
-
+              </br>
                 <div class="card">
                   <div class="card-header" id="headingTwo">
-                    <h5 class="mb-0">
-                      <a class="btn btn-link collapsed" id="btnCollapseTwo" style="border:solid black 1px; width:100%; color:black; visibility: hidden;" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    <!-- <h5 class="mb-0"> -->
+                      <a class="btn btn-link collapsed" id="btnCollapseTwo" style="color:blue; visibility:hidden; border:solid black 1px; width:100%;" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                         Your Group
                       </a>
-                    </h5>
+                    <!-- </h5> -->
                   </div>
                   <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
                     <div class="card-body">
 
                       <!-- Below is the div that contains the list of employees who are under the same manager -->
-                      <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="groupList"></div>
+                      <div class="raisedBox" style="visibility: hidden; border:solid black 1px;" id="groupList"></div>
 
                     </div>
                   </div>
                 </div>
-
+              </br>
                 <div class="card">
                   <div class="card-header" id="headingThree">
-                    <h5 class="mb-0">
-                      <a class="btn btn-link collapsed" id="btnCollapseThree" style="border:solid black 1px; width:100%; color:black; visibility: hidden;" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                    <!-- <h5 class="mb-0"> -->
+                      <a class="btn btn-link collapsed" id="btnCollapseThree" style="border:solid black 1px; width:100%; color:blue; visibility: hidden;" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                         Your Employees
                       </a>
-                    </h5>
+                    <!-- </h5> -->
                   </div>
                   <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
                     <div class="card-body">
 
                       <!-- Below is the div that contains the list of employees for the entered manager -->
-                      <div class="raisedBox" style="visibility: hidden; border:#333 1px solid;" id="employeeList"></div>
+                      <div class="raisedBox" style="color:black; visibility: hidden; border:solid black 1px;" id="employeeList"></div>
 
                       <br>
 
@@ -224,12 +204,10 @@
             </div>
 
             <!-- Leaderboard tab content tab -->
-            <div class="tab-pane fade" id="leaderboard" style="height:50%;" role="tabpanel" aria-labelledby="leaderboard-tab">
+            <div class="tab-pane fade" id="leaderboard" style="min-height:50%;" role="tabpanel" aria-labelledby="leaderboard-tab">
               <br>
-              <h4>Below are the employees with the highest innovation score<h4>
-
                 <!-- Below is the div that contains the employees with the top five innovation scores -->
-              <div class="list-group" id="leaderboardTable"></div>
+              <div class="list-group" id="leaderboardTable" style="visibility:hidden;"></div>
 
             </div>
 
@@ -244,17 +222,8 @@
   <script>
   // bootstrapValidate('#core_id', 'min:5:Enter at least 5 Characters');
 
-  //Functions that occur when the window is reloaded - Loading the leaderboard and periods
+  //Functions that occur when the window is reloaded - Loading the periods and accomplishments list
   window.onload = function(){
-    $.ajax({
-      type: "POST",
-      url: "/leaderboard",
-      cache: false,
-      success: function(response){
-        document.getElementById("leaderboardTable").innerHTML= response
-      }
-    });
-
     $.ajax({
       type: "POST",
       url: "/getPeriods",
@@ -263,8 +232,57 @@
         document.getElementById("periods").innerHTML = response;
       }
     });
+
+    $.ajax({
+      type: "POST",
+      url: "/getAccomplishments",
+      cache: false,
+      success: function(response){
+        document.getElementById("accompList").innerHTML = response;
+      }
+    });
   }
 
+  function loadLeaderboard(){
+    $.ajax({
+      type: "POST",
+      url: "/leaderboard",
+      cache: false,
+      success: function(response){
+        console.log(response);
+        CanvasJS.addColorSet("goldSilverBronze", [ "red","#014D65","#b87333","silver","gold"]);
+        var chart = new CanvasJS.Chart("leaderboardTable", {
+        	animationEnabled: true,
+          colorSet:"goldSilverBronze",
+        	title:{
+        		text:"Employees with the Highest Points"
+        	},
+        	axisX:{
+        		interval: 1
+        	},
+        	axisY2:{
+        		gridColor: "rgba(1,77,101,.1)",
+        		title: "Number of Points"
+        	},
+
+        	data: [{
+        		type: "bar",
+        		name: "companies",
+        		axisYType: "secondary",
+        		dataPoints: [
+              { y: response[4][0], label: response[4][1] },
+              { y: response[3][0], label: response[3][1] },
+              { y: response[2][0], label: response[2][1] },
+              { y: response[1][0], label: response[1][1] },
+        			{ y: response[0][0], label: response[0][1] },
+            ]
+          }]
+          });
+          chart.render();
+          document.getElementById("leaderboardTable").style.visibility = "visible";
+        }
+    });
+  }
   //Checks when the user stops typing - Not currently used.
   /*
   var typingTimer;
@@ -389,6 +407,10 @@
           document.getElementById("btnCollapseTwo").style.visibility ="hidden";
           document.getElementById("employeeList").style.visibility ="hidden";
           document.getElementById("btnCollapseThree").style.visibility ="hidden";
+          document.getElementById("chartDisplayButton").style.visibility ="hidden";
+          document.getElementById("pieChart").innerHTML = "";
+          document.getElementById("pieChart").style.visibility ="hidden";
+          document.getElementById("pieChart").style.height ="0px";
           setTimeout(alert("Please enter a valid Employee ID"),1000);
         }
         else{
@@ -435,11 +457,14 @@
           }
           var total = null;
           var incomplete = null;
+          console.log(response[3] + " " + response[4]);
           if(response[3] != null && response[4] != null){
             var incomplete = {y: response[3], label: "Points Needed: "};
             var total = {y: response[4], label: "Completed Points: "};
+            CanvasJS.addColorSet("redGreen", ["red", "green"]);
             var chart = new CanvasJS.Chart("pieChart", {
             	animationEnabled: true,
+              colorSet: "redGreen",
             	title: {
             		text: "Your Employees Progression"
             	},
@@ -528,5 +553,5 @@
   }
 
   </script>
-  <script src="/canvasjs.min.js"></script>
+  <script src="/jquery.canvasjs.min.js"></script>
 </html>

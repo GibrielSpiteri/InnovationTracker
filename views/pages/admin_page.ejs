@@ -158,27 +158,22 @@
                 <h5 style="color:#333; text-align:center;">Please enter the new accomlishment.</h5></br>
                 <!-- Creating the form for the user -->
                   <div class="form-group row">
-                    <label for="currPassword" class="col-sm-4 col-form-label">Current Password</label>
+                    <label for="newDesc" class="col-sm-4 col-form-label">Description</label>
                     <div class="col-sm-8">
-                      <input type="password" class="form-control" id="currPassword" name="currPassword" placeholder="Current Password">
+                      <input type="text" class="form-control" id="newDesc" name="newDesc" placeholder="Filed for a new Patent">
                     </div>
                   </div>
                   <div class="form-group row">
-                    <label for="newPassword" class="col-sm-4 col-form-label">New Password</label>
+                    <label for="newPoints" class="col-sm-4 col-form-label">New Password</label>
                     <div class="col-sm-8">
-                      <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="New Password">
+                      <input type="number" class="form-control" id="newPoints" name="newPoints" placeholder="4">
                     </div>
                   </div>
-                  <div class="form-group row">
-                    <label for="repeatPassword" class="col-sm-4 col-form-label">Repeat New Password</label>
-                    <div class="col-sm-8">
-                      <input type="password" class="form-control" id="repeatPassword" name="repeatPassword" placeholder="Repeat New Password">
-                    </div>
-                  </div>
+
                   <div class="form-group row">
                     <div class="col-sm-12">
                       <!-- <input type="submit" onclick="changePass()" value="Change Pass"/> -->
-                      <button type="submit" class="btn btn-primary" onclick="changePass()">Change Password</button>
+                      <button type="submit" class="btn btn-primary" onclick="insertAccomp()">Add Accomplishment</button>
                     </div>
                   </div>
                   <br>
@@ -227,10 +222,11 @@
     $.ajax({
       type: "POST",
       url: "/updatePass",
-      data: { "currPass": currPass,
-              "newPass": newPass,
-              "repeatPass": repeatPass
-     },
+      data: {
+        "currPass": currPass,
+        "newPass": newPass,
+        "repeatPass": repeatPass
+      },
       cache: false,
       success: function(response){
         if(response == "FailureCurrent"){
@@ -252,6 +248,29 @@
 
     });
     return false;
+  }
+
+  function insertAccomp(){
+    var desc = document.getElementById('newDesc').value;
+    var points = document.getElementById('newPoints').value;
+
+    $.ajax({
+      type: "POST",
+      url: "/addAccomplishments",
+      data: {
+        "DESCRIPTION": desc,
+        "POINTS": points
+      },
+      cache: false,
+      success: function(response){
+        if(response){
+          alert("Accomplishment Added Successfully");
+        }
+        else{
+          alert("Error Adding Accomplishment");
+        }
+      }
+    });
   }
   </script>
 </html>
