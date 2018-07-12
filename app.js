@@ -11,6 +11,7 @@ const fs = require('fs');
 const passHash = require('password-hash');
 const session = require('express-session');
 const $ = jQuery = require('jQuery');
+var schedule = require('node-schedule');
 // require('./jquery-csv/src/jquery.csv.js');
 
 
@@ -64,7 +65,7 @@ var transporter = nodemailer.createTransport({
   }
 });
 var upload = multer({storage:storage})
-var schedule = require('node-schedule');
+
 
 //Occurs every January 1st
 // var j = schedule.scheduleJob('0 * * * *', function(){
@@ -545,20 +546,21 @@ app.post('/findInformation', function(req, res){
 app.post('/getAccomplishments', function(req,res){
   var htmlResponse = '<select class="form-control" id="accomplishment" name="accomplishment">';
   var queryAccomps = "Select * FROM `accomplishment`";
+  var customGoesLast = '';
   connection.query(queryAccomps, function(err, result) {
     if (err) throw err;
     for(var item in result){
       if(item == 0){
         htmlResponse += '<option value="' + result[item].accompID +'">' + result[item].description + '</option>';
       }
-      else{
-        htmlResponse += '<option value="' + result[item].accompID +'">' + result[item].description +'(' +result[item].points + ')' + '</option>';
+      else if(result[item].description == "[CUSTOM]"){
+        customGoesLast = result[item];
       }
-
-      if(item == result.length - 1){
-        htmlResponse += '<option value="' + (result[item].accompID + 1) +'"> [CUSTOM](1) </option>';
+      else{
+        htmlResponse += '<option value="' + result[item].accompID +'">' + result[item].description +'(' + result[item].points + ')' + '</option>';
       }
     }
+    htmlResponse += '<option value="' + customGoesLast.accompID +'">' + customGoesLast.description +'(' + customGoesLast.points + ')' + '</option>';
     htmlResponse += '</select>';
     res.send(htmlResponse);
   });
@@ -580,12 +582,14 @@ app.post('/addAccomplishments', function(req,res){
 app.post('/deleteAccomplishments', function(req,res){
   var deleteID = req.body.ID
   var queryAccomps = 'DELETE FROM `accomplishment` WHERE accompID=' + connection.escape(deleteID);
+
   connection.query(queryAccomps, function(err, result) {
+    console.log(result);
     if(err){
       res.send("ERROR");
       throw err;
     }
-    if(result.affectedRows < 0){
+    if(result.affectedRows <= 0){
       res.send("ERROR");
     }
     else{
@@ -594,6 +598,17 @@ app.post('/deleteAccomplishments', function(req,res){
   });
 });
 
+app.post('/deleteAccomplishmentsTable', function(req,res){
+  var htmlResponse = '</br><table class="table table-striped table-hover table-responsive"><tr><th>Remove Item#</th><th style="text-align:center;">Description</th><th>Points</th></tr>';
+  var queryAccomps = 'SELECT * FROM `accomplishment`';
+  connection.query(queryAccomps, function(err, result) {
+    for(item in result){
+      htmlResponse += '<tr><td style="text-align:left" "><input  type="button" onclick="deleteAccomplishment(' + result[item].accompID + ')" value="Remove #' + result[item].accompID + '" style="width:107px"/></td><td>' + result[item].description + '</td><td>' + result[item].points + '</td></tr>';
+    }
+    htmlResponse += '</table>';
+    res.send(htmlResponse);
+  });
+});
 
 
 app.post('/getPeriods', function(req, res){
@@ -929,7 +944,7 @@ function addToUnderFarisList(person){
   }
 }
 
-var server = app.listen(3005, "localhost", function() {
+var server = app.listen(3005, "10.61.32.135", function() {
   var host = server.address().address;
   var port = server.address().port;
 

@@ -1,5 +1,4 @@
-<html lang="en">
-
+<html lang="en" style="overflow-y: scroll;">
   <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
@@ -81,28 +80,30 @@
               <div style="width:100%; margin:0 auto;">
                 <br>
                 <!-- Heading giving the user directions -->
-                <h5 style="color:#333; text-align:center;">Please enter the new accomlishment.</h5></br>
-                <!-- Creating the form for the user -->
-                  <div class="form-group row">
-                    <label for="newDesc" class="col-sm-4 col-form-label">Description</label>
-                    <div class="col-sm-8">
-                      <input type="text" class="form-control" id="newDesc" name="newDesc" placeholder="Filed for a new Patent">
-                    </div>
+                <div class="form-group row">
+                  <label for="newDesc" class="col-sm-4 col-form-label">Description</label>
+                  <div class="col-sm-8">
+                    <input type="text" class="form-control" id="newDesc" name="newDesc" placeholder="Filed for a new Patent">
                   </div>
-                  <div class="form-group row">
-                    <label for="newPoints" class="col-sm-4 col-form-label">New Password</label>
-                    <div class="col-sm-8">
-                      <input type="number" class="form-control" id="newPoints" name="newPoints" placeholder="4">
-                    </div>
+                </div>
+                <div class="form-group row">
+                  <label for="newPoints" class="col-sm-4 col-form-label">New Password</label>
+                  <div class="col-sm-8">
+                    <input type="number" class="form-control" id="newPoints" name="newPoints" placeholder="4">
                   </div>
+                </div>
 
-                  <div class="form-group row">
-                    <div class="col-sm-12">
-                      <!-- <input type="submit" onclick="changePass()" value="Change Pass"/> -->
-                      <button type="submit" class="btn btn-primary" onclick="insertAccomp()">Add Accomplishment</button>
+                <div class="form-group row">
+                  <div class="col-sm-12">
+                    <!-- <input type="submit" onclick="changePass()" value="Change Pass"/> -->
+                    <button type="submit" class="btn btn-primary" onclick="insertAccomp()">Add Accomplishment</button>
+                    <br>
+                    <div id="AcomplishmentTable">
+
                     </div>
                   </div>
-                  <br>
+                </div>
+                <br>
               </div>
             </div>
 
@@ -163,6 +164,10 @@
       $( "label#file_name" ).replaceWith( "<label id='file_name'>Current File Selected : " + jQuery(this).val().replace("C:\\fakepath\\", "") + "</label>" );
   });
 
+  window.onload = function(){
+    loadAccomps();
+  }
+
   function resetPeriod(){
     var name = document.getElementById("period_name").value;
 
@@ -222,6 +227,35 @@
     return false;
   }
 
+  function loadAccomps(){
+    $.ajax({
+      type: "POST",
+      url: "/deleteAccomplishmentsTable",
+      cache:false,
+      success: function(response){
+        document.getElementById('AcomplishmentTable').innerHTML = response;
+      }
+    });
+  }
+  function deleteAccomplishment(id){
+    $.ajax({
+      type: "POST",
+      url: "/deleteAccomplishments",
+      data: {
+        "ID": id
+      },
+      cache: false,
+      success: function(response){
+        if(response){
+          loadAccomps();
+          alert("Successfully Deleted");
+        }
+        else{
+          alert("Error Deleting");
+        }
+      }
+    });
+  }
   function insertAccomp(){
     var desc = document.getElementById('newDesc').value;
     var points = document.getElementById('newPoints').value;
@@ -236,6 +270,7 @@
       cache: false,
       success: function(response){
         if(response){
+          loadAccomps();
           alert("Accomplishment Added Successfully");
         }
         else{
