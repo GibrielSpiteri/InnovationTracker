@@ -614,7 +614,7 @@ app.post('/deleteAccomplishmentsTable', function(req,res){
   connection.query(queryAccomps, function(err, result) {
     for(item in result){
       if(item != 0){
-        htmlResponse += '<tr><td>' + result[item].description + '</td><td>' + result[item].points + '</td><td><img onclick="deleteAccomplishment(' + result[item].accompID + ')" src="/delete.png" height="25px" width="25px" style="cursor: pointer;"/></td></tr>';
+        htmlResponse += '<tr><td>' + result[item].description + '</td><td>' + result[item].points + '</td><td><img data-toggle="modal" data-target="#deleteAlert" onclick="deleteAccomplishment(' + result[item].accompID + ')" src="/delete.png" height="25px" width="25px" style="cursor: pointer;"/></td></tr>';
       }
     }
     htmlResponse += '</table>';
