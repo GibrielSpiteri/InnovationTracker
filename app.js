@@ -367,26 +367,30 @@ app.post('/updatePass', function(req, res){
   var repeatPass = req.body.repeatPass;
   if(sesh.logged_in)
   {
-    if(newPass == repeatPass){
-      //Store username in future and use that as reference
-      var passCheck = "SELECT `password` FROM `admin` WHERE `username`="+connection.escape(sesh.username);
-      connection.query(passCheck, function(err, result) {
-        if (err) throw err;
-        if(passHash.verify(currPass, result[0].password)){
-          var hashNewPass = passHash.generate(String(newPass));
-          var updatePass = "UPDATE `admin` SET `password`=" + connection.escape(hashNewPass) + "WHERE `username`=" + connection.escape("admin");
-          connection.query(updatePass, function(err, result) {
-            if (err) throw err;
-            res.send("Success");
-          });
-        }
-        else{
-          res.send("FailureCurrent");
-        }
-      });
-    }
+    if(repeatPass.length == 0 || newpass.length == 0)
+      res.send("length");
     else{
-      res.send("FailureRepeat");
+      if(newPass == repeatPass){
+        //Store username in future and use that as reference
+        var passCheck = "SELECT `password` FROM `admin` WHERE `username`="+connection.escape(sesh.username);
+        connection.query(passCheck, function(err, result) {
+          if (err) throw err;
+          if(passHash.verify(currPass, result[0].password)){
+            var hashNewPass = passHash.generate(String(newPass));
+            var updatePass = "UPDATE `admin` SET `password`=" + connection.escape(hashNewPass) + "WHERE `username`=" + connection.escape("admin");
+            connection.query(updatePass, function(err, result) {
+              if (err) throw err;
+              res.send("Success");
+            });
+          }
+          else{
+            res.send("FailureCurrent");
+          }
+        });
+      }
+      else{
+        res.send("FailureRepeat");
+      }
     }
   }
 });
@@ -656,7 +660,7 @@ app.post('/viewPoints', function(req, res) {
       response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><thead class='thead-dark'><tr><th style='text-align:center; width:40%'>Accomplishment</th><th style='text-align:center; width:45%'>Description</th><th style='text-align:center; width:14%'>Points</th></tr></thead><tbody>";
       for(val in personAccomps)
       {
-        response[0] += "<tr><td>" + accomDescriptions[val] + "</td><td style='word-break: break-all;'>" + personAccomps[val].activity_desc + "</td><td text-align:center;'>" + accomPoints[val]+ "</td></tr>";
+        response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[val] + "</td><td style='text-align:center; word-break: break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[val]+ "</td></tr>";
         pointCount += accomPoints[val];
       }
       response[0] += "<tr><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center;'>"
@@ -952,7 +956,7 @@ function addToUnderFarisList(person){
   }
 }
 
-var server = app.listen(3005, "10.61.32.135", function() {
+var server = app.listen(3005, "localhost", function() {
   var host = server.address().address;
   var port = server.address().port;
 
