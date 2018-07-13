@@ -37,13 +37,13 @@ var logged_in = false;
 var tempfaris = [];
 var faris = new Emp("","","","","0");
 var periodID = null;
-const DOWNLOAD_FOLDER = './public/downloads/'
 var connection;
 var sesh;
 var response = [];
 var accomDescriptions = [];
 var accomPoints = [];
 const REQUIREDPOINTS = 8;
+const DOWNLOAD_FOLDER = './public/downloads/'
 //Setting up the application
 var app = express();
 app.use(express.static(path.join(__dirname, '/public')));
@@ -670,10 +670,10 @@ app.post('/viewPoints', function(req, res) {
     response[4] = null;
     var team = findPersonByID(empID, allfaris[thePeriod], []);
     if(team[0] != null){
-      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><thead class='thead-dark'><tr><th style='text-align:center; width:40%'>Accomplishment</th><th style='text-align:center; width:45%'>Description</th><th style='text-align:center; width:14%'>Points</th></tr></thead><tbody>";
+      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><thead class='thead-dark'><tr><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
       for(val in personAccomps)
       {
-        response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[val] + "</td><td style='text-align:center; word-break: break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[val]+ "</td></tr>";
+        response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[val] + "</td><td style='text-align:center; word-break: break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[val]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
         pointCount += accomPoints[val];
       }
       response[0] += "<tr><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center;'>"
@@ -686,10 +686,10 @@ app.post('/viewPoints', function(req, res) {
           var theEmp = team[0].employeeList[emps];
           if(theEmp.coreID != empID){
             if(theEmp.total_points >= REQUIREDPOINTS){
-              response[1] += "<tr><td>" + theEmp.name + "</td><td>" + theEmp.coreID+ "</td><td style='color:#46EF62;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td>';
+              response[1] += "<tr><td>" + theEmp.name + "</td><td>" + theEmp.coreID+ "</td><td style='color:#46EF62;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
             }
             else{
-              response[1] += "<tr><td>" + theEmp.name + "</td><td>" + theEmp.coreID+ "</td><td style='color:#FD4343;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td>';
+              response[1] += "<tr><td>" + theEmp.name + "</td><td>" + theEmp.coreID+ "</td><td style='color:#FD4343;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
             }
           }
         }
@@ -711,10 +711,10 @@ app.post('/viewPoints', function(req, res) {
             total += REQUIREDPOINTS;
           }
           if(theEmp2.total_points >= REQUIREDPOINTS){
-            response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#46EF62;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td>';
+            response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#46EF62;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
           }
           else{
-            response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#FD4343;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td>';
+            response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#FD4343;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
           }
         }
         var incomplete = needed - total;
@@ -734,6 +734,48 @@ app.post('/viewPoints', function(req, res) {
     }
       res.send(response);
   },700);
+});
+
+app.post('/removeAcheivement', function(req, res) {
+  var activityID = req.body.ACTIVITYID;
+  var accompID = req.body.ACCOMPID;
+  console.log("Call the function");
+  var selectPoints = "SELECT `points` FROM `accomplishment` WHERE `accompID`=" + connection.escape(accompID);
+  connection.query(selectPoints, function(err, result) {
+    if(err) {
+      res.end(false);
+    }
+    else{
+      console.log("queried the points");
+      var thePoint = result[0].points;
+
+      var getCoreId = "SELECT `coreID` FROM `activity_"+ connection.escape(periodID) +"` WHERE `activityID`=" + connection.escape(activityID);
+      connection.query(getCoreId, function(err, result) {
+        if(err) throw err;
+        var theID = result[0].coreID;
+        for(var emp in allall_people[periodID]){
+          if(allall_people[periodID][emp].coreID == theID){
+            console.log("Found the Point");
+            allall_people[periodID][emp].total_points = allall_people[periodID][emp].total_points - thePoint;
+          }
+        }
+
+      });
+
+
+
+      var updateEmpPoints = "UPDATE `emp_points_"+ connection.escape(periodID) +"` SET `points`=`points`" + (-thePoint);
+      var updateEmployee = "UPDATE `employees_"+ connection.escape(periodID) +"` SET `total_points`=`total_points`" + (-thePoint);
+      var deleteActivity = "DELETE FROM `activity_"+ connection.escape(periodID) +"` WHERE activityID=" + connection.escape(activityID);
+      executeQuery(deleteActivity);
+      executeQuery(updateEmployee);
+      executeQuery(updateEmpPoints);
+      console.log("res send");
+      res.send(true)
+  }
+  });
+
+
 });
 
 app.post('/addPoints', function(req, res) {
@@ -951,7 +993,8 @@ function startApplication(){
 
   setTimeout(function(){getPeriodID();}, 2000);
   setTimeout(function(){getAllPeriods();}, 3500);
-  setTimeout(function(){getAllPeoplePeriods();}, 4000);
+  setTimeout(function(){getAllPeoplePeriods(); }, 4000);
+
 }
 
 function makeListOfAllPeopleUnderFaris(){
@@ -969,7 +1012,7 @@ function addToUnderFarisList(person){
   }
 }
 
-var server = app.listen(3005, "localhost", function() {
+var server = app.listen(3005, "10.61.32.135", function() {
   var host = server.address().address;
   var port = server.address().port;
 

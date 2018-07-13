@@ -143,8 +143,23 @@
                   </div>
 
                   <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
-                    <div class="card-body" style="visibility: hidden; text-align:center; border:solid black 1px;" id="userTable"> <!-- MAKE THIS THE SAME AS THE OTHER TABLES -->
-                      <!--ADD A RAISED TABLE HERE -->
+                    <div class="card-body" style="visibility: hidden; text-align:center; border:solid black 1px;" > <!-- MAKE THIS THE SAME AS THE OTHER TABLES -->
+
+                      <div id="userTable"></div>
+
+                    </div>
+                  </div>
+                </div>
+                <div class="modal fade" id="deleteAlert" role="dialog">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button id="closeModal" type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Are you sure you want to delete?</h4>
+                      </div>
+                      <div class="modal-body">
+                          <button type="Button" class="btn btn-primary" data-toggle="modal" id="deleteConfirm">Yes, Delete</button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -286,19 +301,6 @@
         }
     });
   }
-  //Checks when the user stops typing - Not currently used.
-  /*
-  var typingTimer;
-  //Time waited before calling the function - milliseconds
-  var doneTypingInterval = 500;
-  //#core_id is the element id
-  $('#core_id').keyup(function(){
-    clearTimeout(typingTimer);
-    if($('#core_id').val()){
-      typingTimer = setTimeout(findManager, doneTypingInterval);
-    }
-  });
-  */
 
   /* Buttons are clicked when enter is pressed */
   document.querySelector("#add_points").addEventListener("keyup", event => {
@@ -495,6 +497,30 @@
       }
     });
     return false;
+  }
+
+  function removeAcheivement(activityid, accompid){
+    document.getElementById('deleteConfirm').onclick = function() {
+      $.ajax({
+        type: "POST",
+        url: "/removeAcheivement",
+        data: {
+          "ACTIVITYID": activityid,
+          "ACCOMPID": accompid
+        },
+        cache: false,
+        success: function(response){
+          if(response){
+            document.getElementById('closeModal').click();
+            viewPoints();
+            alert("Successfully Deleted");
+          }
+          else{
+            alert("Error Deleting");
+          }
+        }
+      });
+    }
   }
 
   function addPoints(){

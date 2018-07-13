@@ -108,9 +108,7 @@
                     <!-- <input type="submit" onclick="changePass()" value="Change Pass"/> -->
                     <button type="submit" class="btn btn-primary" onclick="insertAccomp()">Add Accomplishment</button>
                     <br>
-                    <div id="AcomplishmentTable">
-
-                    </div>
+                    <div id="AcomplishmentTable"></div>
 
                     <div class="modal fade" id="deleteAlert" role="dialog">
                       <div class="modal-dialog">
@@ -125,6 +123,7 @@
                         </div>
                       </div>
                     </div>
+                    
                   </div>
                 </div>
                 <br>
@@ -280,10 +279,6 @@
     });
   }
 
-  function confirmDelete(id){
-
-
-  }
   function deleteAccomplishment(id){
     document.getElementById('deleteConfirm').onclick = function() {
       $.ajax({
