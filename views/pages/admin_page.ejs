@@ -59,24 +59,28 @@
               <div style="width:100%; margin:0 auto;">
                 <br>
                 <!-- Heading giving the user directions -->
-                <h5 style="color:#333; text-align:center;">Upload an excel file containing current Zebra Employees and click "Submit" to update the current database.</h5></br>
-                <!-- Creating the form for the user -->
-                <form action="/add_csv" method="POST">
+                <h5 style="color:#333E47; text-align:center;">Upload a csv file containing current Zebra Employees and click "Submit" to update the current database.</h5></br>
+                <!-- Upload CSV/Excel -->
+                <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/add_csv">
                   <div class="form-group row">
                     <div class="col-sm-12">
-                      <label for="file-upload" class="custom-file-upload">
+
+                      <label for="fileUpload" class="custom-file-upload">
                         <i class="fa fa-cloud-upload"></i>Select CSV File
                       </label>
-                      <input id="file-upload" class="file_element" style="visibility:hidden;"type="file"/>
+                      <input id="fileUpload" name="fileUpload" class="file_element" style="visibility:hidden;"type="file" accept=".csv"/>
                       <label id="file_name"></label>
+                      <br>
+                      <label id="status"></label>
                     </div>
                   </div>
                   <div class="form-group row">
                     <div class="col-sm-12">
-                      <button type="submit" class="btn btn-primary">Submit File</button>
+                      <input type="submit" class="btn btn-primary" value="Submit File"/>
                     </div>
                   </div>
                 </form>
+
               </div>
             </div>
             <div class="tab-pane fade" id="edit_accomplishments" role="tabpanel" aria-labelledby="editAccomplishments-tab" >
@@ -164,8 +168,10 @@
       </div>
     </div>
   </body>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
   <script>
-  jQuery("input#file-upload").change(function () {
+  jQuery("input#fileUpload").change(function () {
       $( "label#file_name" ).replaceWith( "<label id='file_name'>Current File Selected : " + jQuery(this).val().replace("C:\\fakepath\\", "") + "</label>" );
   });
 
@@ -173,14 +179,38 @@
     loadAccomps();
   }
 
+  //Status Message for uploading CSV
+  $(document).ready(function() {
+    $('#uploadForm').submit(function() {
+      $("#status").empty().text("File is uploading...");
+        $(this).ajaxSubmit({
+          error: function(xhr) {
+            status('Error: ' + xhr.status);
+          },
+          success: function(response) {
+            $("#status").empty().text(response);
+            if(response == "File Upload Successful"){
+              alert("Successfully Uploaded");
+              return true;
+            }
+            else{
+              alert("Error Uploading File, Please Ensure The File Follows the Proper Formatting Guidelines");
+              return true;
+            }
+          }
+      });
+    return false;
+    });
+  });
+
+  //Disable current tables and create new ones
   function resetPeriod(){
     var name = document.getElementById("period_name").value;
 
     $.ajax({
       type: "POST",
       url: "/resetTables",
-      data: { "periodName": name
-     },
+      data: { "periodName": name },
       cache: false,
       success: function(response){
         if(response == "Failure"){

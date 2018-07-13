@@ -11,8 +11,9 @@ const fs = require('fs');
 const passHash = require('password-hash');
 const session = require('express-session');
 const $ = jQuery = require('jQuery');
-var schedule = require('node-schedule');
-// require('./jquery-csv/src/jquery.csv.js');
+const form = require('formidable')
+const schedule = require('node-schedule');
+require('./jquery-csv/src/jquery.csv.js');
 
 
 //Creating the Employee class
@@ -36,7 +37,7 @@ var logged_in = false;
 var tempfaris = [];
 var faris = new Emp("","","","","0");
 var periodID = null;
-const IMAGE_FOLDER = './images/'
+const DOWNLOAD_FOLDER = './public/downloads/'
 var connection;
 var sesh;
 var response = [];
@@ -52,11 +53,13 @@ app.use(session({secret:'Innovate'}));
 app.set('view engine', 'ejs');
 var StatusEnum = Object.freeze({"open":1, "closed": 2});
 var storage = multer.diskStorage({
-  destination:IMAGE_FOLDER,
+  destination:DOWNLOAD_FOLDER,
   filename: function(req, file, cb) {
-    cb(null, file.fieldname + '-' + Date.now() + '.jpg')
+    cb(null, file.fieldname + '-' + Date.now() + '.csv')
   }
 });
+var upload = multer({storage:storage});
+
 var transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
@@ -64,7 +67,7 @@ var transporter = nodemailer.createTransport({
     pass: '^.j\"gk)253{j]hCJr&gZ9N\'^Th5Fh3V9/K5gU^7aW64whrn(xwB+TksM)9ZQ'
   }
 });
-var upload = multer({storage:storage})
+
 
 
 //Occurs every January 1st
@@ -490,17 +493,25 @@ app.post('/leaderboard', function(req, res){
 * This file should be delimited by commas (,) and should contain the employees' name, coreID, job, and supervisor/manager.
 * In the event that the .csv file's formmating is changed instructions are commented below to help edit the code.
 */
-app.post('/add_csv', function(req, res) {
-  fs.readFile('public/emps.csv', {
+app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
+  var theFile = __dirname + "\\public\\downloads\\" + req.file.filename;
+
+  console.log(theFile);
+  fs.readFile(theFile, {
     encoding: 'utf-8'
   }, function(err, csvData) {
-    if (err) {console.log(err);}
+    if (err){
+      res.end("Error Uploading File");
+      //throw err;
+    }
     csvParser(csvData, {
       delimiter: ','
     }, function(err, data) {
       if (err) {
-        console.log(err);
-      } else {
+        res.end("Error Uploading File");
+        //throw err;
+      }
+      else {
         var drop = "DROP TABLE employees_" + connection.escape(periodID);
         //Reset the table
         var create = "CREATE TABLE employees_" + connection.escape(periodID) + "(coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
@@ -526,8 +537,10 @@ app.post('/add_csv', function(req, res) {
           }
         });
       }
-      setTimeout(function(){sortsortEmps(periodID);}, 4500);
-      setTimeout(function(){return res.redirect('/admin');}, 6010);
+      setTimeout(function(){
+        sortsortEmps(periodID);
+        return res.end("File Upload Successful");
+      }, 4500);
     });
   });
 
