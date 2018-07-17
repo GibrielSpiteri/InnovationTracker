@@ -238,10 +238,56 @@ function initializeTables(){
     }
   });
 
-  var accomplishments = "CREATE TABLE IF NOT EXISTS accomplishment(accompID INT AUTO_INCREMENT PRIMARY KEY, description VARCHAR(2500), points INT(2))";
+  var accomplishments = "CREATE TABLE IF NOT EXISTS `accomplishment`(`accompID` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, `description` VARCHAR(2500) NOT NULL, `points` INT(2) NOT NULL, `enabled` TINYINT(4) NOT NULL)";
   executeQuery(accomplishments);
-
-  var admin_login = "CREATE TABLE IF NOT EXISTS admin(username VARCHAR(25), password VARCHAR(100))";
+  var checkAccomps = "SELECT * FROM `accomplishment`";
+  connection.query(checkAccomps, function(err, result) {
+    if(result == 0){
+      var insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (1,'Choose your Acomplisment',0,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (2,'Identify a meaningful problem that needs a solution',1,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (3,'Identify a new product feature for the backlog',1,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (4,'Attend a Lunch and Learn',1,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (5,'Submit abstract for ZTS Expo or Srjana',1,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (6,'Attend a readout from a customer visit',1,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (7,'Attend JDM Expo, Innovation showcase, Intern project review',1,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (8,'Peer review an IP disclosure - witness, read and understand',1,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (9,'Join Eto Techspresso event',1,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (10,'Take part in brain storming session',2,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (11,'Help someone get their first patent disclosure submitted',2,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (12,'Solve a problem and implement the solution',2,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (13,'Mentoring inventors for success',2,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (14,'Teach a class, lead a Lunch and Learn, lead a techtalk, or developer conf',2,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (15,'Organize and run a brainstorming session',2,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (16,'Visit a customer and present findings',2,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (17,'Supervise a summer intern on one of their projects',2,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (18,'Collaborate across BUs for Differentiation and efficency opportunities',2,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (19,'Submit a peer reviewed IP disclosure',2,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (20,'Patent Committee decides to pursue your submission - Phase 2',4,1);";
+      executeQuery(insertBasicAccomp);
+      insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (21,'[CUSTOM]',1,1);";
+      executeQuery(insertBasicAccomp);
+    }
+  });
+  var admin_login = "CREATE TABLE IF NOT EXISTS `admin`(username VARCHAR(25), password VARCHAR(100))";
   connection.query(admin_login, function(err, result) {
     if (err) throw err;
     //Default account when the table is first created, it is recommended to update the password when you login.

@@ -17,14 +17,14 @@
   <header class="header" style="background-color:#333E47;">
     <nav class="navbar navbar-default" role="navigation" style="background-color:#333E47;">
       <div class="navbar-header">
-        <a class="navbar-brand" href="" style="font-size:30px; color:#ffffff; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:30px;">Innovation Tracker</a>
+        <a class="navbar-brand" href="/" style="font-size:30px; color:#ffffff; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:30px;">Innovation Tracker</a>
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-left">
-            <li><a class="navbar-brand" href="" style="font-size:30px; color:#ffffff; min-height:80px;"><span><img src="/zebra.png" alt="zebra"/></span></a></li>
+            <li><a class="navbar-brand" href="/" style="font-size:30px; color:#ffffff; min-height:80px;"><span><img src="/zebra.png" alt="zebra"/></span></a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li><a class="navbar-brand" href="#" style="font-size:30px; color:#333E47; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:22px;"><span><form action="/logout" method="POST">
+            <li><a class="navbar-brand" style="font-size:30px; color:#333E47; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:22px;"><span><form action="/logout" method="POST">
               <button style="font-size: 20px;" type="submit" class="btn btn-light">Logout</button>
             </form></span></a></li>
         </ul>
@@ -123,7 +123,7 @@
                         </div>
                       </div>
                     </div>
-                    
+
                   </div>
                 </div>
                 <br>
@@ -208,26 +208,29 @@
   //Disable current tables and create new ones
   function resetPeriod(){
     var name = document.getElementById("period_name").value;
-
-    $.ajax({
-      type: "POST",
-      url: "/resetTables",
-      data: { "periodName": name },
-      cache: false,
-      success: function(response){
-        if(response == "Failure"){
-          alert("Error Occurred");
-          return true;
+    if(name == ""){
+      alert("Please enter a name");
+    }
+    else{
+      $.ajax({
+        type: "POST",
+        url: "/resetTables",
+        data: { "periodName": name },
+        cache: false,
+        success: function(response){
+          if(response == "Failure"){
+            alert("Error Occurred");
+            return true;
+          }
+          else{
+            alert("Successfully Executed");
+            return true;
+          }
         }
-        else{
-          alert("Successfully Executed");
-          return true;
-        }
-      }
-    });
-    return false;
+      });
+    }
+  return false;
   }
-
   function changePass(){
     var currPass = document.getElementById("currPassword").value;
     var newPass = document.getElementById("newPassword").value;
@@ -304,25 +307,32 @@
   function insertAccomp(){
     var desc = document.getElementById('newDesc').value;
     var points = document.getElementById('newPoints').value;
-
-    $.ajax({
-      type: "POST",
-      url: "/addAccomplishments",
-      data: {
-        "DESCRIPTION": desc,
-        "POINTS": points
-      },
-      cache: false,
-      success: function(response){
-        if(response){
-          loadAccomps();
-          alert("Accomplishment Added Successfully");
+    if(desc == ""){
+      alert("Please enter a description");
+    }
+    else if(points == ""){
+      alert("Please enter a point value");
+    }
+    else{
+      $.ajax({
+        type: "POST",
+        url: "/addAccomplishments",
+        data: {
+          "DESCRIPTION": desc,
+          "POINTS": points
+        },
+        cache: false,
+        success: function(response){
+          if(response){
+            loadAccomps();
+            alert("Accomplishment Added Successfully");
+          }
+          else{
+            alert("Error Adding Accomplishment");
+          }
         }
-        else{
-          alert("Error Adding Accomplishment");
-        }
-      }
-    });
+      });
+    }
   }
   </script>
 </html>
