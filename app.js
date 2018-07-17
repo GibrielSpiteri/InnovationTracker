@@ -240,7 +240,7 @@ function initializeTables(){
     }
   });
 
-  var accomplishments = "CREATE TABLE IF NOT EXISTS `accomplishment`(`accompID` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, `description` VARCHAR(2500) NOT NULL, `points` INT(2) NOT NULL, `enabled` TINYINT(4) NOT NULL)";
+  var accomplishments = "CREATE TABLE IF NOT EXISTS `accomplishment`(`accompID` INT AUTO_INCREMENT PRIMARY KEY NOT NULL, `description` VARCHAR(2500) NOT NULL, `points` INT(2) NOT NULL, `enabled` TINYINT(4) NOT NULL DEFAULT 1)";
   executeQuery(accomplishments);
   var checkAccomps = "SELECT * FROM `accomplishment`";
   connection.query(checkAccomps, function(err, result) {
@@ -1065,7 +1065,7 @@ function addToUnderFarisList(person){
   }
 }
 
-var server = app.listen(3005, "localhost", function() {
+var server = app.listen(3005, "10.61.32.135", function() {
   var host = server.address().address;
   var port = server.address().port;
 
