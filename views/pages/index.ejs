@@ -143,9 +143,9 @@
                   </div>
 
                   <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
-                    <div class="card-body" style="visibility: hidden; text-align:center; border:solid black 1px;" > <!-- MAKE THIS THE SAME AS THE OTHER TABLES -->
+                    <div class="card-body" style="visibility: hidden; text-align:center; " > <!-- MAKE THIS THE SAME AS THE OTHER TABLES -->
 
-                      <div id="userTable"></div>
+                      <div id="userTable" style="border:solid black 1px;"></div>
 
                     </div>
                   </div>
@@ -234,11 +234,11 @@
         </div>
       </div>
     </div>
-    <br>
   </body>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <!-- <script src="https://cdn.rawgit.com/PascaleBeier/bootstrap-validate/1.0.10/dist/bootstrap-validate.js"></script> -->
   <script>
+  var chartAnimation= true;
   // bootstrapValidate('#core_id', 'min:5:Enter at least 5 Characters');
 
   //Functions that occur when the window is reloaded - Loading the periods and accomplishments list
@@ -263,43 +263,48 @@
   }
 
   function loadLeaderboard(){
-    $.ajax({
-      type: "POST",
-      url: "/leaderboard",
-      cache: false,
-      success: function(response){
-        CanvasJS.addColorSet("goldSilverBronze", [ "red","#014D65","#b87333","silver","gold"]);
-        var chart = new CanvasJS.Chart("leaderboardTable", {
-        	animationEnabled: true,
-          colorSet:"goldSilverBronze",
-        	title:{
-        		text:"Employees with the Highest Points"
-        	},
-        	axisX:{
-        		interval: 1
-        	},
-        	axisY2:{
-        		gridColor: "rgba(1,77,101,.1)",
-        		title: "Number of Points"
-        	},
+    setTimeout(function(){
+      $.ajax({
+        type: "POST",
+        url: "/leaderboard",
+        cache: false,
+        success: function(response){
 
-        	data: [{
-        		type: "bar",
-        		name: "companies",
-        		axisYType: "secondary",
-        		dataPoints: [
-              { y: response[4][0], label: response[4][1] },
-              { y: response[3][0], label: response[3][1] },
-              { y: response[2][0], label: response[2][1] },
-              { y: response[1][0], label: response[1][1] },
-        			{ y: response[0][0], label: response[0][1] },
-            ]
-          }]
-          });
-          chart.render();
-          document.getElementById("leaderboardTable").style.visibility = "visible";
-        }
-    });
+          CanvasJS.addColorSet("goldSilverBronze", [ "red","#014D65","#b87333","silver","gold"]);
+          var chart = new CanvasJS.Chart("leaderboardTable", {
+            width: 0,
+          	animationEnabled: chartAnimation,
+            colorSet:"goldSilverBronze",
+          	title:{
+          		text:"Employees with the Highest Points"
+          	},
+          	axisX:{
+          		interval: 1
+          	},
+          	axisY2:{
+          		gridColor: "rgba(1,77,101,.1)",
+          		title: "Number of Points"
+          	},
+
+          	data: [{
+          		type: "bar",
+          		name: "companies",
+          		axisYType: "secondary",
+          		dataPoints: [
+                { y: response[4][0], label: response[4][1] },
+                { y: response[3][0], label: response[3][1] },
+                { y: response[2][0], label: response[2][1] },
+                { y: response[1][0], label: response[1][1] },
+          			{ y: response[0][0], label: response[0][1] },
+              ]
+            }]
+            });
+            document.getElementById("leaderboardTable").style.visibility = "visible";
+            chart.render();
+            chartAnimation = false;
+          }
+      });
+    }, 500);
   }
 
   /* Buttons are clicked when enter is pressed */
@@ -387,6 +392,7 @@
   //On click action when the submit button is pressed in the view page
   function viewPoints(){
     //Temporarily disable the button so the user can't click it again
+    chartAnimation = true;
     var btn = document.getElementById("viewPointButton");
     btn.disabled = true;
     var core_id = document.getElementById("core_id_view").value;
@@ -524,6 +530,7 @@
   }
 
   function addPoints(){
+    chartAnimation = true;
     var core_id = document.getElementById("core_id").value;
     var accomplishment = document.getElementById("accomplishment").value;
     var description = document.getElementById("desc").value;

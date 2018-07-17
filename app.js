@@ -370,7 +370,7 @@ app.post('/updatePass', function(req, res){
   var repeatPass = req.body.repeatPass;
   if(sesh.logged_in)
   {
-    if(repeatPass.length == 0 || newpass.length == 0)
+    if(repeatPass.length == 0 || newPass.length == 0)
       res.send("length");
     else{
       if(newPass == repeatPass){
@@ -578,13 +578,19 @@ app.post('/getAccomplishments', function(req,res){
         htmlResponse += '<option value="' + result[item].accompID +'">' + result[item].description + '</option>';
       }
       else if(result[item].description == "[CUSTOM]"){
-        customGoesLast = result[item];
+        if(result[item].enabled == 1){
+          customGoesLast = result[item];
+        }
       }
       else{
-        htmlResponse += '<option value="' + result[item].accompID +'">' + result[item].description +'(' + result[item].points + ')' + '</option>';
+        if(result[item].enabled == 1){
+          htmlResponse += '<option value="' + result[item].accompID +'">' + result[item].description +'(' + result[item].points + ')' + '</option>';
+        }
       }
     }
-    htmlResponse += '<option value="' + customGoesLast.accompID +'">' + customGoesLast.description +'(' + customGoesLast.points + ')' + '</option>';
+    if(customGoesLast != ''){
+      htmlResponse += '<option value="' + customGoesLast.accompID +'">' + customGoesLast.description +'(' + customGoesLast.points + ')' + '</option>';
+    }
     htmlResponse += '</select>';
     res.send(htmlResponse);
   });
@@ -605,7 +611,7 @@ app.post('/addAccomplishments', function(req,res){
 
 app.post('/deleteAccomplishments', function(req,res){
   var deleteID = req.body.ID
-  var queryAccomps = 'DELETE FROM `accomplishment` WHERE accompID=' + connection.escape(deleteID);
+  var queryAccomps = 'UPDATE `accomplishment` SET `enabled`= 0 WHERE `accompID`=' + connection.escape(deleteID);
 
   connection.query(queryAccomps, function(err, result) {
     if(err){
@@ -626,7 +632,7 @@ app.post('/deleteAccomplishmentsTable', function(req,res){
   var queryAccomps = 'SELECT * FROM `accomplishment`';
   connection.query(queryAccomps, function(err, result) {
     for(item in result){
-      if(item != 0){
+      if(item != 0 && result[item].enabled != 0){
         htmlResponse += '<tr><td>' + result[item].description + '</td><td>' + result[item].points + '</td><td><img data-toggle="modal" data-target="#deleteAlert" onclick="deleteAccomplishment(' + result[item].accompID + ')" src="/delete.png" height="25px" width="25px" style="cursor: pointer;"/></td></tr>';
       }
     }
@@ -678,7 +684,7 @@ app.post('/viewPoints', function(req, res) {
       }
       response[0] += "<tr><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center;'>"
       response[0] += pointCount;
-      response[0] += "</td></tr>";
+      response[0] += "</td><td></td></tr>";
       response[0] += "</tbody></table";
       if(team[0].employeeList != null){
         response[1] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr></thead><tbody>";
@@ -759,23 +765,17 @@ app.post('/removeAcheivement', function(req, res) {
             allall_people[periodID][emp].total_points = allall_people[periodID][emp].total_points - thePoint;
           }
         }
-
+        var updateEmpPoints = "UPDATE `emp_points_"+ connection.escape(periodID) +"` SET `points` = `points`" + (-thePoint) + " WHERE `coreID` = " + connection.escape(theID);
+        var updateEmployee = "UPDATE `employees_"+ connection.escape(periodID) +"` SET `total_points` = `total_points`" + (-thePoint) + " WHERE `coreID` = " + connection.escape(theID);
+        var deleteActivity = "DELETE FROM `activity_"+ connection.escape(periodID) +"` WHERE activityID = " + connection.escape(activityID);
+        executeQuery(deleteActivity);
+        executeQuery(updateEmployee);
+        executeQuery(updateEmpPoints);
+        console.log("res send");
+        res.send(true)
       });
-
-
-
-      var updateEmpPoints = "UPDATE `emp_points_"+ connection.escape(periodID) +"` SET `points`=`points`" + (-thePoint);
-      var updateEmployee = "UPDATE `employees_"+ connection.escape(periodID) +"` SET `total_points`=`total_points`" + (-thePoint);
-      var deleteActivity = "DELETE FROM `activity_"+ connection.escape(periodID) +"` WHERE activityID=" + connection.escape(activityID);
-      executeQuery(deleteActivity);
-      executeQuery(updateEmployee);
-      executeQuery(updateEmpPoints);
-      console.log("res send");
-      res.send(true)
-  }
+    }
   });
-
-
 });
 
 app.post('/addPoints', function(req, res) {
