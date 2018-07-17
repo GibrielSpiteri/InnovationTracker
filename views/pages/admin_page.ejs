@@ -100,14 +100,14 @@
                 <div class="form-group row">
                   <label for="newPoints" class="col-sm-4 col-form-label">Point Value</label>
                   <div class="col-sm-8">
-                    <input type="number" class="form-control" id="newPoints" name="newPoints" placeholder="1">
+                    <input type="number" class="form-control" id="newPoints" name="newPoints" placeholder="1" min="1">
                   </div>
                 </div>
                 <button type="submit" class="btn btn-primary" onclick="insertAccomp()">Add Accomplishment</button>
 
                 <br>
                 <br>
-                <br> 
+                <br>
                 <div style="border-bottom:1px black solid; height:1px; width:100%;"></div>
                 <br>
 
@@ -328,6 +328,9 @@
     }
     else if(points == ""){
       alert("Please enter a point value");
+    }
+    else if(points < 1){
+      alert("Please enter a point value greater than zero.");
     }
     else{
       $.ajax({

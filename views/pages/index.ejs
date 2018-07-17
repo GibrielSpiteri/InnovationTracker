@@ -130,13 +130,12 @@
                 </div>
               </div>
               <br><br><br>
-
+              <div id="userInformation"></div>
               <div id="accordion">
-
                 <div class="card">
                   <div class="card-header" id="headingOne">
                     <!-- <h5 class="mb-0"> -->
-                      <a class="btn btn-link" id="btnCollapseOne" style="width:100%; color:blue; visibility: hidden; border:solid black 1px;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                      <a class="btn btn-link" id="btnCollapseOne" style="width:100%; color:black; visibility: hidden; border:solid black 1px;" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
                         Your Accomplishments
                       </a>
                     <!-- </h5> -->
@@ -167,7 +166,7 @@
                 <div class="card">
                   <div class="card-header" id="headingTwo">
                     <!-- <h5 class="mb-0"> -->
-                      <a class="btn btn-link collapsed" id="btnCollapseTwo" style="color:blue; visibility:hidden; border:solid black 1px; width:100%;" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      <a class="btn btn-link collapsed" id="btnCollapseTwo" style="color:black; visibility:hidden; border:solid black 1px; width:100%;" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                         Your Group
                       </a>
                     <!-- </h5> -->
@@ -176,7 +175,7 @@
                     <div class="card-body">
 
                       <!-- Below is the div that contains the list of employees who are under the same manager -->
-                      <div class="raisedBox" style="visibility: hidden; border:solid black 1px;" id="groupList"></div>
+                      <div style="visibility: hidden; border:solid black 1px;" id="groupList"></div>
 
                     </div>
                   </div>
@@ -185,7 +184,7 @@
                 <div class="card">
                   <div class="card-header" id="headingThree">
                     <!-- <h5 class="mb-0"> -->
-                      <a class="btn btn-link collapsed" id="btnCollapseThree" style="border:solid black 1px; width:100%; color:blue; visibility: hidden;" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                      <a class="btn btn-link collapsed" id="btnCollapseThree" style="border:solid black 1px; width:100%; color:black; visibility: hidden;" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                         Your Employees
                       </a>
                     <!-- </h5> -->
@@ -194,7 +193,7 @@
                     <div class="card-body">
 
                       <!-- Below is the div that contains the list of employees for the entered manager -->
-                      <div class="raisedBox" style="color:black; visibility: hidden; border:solid black 1px;" id="employeeList"></div>
+                      <div style="color:black; visibility: hidden; border:solid black 1px;" id="employeeList"></div>
 
                       <br>
 
@@ -223,11 +222,14 @@
             </div>
 
             <!-- Leaderboard tab content tab -->
-            <div class="tab-pane fade" id="leaderboard" style="min-height:70%;" role="tabpanel" aria-labelledby="leaderboard-tab">
-              <br>
+            <div class="tab-pane fade" id="leaderboard" role="tabpanel" style="min-height:50%;" aria-labelledby="leaderboard-tab" >
+              <div style="width:100%; margin:0 auto;">
+                <br>
                 <!-- Below is the div that contains the employees with the top five innovation scores -->
-              <div class="list-group" id="leaderboardTable" style="visibility:hidden;"></div>
+                <div class="list-group" id="leaderboardTable" style="visibility:hidden;"></div>
+                <br>
 
+              </div>
             </div>
 
           </div>
@@ -280,15 +282,20 @@
           	},
           	axisX:{
               ticks: {
+<<<<<<< HEAD
                 min: 0,
                 stepSize: 1
               },
               interval: 1
+=======
+                min: 0
+              },
+>>>>>>> 74ab3cb7a7f7f81aacb62b2ff1ebb08780648e58
           	},
           	axisY2:{
               ticks: {
-                min: 0,
-                stepSize: 1
+                interval: 1,
+                min: 0
               },
           		gridColor: "rgba(1,77,101,.1)",
           		title: "Number of Points"
@@ -427,6 +434,7 @@
           document.getElementById("pieChart").innerHTML = "";
           document.getElementById("pieChart").style.visibility ="hidden";
           document.getElementById("pieChart").style.height ="0px";
+          document.getElementById("userInformation").innerHTML = "";
           setTimeout(alert("Please enter a valid Employee ID"),1000);
         }
         else{
@@ -434,6 +442,8 @@
           document.getElementById("userTable").style.visibility ="visible";
           document.getElementById("btnCollapseOne").style.visibility ="visible";
           document.getElementById("collapseOne").style = "";
+          document.getElementById("userInformation").innerHTML = response[5];
+
 
           $("#btnCollapseOne").attr("aria-expanded","true");
           $("#btnCollapseOne").removeClass("collapsed");
@@ -578,6 +588,11 @@
             document.getElementById("view_points").classList.add('in');
             document.getElementById("core_id_view").value = core_id;
             document.getElementById("viewPointButton").click();
+            document.getElementById("core_id").value = "";
+            document.getElementById("name").value = "";
+            document.getElementById("accomplishment").value = "";
+            document.getElementById("desc").value = "";
+            document.getElementById("manager").value = "";
           }
         }
       });
