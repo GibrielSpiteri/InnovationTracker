@@ -734,18 +734,18 @@ app.post('/viewPoints', function(req, res) {
     var team = findPersonByID(empID, allfaris[thePeriod], []);
     if(team[0] != null){
       response[5] = "<h4>Name: " + refinedName(team[1]) + "</h4><h4>Manager: " + refinedName(team[0].name) + "</h4></br>";
-      response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
+      response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr style='vertical-align:middle;'><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
       for(val in personAccomps)
       {
-        response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[val] + "</td><td style='text-align:center; word-break: break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[val]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
+        response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[val] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[val]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
         pointCount += accomPoints[val];
       }
-      response[0] += "<tr><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center;'>"
+      response[0] += "<tr style='vertical-align:middle;'><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center; vertical-align:middle;'>"
       response[0] += pointCount;
       response[0] += "</td><td></td></tr>";
       response[0] += "</tbody></table";
       if(team[0].employeeList != null){
-        response[1] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr></thead><tbody>";
+        response[1] = "<table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center; width: 35%;'>Name</th><th style='text-align:center; width: 25%;'>Core ID</th><th style='text-align:center; width: 15%;'>Total Points</th><th style='text-align:center; width: 25%;'>Show More Details</th></tr></thead><tbody>";
         for(emps in team[0].employeeList){
           var theEmp = team[0].employeeList[emps];
           if(theEmp.coreID != empID){
@@ -760,7 +760,7 @@ app.post('/viewPoints', function(req, res) {
         response[1] += "</tbody></table>";
       }
       if(team[2].employeeList.length > 0){
-        response[2] = "<table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center;'>Name</th><th style='text-align:center;'>Core ID</th><th style='text-align:center;'>Total Points</th><th style='text-align:center;'>Show More Details</th></tr></thead><tbody>";
+        response[2] = "<table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center; width: 35%;'>Name</th><th style='text-align:center; width: 25%;'>Core ID</th><th style='text-align:center; width: 15%;'>Total Points</th><th style='text-align:center; width: 25%;'>Show More Details</th></tr></thead><tbody>";
 
         var needed = team[2].employeeList.length * REQUIREDPOINTS;
         var total = 0;
