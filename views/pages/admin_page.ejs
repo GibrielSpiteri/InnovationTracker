@@ -48,7 +48,7 @@
               <a class="nav-link" id="uploadCsv-tab" data-toggle="tab" href="#upload_csv" role="tab" aria-controls="uploadCsv" aria-selected="true">Upload New Employee List</a>
             </li>
             <li>
-              <a class="nav-link" id="editAccomplishments-tab" data-toggle="tab" href="#edit_accomplishments" role="tab" aria-controls="editAccomplishments" aria-selected="false"> Edit Accomplishments </a>
+              <a class="nav-link" id="editAccomplishments-tab" data-toggle="tab" href="#edit_accomplishments" role="tab" aria-controls="editAccomplishments" aria-selected="false"> Update Accomplishments </a>
             </li>
             <li id="change_credentials_tab" class="nav-item">
               <a class="nav-link" id="changeCredentials-tab" data-toggle="tab" href="#change_credentials" role="tab" aria-controls="changeCredentials" aria-selected="false">Update Credentials</a>
@@ -90,24 +90,34 @@
               <div style="width:100%; margin:0 auto;">
                 <br>
                 <!-- Heading giving the user directions -->
+                <h4>Add a new accomplishment</h4>
                 <div class="form-group row">
                   <label for="newDesc" class="col-sm-4 col-form-label">Description</label>
                   <div class="col-sm-8">
-                    <input type="text" class="form-control" id="newDesc" name="newDesc" placeholder="Filed for a new Patent">
+                    <input type="text" class="form-control" id="newDesc" name="newDesc" placeholder="Attend a lunch and learn">
                   </div>
                 </div>
                 <div class="form-group row">
                   <label for="newPoints" class="col-sm-4 col-form-label">Point Value</label>
                   <div class="col-sm-8">
-                    <input type="number" class="form-control" id="newPoints" name="newPoints" placeholder="4">
+                    <input type="number" class="form-control" id="newPoints" name="newPoints" placeholder="1">
                   </div>
                 </div>
+                <button type="submit" class="btn btn-primary" onclick="insertAccomp()">Add Accomplishment</button>
+
+                <br>
+                <br>
+                <br> 
+                <div style="border-bottom:1px black solid; height:1px; width:100%;"></div>
+                <br>
+
+
 
                 <div class="form-group row">
                   <div class="col-sm-12">
                     <!-- <input type="submit" onclick="changePass()" value="Change Pass"/> -->
-                    <button type="submit" class="btn btn-primary" onclick="insertAccomp()">Add Accomplishment</button>
                     <br>
+                    <h4>View and Delete Accomplishments</h4>
                     <div id="AcomplishmentTable"></div>
 
                     <div class="modal fade" id="deleteAlert" role="dialog">
@@ -123,7 +133,7 @@
                         </div>
                       </div>
                     </div>
-                    
+
                   </div>
                 </div>
                 <br>
@@ -256,9 +266,15 @@
         else if(response == "length"){
           alert("Password Length not long enough");
           return true;
+        }else if(response == "SameChange"){
+          alert("You are trying to reset the password to the current password");
+          return true;
         }
         else{
           alert("Password Changed Successfully");
+          document.getElementById("currPassword").value = "";
+          document.getElementById("newPassword").value = "";
+          document.getElementById("repeatPassword").value = "";
           return true;
           // window.location.replace("/verifyLogin");
         }

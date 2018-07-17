@@ -13,7 +13,7 @@ const session = require('express-session');
 const $ = jQuery = require('jQuery');
 const form = require('formidable')
 const schedule = require('node-schedule');
-require('./jquery-csv/src/jquery.csv.js');
+// require('./jquery-csv/src/jquery.csv.js');
 
 
 //Creating the Employee class
@@ -68,7 +68,14 @@ var transporter = nodemailer.createTransport({
   }
 });
 
-
+function refinedName(name){
+  var refinedNames = name.split(", ");
+  refinedNames = refinedNames[1] + " " + refinedNames[0];
+  if(refinedNames.indexOf("(") >= 0){
+    refinedNames = refinedNames.substring(0, refinedNames.indexOf("(")) + refinedNames.substring(refinedNames.indexOf(")")+2, refinedNames.length)
+  }
+  return refinedNames;
+}
 
 //Occurs every January 1st
 // var j = schedule.scheduleJob('0 * * * *', function(){
@@ -174,14 +181,9 @@ function sendCheckInnovationEmail(name, coreID, delay){
 function sendMonthlyEmailToGroup(groupNumber){
   var employeeEmailList = splitListOfPeople[groupNumber];
   for(employeeEmail in employeeEmailList){
-    var name = employeeEmailList[employeeEmail].name;
-    var refinedNames = name.split(", ");
-    refinedNames = refinedNames[1] + " " + refinedNames[0];
-    if(refinedNames.indexOf("(") >= 0){
-      refinedNames = refinedNames.substring(0, refinedNames.indexOf("(")) + refinedNames.substring(refinedNames.indexOf(")")+2, refinedNames.length)
-    }
+    var refinedEmpName = refinedName(employeeEmailList[employeeEmail].name);
     var coreID = employeeEmailList[employeeEmail].coreID;
-    sendCheckInnovationEmail(refinedNames, coreID, (3000*employeeEmail));
+    sendCheckInnovationEmail(refinedEmpName, coreID, (3000*employeeEmail));
     // sendCheckInnovationEmail("Herrmann, Mr. Jeremy", "DCW673");
   }
   console.log("List Size: " + employeeEmailList.length);
@@ -374,22 +376,26 @@ app.post('/updatePass', function(req, res){
       res.send("length");
     else{
       if(newPass == repeatPass){
-        //Store username in future and use that as reference
-        var passCheck = "SELECT `password` FROM `admin` WHERE `username`="+connection.escape(sesh.username);
-        connection.query(passCheck, function(err, result) {
-          if (err) throw err;
-          if(passHash.verify(currPass, result[0].password)){
-            var hashNewPass = passHash.generate(String(newPass));
-            var updatePass = "UPDATE `admin` SET `password`=" + connection.escape(hashNewPass) + "WHERE `username`=" + connection.escape("admin");
-            connection.query(updatePass, function(err, result) {
-              if (err) throw err;
-              res.send("Success");
-            });
-          }
-          else{
-            res.send("FailureCurrent");
-          }
-        });
+        if(newPass != currPass){
+          //Store username in future and use that as reference
+          var passCheck = "SELECT `password` FROM `admin` WHERE `username`="+connection.escape(sesh.username);
+          connection.query(passCheck, function(err, result){
+            if (err) throw err;
+            if(passHash.verify(currPass, result[0].password)){
+              var hashNewPass = passHash.generate(String(newPass));
+              var updatePass = "UPDATE `admin` SET `password`=" + connection.escape(hashNewPass) + "WHERE `username`=" + connection.escape("admin");
+              connection.query(updatePass, function(err, result) {
+                if (err) throw err;
+                res.send("Success");
+              });
+            }
+            else{
+              res.send("FailureCurrent");
+            }
+          });
+        }else {
+          res.send("SameChange")
+        }
       }
       else{
         res.send("FailureRepeat");
@@ -481,7 +487,8 @@ app.post('/leaderboard', function(req, res){
   everyonesPoints.sort(compareValues('total_points', 'desc'));
   for(var i = 0; i < 5; i++){
     if(everyonesPoints[i] != null && everyonesPoints[i].total_points != null && everyonesPoints[i].total_points > 0){
-      scoreboard[i] = [everyonesPoints[i].total_points, everyonesPoints[i].name]
+      var refinedEmpName = refinedName(everyonesPoints[i].name);
+      scoreboard[i] = [everyonesPoints[i].total_points, refinedEmpName]
     }
     else{
       scoreboard[i] = [null, null];
@@ -558,8 +565,8 @@ app.post('/findInformation', function(req, res){
   var employee = findPersonByID(coreID, allfaris[periodID], []);
   var information = [];
   if(employee[0] != null){
-    information[0] = employee[1];
-    information[1] = employee[0].name;
+    information[0] = refinedName(employee[1]);
+    information[1] = refinedName(employee[0].name);
   } else{
     information[0] = "Invalid ID";
     information[1] = "Invalid ID";
@@ -676,7 +683,7 @@ app.post('/viewPoints', function(req, res) {
     response[4] = null;
     var team = findPersonByID(empID, allfaris[thePeriod], []);
     if(team[0] != null){
-      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + team[1] + "</h3><h3>Manager: " + team[0].name + "</h3></br><thead class='thead-dark'><tr><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
+      response[0] = "<table class='table table-striped table-hover table-responsive'><h3>Name: " + refinedName(team[1]) + "</h3><h3>Manager: " + refinedName(team[0].name) + "</h3></br><thead class='thead-dark'><tr><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
       for(val in personAccomps)
       {
         response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[val] + "</td><td style='text-align:center; word-break: break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[val]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
@@ -692,10 +699,10 @@ app.post('/viewPoints', function(req, res) {
           var theEmp = team[0].employeeList[emps];
           if(theEmp.coreID != empID){
             if(theEmp.total_points >= REQUIREDPOINTS){
-              response[1] += "<tr><td>" + theEmp.name + "</td><td>" + theEmp.coreID+ "</td><td style='color:#46EF62;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
+              response[1] += "<tr><td>" + refinedName(theEmp.name) + "</td><td>" + theEmp.coreID+ "</td><td style='color:#46EF62;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
             }
             else{
-              response[1] += "<tr><td>" + theEmp.name + "</td><td>" + theEmp.coreID+ "</td><td style='color:#FD4343;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
+              response[1] += "<tr><td>" + refinedName(theEmp.name) + "</td><td>" + theEmp.coreID+ "</td><td style='color:#FD4343;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
             }
           }
         }
@@ -717,10 +724,10 @@ app.post('/viewPoints', function(req, res) {
             total += REQUIREDPOINTS;
           }
           if(theEmp2.total_points >= REQUIREDPOINTS){
-            response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#46EF62;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
+            response[2] += "<tr><td>" + refinedName(theEmp2.name) + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#46EF62;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
           }
           else{
-            response[2] += "<tr><td>" + theEmp2.name + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#FD4343;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
+            response[2] += "<tr><td>" + refinedName(theEmp2.name) + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#FD4343;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
           }
         }
         var incomplete = needed - total;
@@ -1012,7 +1019,7 @@ function addToUnderFarisList(person){
   }
 }
 
-var server = app.listen(3005, "10.61.32.135", function() {
+var server = app.listen(3005, "localhost", function() {
   var host = server.address().address;
   var port = server.address().port;
 
