@@ -1,5 +1,4 @@
-var chartAnimation= true;
-// bootstrapValidate('#core_id', 'min:5:Enter at least 5 Characters');
+/* JavaScript functions for the Main Index Page */
 
 //Functions that occur when the window is reloaded - Loading the periods and accomplishments list
 window.onload = function(){
@@ -25,6 +24,7 @@ window.onload = function(){
 /**
 * Loads the leaderboard table, gets the top 5 performers
 */
+var chartAnimation = true;
 function loadLeaderboard(){
   setTimeout(function(){
     $.ajax({
