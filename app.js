@@ -84,7 +84,7 @@ var yearlyReset = schedule.scheduleJob('0 0 1 1 *', function(){
 });
 
 var monthlyEmailGroupOne = schedule.scheduleJob('0 0 1 * *', function(){
-  makeListOfAllPeopleUnderFaris();
+  makeListOfAllPeopleUnderFaris(allEmployeesUnderFaris);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(0);
 });
@@ -578,7 +578,6 @@ app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
         var create = "CREATE TABLE employees_" + connection.escape(periodID) + "(coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
         executeQuery(drop);
         executeQuery(create);
-        //Insert all data
         for(let row = 2; row < data.length; row++){
           /* THESE ARE THE LINES TO EDIT INCASE THE CSV FILES FORMATTING IS CHANGED. */
           var insert = "INSERT INTO `employees_" + connection.escape(periodID) + "` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES ("
@@ -587,6 +586,79 @@ app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
           /*FINSIH EDITTING*/
           executeQuery(insert);
         }
+
+        // Making a temporary table ->
+        // Store all the employees there ->
+        // Find Faris ->
+        // Create Heirarchy ->
+        // Make a list of all employees under faris ->
+        // Insert all employees into database
+        var create = "CREATE TABLE `temporaryEmployeeList` (coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
+        executeQuery(create);
+        //Insert all data
+        for(let row = 2; row < data.length; row++){
+          /* THESE ARE THE LINES TO EDIT INCASE THE CSV FILES FORMATTING IS CHANGED. */
+          var insert = "INSERT INTO `temporaryEmployeeList` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES ("
+          insert += connection.escape(data[row][0]) /*<- 0 is the column with the employees name*/+ "," +connection.escape(data[row][4].toUpperCase())/*<- 4 is the column with the employees unique ID*/ + ","
+          insert += connection.escape(data[row][6]) /*<- 6 is the column with the employees job*/+ "," + connection.escape(data[row][9]) /*<- 9 is the column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ +")";
+          /*FINSIH EDITTING*/
+          executeQuery(insert);
+        }
+        setTimeout(function(){
+          //Getting faris from the database by his 'emp_name'
+          var get_faris = "SELECT * FROM `temporaryEmployeeList` WHERE `emp_name` = 'Habbaba, Mr. Faris S (Faris)'";
+          var newFaris = new Emp("","","","","0");
+          var tempAllEmpsUnderFaris = [];
+          connection.query(get_faris, function(err, res) {
+            if (err) throw err;
+            if(res.length != 0){
+              newFaris.name = res[0].emp_name;
+              newFaris.coreID = res[0].coreID;
+              newFaris.job = res[0].job;
+              newFaris.supervisor = res[0].supervisor;
+              newFaris.employeeList = [];
+              newFaris.total_points = res[0].total_points;
+            }
+
+            //Getting all the employees into a list(all_people)
+            var get_all = "SELECT * FROM `temporaryEmployeeList" + connection.escape(tempPeriod) + "`";
+            var tempall_people = [];
+            connection.query(get_all, function(err, res) {
+              if (err) throw err;
+              for (var i in res) {
+                //Make a new employee using their information
+                var person = new Emp("","","","");
+                person.name=res[i].emp_name;
+                person.coreID = res[i].coreID;
+                person.job = res[i].job;
+                person.supervisor = res[i].supervisor;
+                person.employeeList = [];
+                person.total_points = res[i].total_points;
+                //Push this to the list of all all_people
+                tempall_people.push(person);
+              }
+              recurseList(newFaris,tempall_people);
+              makeListOfAllPeopleUnderFaris(tempAllEmpsUnderFaris);
+
+              for(emp in tempAllEmpsUnderFaris){
+                console.log("Employee:" + tempAllEmpsUnderFaris[emp])
+              }
+              console.log(tempAllEmpsUnderFaris.length);
+            });
+          });
+        },1000);
+
+
+
+
+
+
+
+
+
+
+
+
         var refillPoints = "SELECT * FROM `emp_points_" + connection.escape(periodID) + "`";
         connection.query(refillPoints, function(err, result) {
           if (err) throw err;
@@ -709,6 +781,8 @@ app.post('/getPeriods', function(req, res){
 });
 
 app.post('/viewPoints', function(req, res) {
+  for(val in allall_people)
+    console.log(allall_people[val].length);
   var empID = req.body.CORE_ID.toUpperCase();
   var thePeriod = req.body.PERIOD;
   var personAccomps = [];
@@ -1055,22 +1129,23 @@ function startApplication(){
 
 }
 
-function makeListOfAllPeopleUnderFaris(){
+function makeListOfAllPeopleUnderFaris(list){
   var currentFaris = allfaris[periodID];
-  addToUnderFarisList(currentFaris);
+  addToUnderFarisList(currentFaris, list);
+  // console.log("All Emps Under Faris: " + allEmployeesUnderFaris.length)
   //console.log(allEmployeesUnderFaris.length);
 }
 
-function addToUnderFarisList(person){
+function addToUnderFarisList(person, list){
   //console.log(person);
-  allEmployeesUnderFaris.push(person);
+  list.push(person);
   for(emp in person.employeeList)
   {
     addToUnderFarisList(person.employeeList[emp]);
   }
 }
 
-var server = app.listen(3005, "10.61.32.135", function() {
+var server = app.listen(3005, "localhost", function() {
   var host = server.address().address;
   var port = server.address().port;
 
