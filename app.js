@@ -62,6 +62,15 @@ const DOWNLOAD_FOLDER      = './public/downloads/' // Where to download files
 
 /*-----------------------------APPLICATION SETUP------------------------------*/
 
+//Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
+const db_config = {
+  host: 'localhost',
+  port: '3306',
+  user: 'root',
+  password: 'Zebra123',
+  database: 'innovationtracker'
+};
+
 //Setting up the application
 var app = express();
 app.use(express.static(path.join(__dirname, '/public'))); // public directory
@@ -116,16 +125,6 @@ var monthlyEmailGroupFour = schedule.scheduleJob('0 0 4 * *', function(){
 var monthlyEmailGroupFive = schedule.scheduleJob('0 0 5 * *', function(){
   sendMonthlyEmailToGroup(4);
 });
-
-//Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
-const db_config = {
-  host: '10.61.204.98',
-  port: '3306',
-  user: 'root',
-  password: 'Zebra123',
-  database: 'kiosk'
-};
-
 
 
 /*------------------------------APP GET REQUESTS------------------------------*/
@@ -1274,12 +1273,12 @@ function handleDisconnect() {
 /**
 * Listen to the IP:Port
 */
-//app.listen(process.env.PORT);
-var server = app.listen(3005, "10.61.204.98", function() {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log("Listening at http://%s:%s", host, port);
-});
+app.listen(process.env.PORT);
+// var server = app.listen(3005, "10.61.204.98", function() {
+//   var host = server.address().address;
+//   var port = server.address().port;
+//   console.log("Listening at http://%s:%s", host, port);
+// });
 
 /**
 * Runs the necessary functions to start the application
