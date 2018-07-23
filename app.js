@@ -17,7 +17,7 @@ const path       = require('path'); // For creating a public download page to sh
 const csvParser  = require('csv-parse'); // Parses csv files
 const fs         = require('fs'); // Filereader
 const passHash   = require('password-hash'); // Hashes passwords for safe storage
-const $ = jQuery = require('jQuery'); // Advanced JavaScript functionality through jQuery
+// const $ = jQuery = require('jQuery'); // Advanced JavaScript functionality through jQuery
 
 
 /*----------------------------MODIFYABLE CONSTANTS----------------------------*/
@@ -361,7 +361,7 @@ app.post('/deleteAccomplishmentsTable', function(req,res){
 app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
   sesh = req.session;
   if(sesh.logged_in){
-    var theFile = __dirname + "\\public\\downloads\\" + req.file.filename;
+    var theFile = __dirname + "/public/downloads/" + req.file.filename;
 
     console.log(theFile);
     fs.readFile(theFile, {
