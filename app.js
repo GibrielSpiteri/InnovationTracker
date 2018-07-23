@@ -33,8 +33,6 @@ function Emp(name, coreID, job, supervisor, employeeList, total_points){
 //Defining Global Variables along with Constant Variables
 var all_people             = []; // all the employees in the current and past periods
 var allfaris               = []; // Tree of all employees Faris supervises and the employees those people supervise
-var tempfaris              = []; // fills the allfaris array
-var allEmployeesUnderFaris = []; // Used to split groups of employees into batches of 100 for emailing
 var splitListOfPeople      = []; // Batch of 100s
 var response               = []; // mail response
 var accomDescriptions      = []; // The accomplishments in the dropdown menu
@@ -90,7 +88,7 @@ var yearlyReset = schedule.scheduleJob('0 0 1 1 *', function(){
 *Send email reminders to every group of 100
 */
 var monthlyEmailGroupOne = schedule.scheduleJob('0 0 1 * *', function(){
-  makeListOfAllPeopleUnderFaris(allfaris[periodID], allEmployeesUnderFaris);
+  makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(0);
 });
@@ -437,10 +435,6 @@ app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
               recurseList(newFaris,tempall_people);
               makeListOfAllPeopleUnderFaris(newFaris, tempAllEmpsUnderFaris);
 
-              for(emp in tempAllEmpsUnderFaris){
-                console.log("Employee:" + tempAllEmpsUnderFaris[emp])
-              }
-              console.log("All Emps Length: " + tempAllEmpsUnderFaris.length);
               //Insert all data
               for(emp in tempAllEmpsUnderFaris){
                 /* THESE ARE THE LINES TO EDIT INCASE THE CSV FILES FORMATTING IS CHANGED. */
@@ -450,7 +444,6 @@ app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
                 /*FINSIH EDITTING*/
                 executeQuery(insert);
               }
-              console.log("done inserting")
 
             });
           });
@@ -458,7 +451,6 @@ app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
 
         // For the employees still in the table, give them back their points
         setTimeout(function(){
-          console.log("giving the right points");
           var refillPoints = "SELECT * FROM `emp_points_" + connection.escape(periodID) + "`";
           connection.query(refillPoints, function(err, result) {
             if (err) throw err;
@@ -570,8 +562,6 @@ app.post('/getPeriods', function(req, res){
 * Their groups accomplishments, and their employees accomplishments if they're a supervisor
 */
 app.post('/viewPoints', function(req, res) {
-  console.log("All People: " + all_people[1].length);
-
   var empID = req.body.CORE_ID.toUpperCase();
   var thePeriod = req.body.PERIOD;
   var personAccomps = [];
@@ -1039,9 +1029,9 @@ function sendMonthlyEmailToGroup(groupNumber){
 function createSplitListOfEmployees(){
   for(var x = 0; x < 5; x++)
     splitListOfPeople[x] = [];
-  for(var x = 0; x < allEmployeesUnderFaris.length; x++)
+  for(var x = 0; x < all_people[periodID].length; x++)
   {
-    splitListOfPeople[Math.floor(x/100)].push(allEmployeesUnderFaris[x]);
+    splitListOfPeople[Math.floor(x/100)].push((all_people[periodID])[x]);
   }
 }
 
@@ -1222,8 +1212,6 @@ function startApplication(){
 
 function makeListOfAllPeopleUnderFaris(currentFaris, list){
   addToUnderFarisList(currentFaris, list);
-  // console.log("All Emps Under Faris: " + allEmployeesUnderFaris.length)
-  //console.log(allEmployeesUnderFaris.length);
 }
 
 function addToUnderFarisList(person, list){
