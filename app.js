@@ -243,6 +243,9 @@ app.post('/updatePass', function(req, res){
       }
     }
   }
+  else {
+    res.send("log in");
+  }
 });
 
 /**
@@ -255,7 +258,6 @@ app.post('/resetTables', function(req,res){
   var periodName = req.body.periodName;
   resetTables(periodName);
 });
-
 
 /**
 * Accessed through the admin page.
@@ -695,7 +697,6 @@ app.post('/removeAcheivement', function(req, res) {
     }
   });
 });
-
 
 /**
 * Lets a user add an achievement to their ID

@@ -1,12 +1,22 @@
+/* JavaScript functions for the Admin Page */
+
+/**
+* Display File name with jQuery
+*/
 jQuery("input#fileUpload").change(function () {
     $( "label#file_name" ).replaceWith( "<label id='file_name'>Current File Selected : " + jQuery(this).val().replace("C:\\fakepath\\", "") + "</label>" );
 });
 
+/**
+* Load the accomplishments list when the page loads
+*/
 window.onload = function(){
   loadAccomps();
 }
 
-//Status Message for uploading CSV
+/**
+* Status Message for uploading CSV
+*/
 $(document).ready(function() {
   $('#uploadForm').submit(function() {
     $("#status").empty().text("File is uploading...");
@@ -30,7 +40,9 @@ $(document).ready(function() {
   });
 });
 
-//Disable current tables and create new ones
+/**
+* Disable current tables and create new ones
+*/
 function resetPeriod(){
   var name = document.getElementById("period_name").value;
   if(name == ""){
@@ -54,8 +66,12 @@ function resetPeriod(){
       }
     });
   }
-return false;
+  return false;
 }
+
+/**
+* Request to change admin password
+*/
 function changePass(){
   var currPass = document.getElementById("currPassword").value;
   var newPass = document.getElementById("newPassword").value;
@@ -88,6 +104,9 @@ function changePass(){
         alert("You are trying to reset the password to the current password");
         return true;
       }
+      else if(response == "log in"){
+        alert("You are not authorized to do this you cheeky monkey ;)");
+      }
       else{
         alert("Password Changed Successfully");
         document.getElementById("currPassword").value = "";
@@ -102,6 +121,9 @@ function changePass(){
   return false;
 }
 
+/**
+* Load the accomplishments table
+*/
 function loadAccomps(){
   $.ajax({
     type: "POST",
@@ -113,6 +135,9 @@ function loadAccomps(){
   });
 }
 
+/**
+* Request to delete an accomplishment
+*/
 function deleteAccomplishment(id){
   document.getElementById('deleteConfirm').onclick = function() {
     $.ajax({
@@ -135,6 +160,10 @@ function deleteAccomplishment(id){
     });
   }
 }
+
+/**
+* Request to make a new accomplishment
+*/
 function insertAccomp(){
   var desc = document.getElementById('newDesc').value;
   var points = document.getElementById('newPoints').value;
