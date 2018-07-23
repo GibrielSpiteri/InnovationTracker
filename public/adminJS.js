@@ -27,7 +27,12 @@ $(document).ready(function() {
         success: function(response) {
           $("#status").empty().text(response);
           if(response == "File Upload Successful"){
+            $( "label#file_name" ).replaceWith("");
             alert("Successfully Uploaded");
+            return true;
+          }
+          else if(response == "Hacker!"){
+            alert("Hackers are mean people that try to break things dontcha think? :<");
             return true;
           }
           else{
@@ -55,7 +60,10 @@ function resetPeriod(){
       data: { "periodName": name },
       cache: false,
       success: function(response){
-        if(response == "Failure"){
+        if(response == "hacker"){
+          alert("You're playing with fire trying to hack this one! :O");
+        }
+        if(!response){
           alert("Error Occurred");
           return true;
         }
@@ -130,7 +138,12 @@ function loadAccomps(){
     url: "/deleteAccomplishmentsTable",
     cache:false,
     success: function(response){
-      document.getElementById('AcomplishmentTable').innerHTML = response;
+      if(response == "hacker"){
+        alert("You really should be logged in for this stuff ya know :/");
+      }
+      else{
+        document.getElementById('AcomplishmentTable').innerHTML = response;
+      }
     }
   });
 }
@@ -148,6 +161,9 @@ function deleteAccomplishment(id){
       },
       cache: false,
       success: function(response){
+        if(response == "hacker"){
+          alert("You're a bad seed >:(");
+        }
         if(response){
           loadAccomps();
           document.getElementById('closeModal').click();
@@ -186,7 +202,10 @@ function insertAccomp(){
       },
       cache: false,
       success: function(response){
-        if(response){
+        if(response == "hacker"){
+          alert("Don't touch my code thanks! <3");
+        }
+        else if(response){
           loadAccomps();
           alert("Accomplishment Added Successfully");
         }

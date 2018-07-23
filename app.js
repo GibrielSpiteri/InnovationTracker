@@ -20,6 +20,20 @@ const passHash   = require('password-hash'); // Hashes passwords for safe storag
 const $ = jQuery = require('jQuery'); // Advanced JavaScript functionality through jQuery
 
 
+/*----------------------------MODIFYABLE CONSTANTS----------------------------*/
+
+/* Change this value if the required points CHANGED*/
+const REQUIREDPOINTS = 8; // Total number of Points every employee must complete before the end of the year
+
+/*Change these if the csv formmating CHANGED, The numbers represent the column index*/
+const EMP_NAME_COL    = 0;
+const EMP_ID_COL      = 4;
+const EMP_JOB_COL     = 6;
+const EMP_MANAGER_COL = 9;
+
+
+/*---------------------------------VARIABLES----------------------------------*/
+
 //Creating the Employee class
 function Emp(name, coreID, job, supervisor, employeeList, total_points){
   this.name         = name;
@@ -43,14 +57,12 @@ var faris                  = new Emp("","","","","0"); // Starting node for the 
 var pastPeriods            = new Map(); // The history of the Innovation metric
 var logged_in              = false; // Admin login boolean
 var periodID               = null;  // The current running period
-var connection; // Connection to database
-var sesh;       // Admin login session
+var connection;            // Connection to database
+var sesh;                  // Admin login session
 const DOWNLOAD_FOLDER      = './public/downloads/' // Where to download files
 
 
-/* Change this value if the required points CHANGED*/
-const REQUIREDPOINTS = 8; // Total number of Points every employee must complete before the end of the year
-
+/*-----------------------------APPLICATION SETUP------------------------------*/
 
 //Setting up the application
 var app = express();
@@ -124,7 +136,7 @@ const db_config = {
 * Directs the user to the main application page. ~ index.ejs
 */
 app.get('/', function(req, res) {
-  res.render('pages/index');
+  res.send('pages/index');
 });
 
 /**
@@ -207,15 +219,14 @@ app.post('/auth', function(req, res) {
 */
 app.post('/updatePass', function(req, res){
   sesh = req.session;
-  var currPass = req.body.currPass;
-  var newPass = req.body.newPass;
-  var repeatPass = req.body.repeatPass;
+  if(sesh.logged_in){
+    var currPass = req.body.currPass;
+    var newPass = req.body.newPass;
+    var repeatPass = req.body.repeatPass;
 
-  // Error checks
-  if(sesh.logged_in)
-  {
-    if(repeatPass.length == 0 || newPass.length == 0)
+    if(repeatPass.length == 0 || newPass.length == 0) {
       res.send("length");
+    }
     else{
       if(newPass == repeatPass){
         if(newPass != currPass){
@@ -257,8 +268,15 @@ app.post('/updatePass', function(req, res){
 * All the employees accomplishments and points are saved in their respective tables to be viewed online.
 */
 app.post('/resetTables', function(req,res){
-  var periodName = req.body.periodName;
-  resetTables(periodName);
+  sesh = req.session;
+  if(sesh.logged_in){
+    var periodName = req.body.periodName;
+    var result = resetTables(periodName);
+    res.send(result);
+  }
+  else{
+    res.send("hacker")
+  }
 });
 
 /**
@@ -266,16 +284,22 @@ app.post('/resetTables', function(req,res){
 * This function allows the admin to manually enter in a new accomplishment for employees to select
 */
 app.post('/addAccomplishments', function(req,res){
-  var insertDescription = req.body.DESCRIPTION;
-  var insertPoints = req.body.POINTS;
-  var queryAccomps = 'INSERT INTO `accomplishment` (`description`, `points`) VALUES (' + connection.escape(insertDescription) + ',' + connection.escape(insertPoints) + ')';
-  connection.query(queryAccomps, function(err, result) {
-    if (err){
-      res.send(false);
-      throw err;
-    }
-    res.send(true);
-  });
+  sesh = req.session;
+  if(sesh.logged_in){
+    var insertDescription = req.body.DESCRIPTION;
+    var insertPoints = req.body.POINTS;
+    var queryAccomps = 'INSERT INTO `accomplishment` (`description`, `points`) VALUES (' + connection.escape(insertDescription) + ',' + connection.escape(insertPoints) + ')';
+    connection.query(queryAccomps, function(err, result) {
+      if (err){
+        res.send(false);
+        throw err;
+      }
+      res.send(true);
+    });
+  }
+  else{
+    res.send("hacker")
+  }
 });
 
 /**
@@ -283,22 +307,28 @@ app.post('/addAccomplishments', function(req,res){
 * This function allows the admin to manually remove an accomplishment from being displayed on the main page
 */
 app.post('/deleteAccomplishments', function(req,res){
-  var deleteID = req.body.ID
-  //The query does not permanently delete the accomplishment as there are issues with displaying points when doing so
-  //Instead the accomplishment is disabled (enabled field set to 0) and is saved in the table
-  var queryAccomps = 'UPDATE `accomplishment` SET `enabled`= 0 WHERE `accompID`=' + connection.escape(deleteID);
-  connection.query(queryAccomps, function(err, result) {
-    if(err){
-      res.send("ERROR");
-      throw err;
-    }
-    if(result.affectedRows <= 0){
-      res.send("ERROR");
-    }
-    else{
-      res.send("SUCCESS");
-    }
-  });
+  sesh = req.session;
+  if(sesh.logged_in){
+    var deleteID = req.body.ID
+    //The query does not permanently delete the accomplishment as there are issues with displaying points when doing so
+    //Instead the accomplishment is disabled (enabled field set to 0) and is saved in the table
+    var queryAccomps = 'UPDATE `accomplishment` SET `enabled`= 0 WHERE `accompID`=' + connection.escape(deleteID);
+    connection.query(queryAccomps, function(err, result) {
+      if(err){
+        res.send("ERROR");
+        throw err;
+      }
+      if(result.affectedRows <= 0){
+        res.send("ERROR");
+      }
+      else{
+        res.send("SUCCESS");
+      }
+    });
+  }
+  else {
+    res.send("hacker");
+  }
 });
 
 /**
@@ -306,17 +336,23 @@ app.post('/deleteAccomplishments', function(req,res){
 * Writes the table to delete accomplishments to the admin page
 */
 app.post('/deleteAccomplishmentsTable', function(req,res){
-  var htmlResponse = '</br><table class="table table-striped table-hover table-responsive"><tr><th style="text-align:center;">Description</th><th>Points</th><th>Remove Item</th></tr>';
-  var queryAccomps = 'SELECT * FROM `accomplishment`';
-  connection.query(queryAccomps, function(err, result) {
-    for(item in result){
-      if(item != 0 && result[item].enabled != 0){
-        htmlResponse += '<tr><td>' + result[item].description + '</td><td>' + result[item].points + '</td><td><img data-toggle="modal" data-target="#deleteAlert" onclick="deleteAccomplishment(' + result[item].accompID + ')" src="/delete.png" height="25px" width="25px" style="cursor: pointer;"/></td></tr>';
+  sesh = req.session;
+  if(sesh.logged_in){
+    var htmlResponse = '</br><table class="table table-striped table-hover table-responsive"><tr><th style="text-align:center;">Description</th><th>Points</th><th>Remove Item</th></tr>';
+    var queryAccomps = 'SELECT * FROM `accomplishment`';
+    connection.query(queryAccomps, function(err, result) {
+      for(item in result){
+        if(item != 0 && result[item].enabled != 0){
+          htmlResponse += '<tr><td>' + result[item].description + '</td><td>' + result[item].points + '</td><td><img data-toggle="modal" data-target="#deleteAlert" onclick="deleteAccomplishment(' + result[item].accompID + ')" src="/delete.png" height="25px" width="25px" style="cursor: pointer;"/></td></tr>';
+        }
       }
-    }
-    htmlResponse += '</table>';
-    res.send(htmlResponse);
-  });
+      htmlResponse += '</table>';
+      res.send(htmlResponse);
+    });
+  }
+  else{
+    res.send(hacker);
+  }
 });
 
 /**
@@ -326,58 +362,64 @@ app.post('/deleteAccomplishmentsTable', function(req,res){
 * In the event that the .csv file's formmating is changed instructions are commented below to help edit the code.
 */
 app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
-  var theFile = __dirname + "\\public\\downloads\\" + req.file.filename;
+  sesh = req.session;
+  if(sesh.logged_in){
+    var theFile = __dirname + "\\public\\downloads\\" + req.file.filename;
 
-  console.log(theFile);
-  fs.readFile(theFile, {
-    encoding: 'utf-8'
-  }, function(err, csvData) {
-    if (err){
-      res.end("Error Reading File");
-      //throw err;
-    }
-    csvParser(csvData, {
-      delimiter: ','
-    }, function(err, data) {
-      if (err) {
-        res.end("Error Parsing File");
+    console.log(theFile);
+    fs.readFile(theFile, {
+      encoding: 'utf-8'
+    }, function(err, csvData) {
+      if (err){
+        res.end("Error Reading File");
         //throw err;
       }
-      else {
-        var drop = "DROP TABLE employees_" + connection.escape(periodID);
-        //Reset the table
-        var create = "CREATE TABLE employees_" + connection.escape(periodID) + "(coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
-        executeQuery(drop);
-        executeQuery(create);
-        //Insert all data
-        for(let row = 2; row < data.length; row++){
-          /* THESE ARE THE LINES TO EDIT INCASE THE CSV FILES FORMATTING IS CHANGED. */
-          var insert = "INSERT INTO `employees_" + connection.escape(periodID) + "` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES ("
-          insert += connection.escape(data[row][0]) /*<- 0 is the column with the employees name*/+ "," +connection.escape(data[row][4].toUpperCase())/*<- 4 is the column with the employees unique ID*/ + ","
-          insert += connection.escape(data[row][6]) /*<- 6 is the column with the employees job*/+ "," + connection.escape(data[row][9]) /*<- 9 is the column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ +")";
-          /*FINSIH EDITTING*/
-          executeQuery(insert);
+      csvParser(csvData, {
+        delimiter: ','
+      }, function(err, data) {
+        if (err) {
+          res.end("Error Parsing File");
+          //throw err;
         }
-        // For the employees still in the table, give them back their points
+        else {
+          var drop = "DROP TABLE employees_" + connection.escape(periodID);
+          //Reset the table
+          var create = "CREATE TABLE employees_" + connection.escape(periodID) + "(coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
+          executeQuery(drop);
+          executeQuery(create);
+          //Insert all data
+          for(let row = 2; row < data.length; row++){
+            /* THESE ARE THE LINES TO EDIT INCASE THE CSV FILES FORMATTING IS CHANGED. */
+            var insert = "INSERT INTO `employees_" + connection.escape(periodID) + "` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES ("
+            insert += connection.escape(data[row][EMP_NAME_COL]) /*<- The column with the employees name*/+ "," +connection.escape(data[row][EMP_ID_COL].toUpperCase())/*<- The column with the employees unique ID*/ + ","
+            insert += connection.escape(data[row][EMP_JOB_COL]) /*<- The column with the employees job*/+ "," + connection.escape(data[row][EMP_MANAGER_COL]) /*<- The column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ +")";
+            /*FINSIH EDITTING*/
+            executeQuery(insert);
+          }
+          // For the employees still in the table, give them back their points
+          setTimeout(function(){
+            var refillPoints = "SELECT * FROM `emp_points_" + connection.escape(periodID) + "`";
+            connection.query(refillPoints, function(err, result) {
+              if (err) throw err;
+              for(emp in result){
+                var coreIDWithPoints = result[emp].coreID;
+                var thePoints = result[emp].points;
+                var updatePoints = "UPDATE `employees_" + connection.escape(periodID) + "` SET `total_points`=" + thePoints + " WHERE `coreID` = " + connection.escape(coreIDWithPoints.toUpperCase());
+                executeQuery(updatePoints);
+              }
+            });
+          },2000);
+        }
         setTimeout(function(){
-          var refillPoints = "SELECT * FROM `emp_points_" + connection.escape(periodID) + "`";
-          connection.query(refillPoints, function(err, result) {
-            if (err) throw err;
-            for(emp in result){
-              var coreIDWithPoints = result[emp].coreID;
-              var thePoints = result[emp].points;
-              var updatePoints = "UPDATE `employees_" + connection.escape(periodID) + "` SET `total_points`=" + thePoints + " WHERE `coreID` = " + connection.escape(coreIDWithPoints.toUpperCase());
-              executeQuery(updatePoints);
-            }
-          });
-        },2000);
-      }
-      setTimeout(function(){
-        sortsortEmps(periodID); // Sort the arrays again after an upload
-        return res.end("File Upload Successful");
-      }, 6000);
+          sortsortEmps(periodID); // Sort the arrays again after an upload
+          return res.end("File Upload Successful");
+        }, 6000);
+      });
     });
-  });
+  }
+  else{
+    res.send("Hacker!");
+  }
 });
 
 /**
@@ -1063,7 +1105,9 @@ function resetTables(periodName){
   var currentPeriodID;
   var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
   connection.query(getCurrentPeriod, function(err, result) {
-    if (err) throw err;
+    if(err){
+      return false;
+    }
     if(result.length > 0){
       currentPeriodID = result[0].periodID;
       var swapOut = "UPDATE `period` SET `currentPeriod` = FALSE WHERE `periodID`=" + currentPeriodID;
@@ -1071,6 +1115,9 @@ function resetTables(periodName){
 
       var updateCurrentPeriod = "UPDATE `period` SET `endTime`= NOW() WHERE `periodID`=" + currentPeriodID;
       executeQuery(updateCurrentPeriod);
+    }
+    else{
+      return false;
     }
     var newPeriodTable = "INSERT INTO `period` (`name`, `startTime`, `endTime`, `currentPeriod`) VALUES (" + connection.escape(periodName)+ ", NOW(), null, TRUE)";
     executeQuery(newPeriodTable);
@@ -1085,11 +1132,16 @@ function resetTables(periodName){
 
     var employees = "CREATE TABLE `employees_" + connection.escape(periodID) +"` AS SELECT * FROM `employees_" + connection.escape(periodID-1) + "`";
     connection.query(employees, function(err, result) {
-      if (err) throw err;
+      if(err){
+        return false;
+      }
       var zeroPoints = "UPDATE `employees_" +connection.escape(periodID) +"` SET `total_points`=" + 0;
       connection.query(zeroPoints, function(err, result) {
-        if (err) throw err;
+        if(err){
+          return false;
+        }
         sortsortEmps();
+        return true;
       });
     });
   });
@@ -1117,7 +1169,6 @@ function makeListOfAllPeopleUnderFaris(){
 /**
 * Add to the list for emailing
 */
-
 function addToUnderFarisList(person){
   //console.log(person);
   allEmployeesUnderFaris.push(person);
@@ -1158,11 +1209,12 @@ function handleDisconnect() {
 /**
 * Listen to the IP:Port
 */
-var server = app.listen(3005, "10.61.32.135", function() {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log("Listening at http://%s:%s", host, port);
-});
+app.listen(process.env.PORT);
+// var server = app.listen(3005, "10.61.32.135", function() {
+//   var host = server.address().address;
+//   var port = server.address().port;
+//   console.log("Listening at http://%s:%s", host, port);
+// });
 
 /**
 * Runs the necessary functions to start the application
@@ -1178,5 +1230,7 @@ function startApplication(){
   setTimeout(function(){getAllPeoplePeriods(); }, 4000);
 
 }
+
+/* RUNNING THE APP */
 //Calling the main function below
 startApplication();
