@@ -47,8 +47,6 @@ function Emp(name, coreID, job, supervisor, employeeList, total_points){
 //Defining Global Variables along with Constant Variables
 var all_people             = []; // all the employees in the current and past periods
 var allfaris               = []; // Tree of all employees Faris supervises and the employees those people supervise
-var tempfaris              = []; // fills the allfaris array
-var allEmployeesUnderFaris = []; // Used to split groups of employees into batches of 100 for emailing
 var splitListOfPeople      = []; // Batch of 100s
 var response               = []; // mail response
 var accomDescriptions      = []; // The accomplishments in the dropdown menu
@@ -102,7 +100,7 @@ var yearlyReset = schedule.scheduleJob('0 0 1 1 *', function(){
 *Send email reminders to every group of 100
 */
 var monthlyEmailGroupOne = schedule.scheduleJob('0 0 1 * *', function(){
-  makeListOfAllPeopleUnderFaris();
+  makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(0);
 });
@@ -121,7 +119,7 @@ var monthlyEmailGroupFive = schedule.scheduleJob('0 0 5 * *', function(){
 
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
 const db_config = {
-  host: '10.61.32.135',
+  host: '10.61.204.98',
   port: '3306',
   user: 'root',
   password: 'Zebra123',
@@ -136,7 +134,7 @@ const db_config = {
 * Directs the user to the main application page. ~ index.ejs
 */
 app.get('/', function(req, res) {
-  res.send('pages/index');
+  res.render('pages/index');
 });
 
 /**
@@ -387,15 +385,77 @@ app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
           var create = "CREATE TABLE employees_" + connection.escape(periodID) + "(coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
           executeQuery(drop);
           executeQuery(create);
+
+          // Making a temporary table ->
+          // Store all the employees there ->
+          // Find Faris ->
+          // Create Heirarchy ->
+          // Make a list of all employees under faris ->
+          // Insert all employees into database
+
+          var create = "CREATE TABLE `temporaryEmployeeList` (coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
+          executeQuery(create);
           //Insert all data
           for(let row = 2; row < data.length; row++){
             /* THESE ARE THE LINES TO EDIT INCASE THE CSV FILES FORMATTING IS CHANGED. */
-            var insert = "INSERT INTO `employees_" + connection.escape(periodID) + "` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES ("
-            insert += connection.escape(data[row][EMP_NAME_COL]) /*<- The column with the employees name*/+ "," +connection.escape(data[row][EMP_ID_COL].toUpperCase())/*<- The column with the employees unique ID*/ + ","
-            insert += connection.escape(data[row][EMP_JOB_COL]) /*<- The column with the employees job*/+ "," + connection.escape(data[row][EMP_MANAGER_COL]) /*<- The column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ +")";
+            var insertTemp = "INSERT INTO `temporaryEmployeeList` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES ("
+            insertTemp += connection.escape(data[row][EMP_NAME_COL]) /*<- 0 is the column with the employees name*/+ "," +connection.escape(data[row][EMP_ID_COL].toUpperCase())/*<- 4 is the column with the employees unique ID*/ + ","
+            insertTemp += connection.escape(data[row][EMP_JOB_COL]) /*<- 6 is the column with the employees job*/+ "," + connection.escape(data[row][EMP_MANAGER_COL]) /*<- 9 is the column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ +")";
             /*FINSIH EDITTING*/
-            executeQuery(insert);
+            executeQuery(insertTemp);
           }
+
+
+          setTimeout(function(){
+            //Getting faris from the database by his 'emp_name'
+            var get_faris = "SELECT * FROM `temporaryEmployeeList` WHERE `emp_name` = 'Habbaba, Mr. Faris S (Faris)'";
+            var newFaris = new Emp("","","","","0");
+            connection.query(get_faris, function(err, res) {
+              if (err) throw err;
+              if(res.length != 0){
+                newFaris.name = res[0].emp_name;
+                newFaris.coreID = res[0].coreID;
+                newFaris.job = res[0].job;
+                newFaris.supervisor = res[0].supervisor;
+                newFaris.employeeList = [];
+                newFaris.total_points = res[0].total_points;
+              }
+
+              //Getting all the employees into a list(all_people)
+              var get_all = "SELECT * FROM `temporaryEmployeeList`";
+              var tempall_people = [];
+              connection.query(get_all, function(err, res) {
+                if (err) throw err;
+                for (var i in res) {
+                  //Make a new employee using their information
+                  var person = new Emp("","","","");
+                  person.name=res[i].emp_name;
+                  person.coreID = res[i].coreID;
+                  person.job = res[i].job;
+                  person.supervisor = res[i].supervisor;
+                  person.employeeList = [];
+                  person.total_points = res[i].total_points;
+                  //Push this to the list of all all_people
+                  tempall_people.push(person);
+                }
+                var tempAllEmpsUnderFaris = [];
+                recurseList(newFaris,tempall_people);
+                makeListOfAllPeopleUnderFaris(newFaris, tempAllEmpsUnderFaris);
+
+                //Insert all data
+                for(emp in tempAllEmpsUnderFaris){
+                  /* THESE ARE THE LINES TO EDIT INCASE THE CSV FILES FORMATTING IS CHANGED. */
+                  var insert = "INSERT INTO `employees_" + connection.escape(periodID) + "` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES ("
+                  insert += connection.escape(tempAllEmpsUnderFaris[emp].name) /*<- 0 is the column with the employees name*/+ "," +connection.escape((tempAllEmpsUnderFaris[emp].coreID).toUpperCase())/*<- 4 is the column with the employees unique ID*/ + ","
+                  insert += connection.escape(tempAllEmpsUnderFaris[emp].job) /*<- 6 is the column with the employees job*/+ "," + connection.escape(tempAllEmpsUnderFaris[emp].supervisor) /*<- 9 is the column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ +")";
+                  /*FINSIH EDITTING*/
+                  executeQuery(insert);
+                }
+
+              });
+            });
+          },1000);
+
           // For the employees still in the table, give them back their points
           setTimeout(function(){
             var refillPoints = "SELECT * FROM `emp_points_" + connection.escape(periodID) + "`";
@@ -408,12 +468,14 @@ app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
                 executeQuery(updatePoints);
               }
             });
-          },2000);
+          },9500);
+          setTimeout(function(){
+            sortsortEmps(periodID); // Sort the arrays again after an upload
+            var drop = "DROP TABLE `temporaryEmployeeList`";
+            executeQuery(drop);
+            return res.end("File Upload Successful");
+          }, 12000);
         }
-        setTimeout(function(){
-          sortsortEmps(periodID); // Sort the arrays again after an upload
-          return res.end("File Upload Successful");
-        }, 6000);
       });
     });
   }
@@ -511,8 +573,6 @@ app.post('/getPeriods', function(req, res){
 * Their groups accomplishments, and their employees accomplishments if they're a supervisor
 */
 app.post('/viewPoints', function(req, res) {
-  console.log("All People: " + all_people[1].length);
-
   var empID = req.body.CORE_ID.toUpperCase();
   var thePeriod = req.body.PERIOD;
   var personAccomps = [];
@@ -979,9 +1039,9 @@ function sendMonthlyEmailToGroup(groupNumber){
 function createSplitListOfEmployees(){
   for(var x = 0; x < 5; x++)
     splitListOfPeople[x] = [];
-  for(var x = 0; x < allEmployeesUnderFaris.length; x++)
+  for(var x = 0; x < all_people[periodID].length; x++)
   {
-    splitListOfPeople[Math.floor(x/100)].push(allEmployeesUnderFaris[x]);
+    splitListOfPeople[Math.floor(x/100)].push((all_people[periodID])[x]);
   }
 }
 
@@ -1159,22 +1219,27 @@ function getAllPeoplePeriods(){
 }
 
 /**
-* Get a list of everyone under Faris for emailing
+* Runs the necessary functions to start the application
 */
-function makeListOfAllPeopleUnderFaris(){
-  var currentFaris = allfaris[periodID];
-  addToUnderFarisList(currentFaris);
+function startApplication(){
+  handleDisconnect();
+
+  setTimeout(function(){getPeriodID();}, 2000);
+  setTimeout(function(){getAllPeriods();}, 3500);
+  setTimeout(function(){getAllPeoplePeriods(); }, 4000);
+
 }
 
-/**
-* Add to the list for emailing
-*/
-function addToUnderFarisList(person){
+function makeListOfAllPeopleUnderFaris(currentFaris, list){
+  addToUnderFarisList(currentFaris, list);
+}
+
+function addToUnderFarisList(person, list){
   //console.log(person);
-  allEmployeesUnderFaris.push(person);
+  list.push(person);
   for(emp in person.employeeList)
   {
-    addToUnderFarisList(person.employeeList[emp]);
+    addToUnderFarisList(person.employeeList[emp], list);
   }
 }
 
@@ -1209,12 +1274,12 @@ function handleDisconnect() {
 /**
 * Listen to the IP:Port
 */
-app.listen(process.env.PORT);
-// var server = app.listen(3005, "10.61.32.135", function() {
-//   var host = server.address().address;
-//   var port = server.address().port;
-//   console.log("Listening at http://%s:%s", host, port);
-// });
+//app.listen(process.env.PORT);
+var server = app.listen(3005, "10.61.204.98", function() {
+  var host = server.address().address;
+  var port = server.address().port;
+  console.log("Listening at http://%s:%s", host, port);
+});
 
 /**
 * Runs the necessary functions to start the application
