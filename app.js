@@ -710,12 +710,12 @@ app.post('/removeAcheivement', function(req, res) {
 * Lets a user add an achievement to their ID
 */
 app.post('/addPoints', function(req, res) {
-  var CORE_ID = req.body.CORE_ID;
+  var CORE_ID = req.body.CORE_ID.toUpperCase();
   var ACCOMPLISHMENT = req.body.ACCOMPLISHMENT;
   var DESCRIPTION = req.body.DESCRIPTION;
   var MANAGER = req.body.MANAGER;
   if(CORE_ID != "" && ACCOMPLISHMENT != "" && DESCRIPTION != "" && MANAGER != "" && MANAGER != "Invalid ID"){
-  var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID.toUpperCase()) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
+  var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
     executeQuery(activity);
     var newPoints;
     setTimeout(function(){
