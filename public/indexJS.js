@@ -98,6 +98,7 @@ $('#core_id').keypress(function(e) {
       if(elem.style.width.substring(0,elem.style.width.length-1) == "0")
         typingTimer = setTimeout(findInformation, 0);
     }else{
+      document.getElementById("valid").innerHTML = "Invalid ID";
       document.getElementById("valid").style.visibility = "hidden";
       document.getElementById("name").value = "";
       document.getElementById("manager").value = "";
@@ -112,10 +113,19 @@ $('#core_id').focusout(function(){
     if(elem.style.width.substring(0,elem.style.width.length-1) == "0")
       findInformation();
   }else{
+    document.getElementById("valid").innerHTML = "Invalid ID";
     document.getElementById("valid").style.visibility = "hidden";
     document.getElementById("name").value = "";
     document.getElementById("manager").value = "";
   }
+});
+
+$('#core_id').on('keyup', function() {
+    document.getElementById("core_id_view").value = $('#core_id').val();
+});
+
+$('#core_id_view').on('keyup', function() {
+    document.getElementById("core_id").value = $('#core_id_view').val();
 });
 
 
@@ -146,12 +156,14 @@ function findInformation(){
     success: function(response){
       if(response[0] == "Invalid ID")
       {
+        document.getElementById("valid").innerHTML = "Invalid ID";
         document.getElementById("valid").style.visibility = "visible";
         document.getElementById("name").value = "";
         document.getElementById("manager").value = "";
       }
       else{
-        document.getElementById("valid").style.visibility = "hidden";
+        document.getElementById("valid").innerHTML = response[2];
+        document.getElementById("valid").style.visibility = "visible";
         document.getElementById("name").value = response[0];
         document.getElementById("manager").value = response[1];
       }

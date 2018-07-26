@@ -33,11 +33,11 @@ const EMP_MANAGER_COL = 9;
 
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
 const db_config = {
-  host: 'localhost',
+  host: '10.61.32.135',
   port: '3306',
   user: 'root',
   password: 'Zebra123',
-  database: 'innovationtracker'
+  database: 'kiosk'
 };
 
 /*---------------------------------VARIABLES----------------------------------*/
@@ -501,10 +501,13 @@ app.post('/findInformation', function(req, res){
   if(employee[0] != null){
     information[0] = refinedName(employee[1]);
     information[1] = refinedName(employee[0].name);
+    information[2] = "You currently have " + employee[2].total_points + " points.";
   } else{
     information[0] = "Invalid ID";
     information[1] = "Invalid ID";
+    information[2] = "Invalid ID";
   }
+  console.log(information);
   res.send(information);
 });
 
