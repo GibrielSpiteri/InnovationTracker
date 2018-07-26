@@ -17,7 +17,7 @@ const path       = require('path'); // For creating a public download page to sh
 const csvParser  = require('csv-parse'); // Parses csv files
 const fs         = require('fs'); // Filereader
 const passHash   = require('password-hash'); // Hashes passwords for safe storage
-const $ = jQuery = require('jQuery'); // Advanced JavaScript functionality through jQuery
+// const $ = jQuery = require('jQuery'); // Advanced JavaScript functionality through jQuery
 
 
 /*----------------------------MODIFYABLE CONSTANTS----------------------------*/
@@ -69,6 +69,15 @@ const DOWNLOAD_FOLDER      = './public/downloads/' // Where to download files
 
 
 /*-----------------------------APPLICATION SETUP------------------------------*/
+
+//Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
+const db_config = {
+  host: 'localhost',
+  port: '3306',
+  user: 'root',
+  password: 'Zebra123',
+  database: 'innovationtracker'
+};
 
 //Setting up the application
 var app = express();
@@ -126,6 +135,7 @@ var monthlyEmailGroupFour = schedule.scheduleJob('0 0 4 * *', function(){
 var monthlyEmailGroupFive = schedule.scheduleJob('0 0 5 * *', function(){
   sendMonthlyEmailToGroup(4);
 });
+
 
 /*------------------------------APP GET REQUESTS------------------------------*/
 
@@ -367,7 +377,7 @@ app.post('/deleteAccomplishmentsTable', function(req,res){
 app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
   sesh = req.session;
   if(sesh.logged_in){
-    var theFile = __dirname + "\\public\\downloads\\" + req.file.filename;
+    var theFile = __dirname + "/public/downloads/" + req.file.filename;
 
     console.log(theFile);
     fs.readFile(theFile, {
@@ -716,12 +726,12 @@ app.post('/removeAcheivement', function(req, res) {
 * Lets a user add an achievement to their ID
 */
 app.post('/addPoints', function(req, res) {
-  var CORE_ID = req.body.CORE_ID;
+  var CORE_ID = req.body.CORE_ID.toUpperCase();
   var ACCOMPLISHMENT = req.body.ACCOMPLISHMENT;
   var DESCRIPTION = req.body.DESCRIPTION;
   var MANAGER = req.body.MANAGER;
   if(CORE_ID != "" && ACCOMPLISHMENT != "" && DESCRIPTION != "" && MANAGER != "" && MANAGER != "Invalid ID"){
-  var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID.toUpperCase()) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
+  var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
     executeQuery(activity);
     var newPoints;
     setTimeout(function(){
