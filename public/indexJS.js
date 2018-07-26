@@ -197,9 +197,7 @@ function viewPoints(){
         setTimeout(alert("Please enter a valid Employee ID"),1000);
       }
       else{
-        document.getElementById("userTable").innerHTML = response[0];
-        document.getElementById("userTable").style.visibility ="visible";
-        document.getElementById("btnCollapseOne").style.visibility ="visible";
+
         document.getElementById("collapseOne").style = "";
         document.getElementById("userInformation").innerHTML = response[5];
 
@@ -217,6 +215,17 @@ function viewPoints(){
         $("#btnCollapseThree").addClass("collapsed");
         $("#collapseThree").removeClass("in");
         $("#collapseThree").attr("aria-expanded","false");
+
+        if(response[0] != null){
+          document.getElementById("userTable").innerHTML = response[0];
+          document.getElementById("userTable").style.visibility ="visible";
+          document.getElementById("btnCollapseOne").style.visibility ="visible";
+        }
+        else{
+          document.getElementById("userTable").innerHTML = "";
+          document.getElementById("userTable").style.visibility ="hidden";
+          document.getElementById("btnCollapseOne").style.visibility ="hidden";
+        }
 
         if(response[1] != null){
           document.getElementById("groupList").innerHTML = response[1];

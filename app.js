@@ -70,15 +70,6 @@ const DOWNLOAD_FOLDER      = './public/downloads/' // Where to download files
 
 /*-----------------------------APPLICATION SETUP------------------------------*/
 
-//Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
-const db_config = {
-  host: 'localhost',
-  port: '3306',
-  user: 'root',
-  password: 'Zebra123',
-  database: 'innovationtracker'
-};
-
 //Setting up the application
 var app = express();
 app.use(express.static(path.join(__dirname, '/public'))); // public directory
@@ -589,101 +580,112 @@ app.post('/getPeriods', function(req, res){
 */
 app.post('/viewPoints', function(req, res) {
   var empID = req.body.CORE_ID.toUpperCase();
-  var thePeriod = req.body.PERIOD;
-  var personAccomps = [];
-  var results = [];
-  var query = "SELECT * FROM `activity_" + thePeriod + "` WHERE coreID="+ connection.escape(empID);
-  connection.query(query, function(err, activities) {
-    if (err) throw err;
-    for(whatTheEmpDid in activities)
-    {
-      personAccomps.push(activities[whatTheEmpDid]); // Get the employees completed activities
-    }
-  });
-
-  setTimeout(function(){
-    parseAccomplishments(personAccomps); // Get the point value and description of the accomplishment
-  },500);
-
-  setTimeout(function(){ // Create the htmlresponse - all the table data
-    var pointCount = 0;
-    response[0]    = null;
-    response[1]    = null;
-    response[2]    = null;
-    response[3]    = null;
-    response[4]    = null;
-    var team = findPersonByID(empID, allfaris[thePeriod], []); // find the employee and their information
-    //Write the personal accomplishments table
-    if(team[0] != null){
-      response[5] = "<h4>Name: " + refinedName(team[1]) + "</h4><h4>Manager: " + refinedName(team[0].name) + "</h4></br>";
-      response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr style='vertical-align:middle;'><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
-      for(val in personAccomps)
+  if(empID === "INTERNS2018"){
+    response[0] = null
+    response[1] = null
+    response[2] = null
+    response[3] = null
+    response[4] = null
+    response[5] = "<br><br><img src='updatedZebra.png'></img><br><br><h4>Congratulations for finding the easter egg hidden by the 2018 intern team! In the picture being displayed above, you can see the team that created this application. From left to right you can see, (TOM JERM GIB AMAN).</h4><br><br><h4>We would like to thank you for using our application & we hope it serves all of Zebra well.</h4>"
+    res.send(response);
+  } else {
+    var thePeriod = req.body.PERIOD;
+    var personAccomps = [];
+    var results = [];
+    var query = "SELECT * FROM `activity_" + thePeriod + "` WHERE coreID="+ connection.escape(empID);
+    connection.query(query, function(err, activities) {
+      if (err) throw err;
+      for(whatTheEmpDid in activities)
       {
-        response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[val] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[val]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
-        pointCount += accomPoints[val];
+        personAccomps.push(activities[whatTheEmpDid]); // Get the employees completed activities
       }
-      response[0] += "<tr style='vertical-align:middle;'><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center; vertical-align:middle;'>"
-      response[0] += pointCount;
-      response[0] += "</td><td></td></tr>";
-      response[0] += "</tbody></table";
+    });
 
-      // Create the your group table
-      if(team[0].employeeList != null){
-        response[1] = "<table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center; width: 35%;'>Name</th><th style='text-align:center; width: 25%;'>Core ID</th><th style='text-align:center; width: 15%;'>Total Points</th><th style='text-align:center; width: 25%;'>Show More Details</th></tr></thead><tbody>";
-        for(emps in team[0].employeeList){
-          var theEmp = team[0].employeeList[emps];
-          if(theEmp.coreID != empID){
-            if(theEmp.total_points >= REQUIREDPOINTS){
-              response[1] += "<tr><td>" + refinedName(theEmp.name) + "</td><td>" + theEmp.coreID+ "</td><td style='color:#46EF62;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
+    setTimeout(function(){
+      parseAccomplishments(personAccomps); // Get the point value and description of the accomplishment
+    },500);
+
+    setTimeout(function(){ // Create the htmlresponse - all the table data
+      var pointCount = 0;
+      response[0]    = null;
+      response[1]    = null;
+      response[2]    = null;
+      response[3]    = null;
+      response[4]    = null;
+      var team = findPersonByID(empID, allfaris[thePeriod], []); // find the employee and their information
+      //Write the personal accomplishments table
+      if(team[0] != null){
+        response[5] = "<h4>Name: " + refinedName(team[1]) + "</h4><h4>Manager: " + refinedName(team[0].name) + "</h4></br>";
+        response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr style='vertical-align:middle;'><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
+        for(val in personAccomps)
+        {
+          response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[val] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[val]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
+          pointCount += accomPoints[val];
+        }
+        response[0] += "<tr style='vertical-align:middle;'><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center; vertical-align:middle;'>"
+        response[0] += pointCount;
+        response[0] += "</td><td></td></tr>";
+        response[0] += "</tbody></table";
+
+        // Create the your group table
+        if(team[0].employeeList != null){
+          response[1] = "<table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center; width: 35%;'>Name</th><th style='text-align:center; width: 25%;'>Core ID</th><th style='text-align:center; width: 15%;'>Total Points</th><th style='text-align:center; width: 25%;'>Show More Details</th></tr></thead><tbody>";
+          for(emps in team[0].employeeList){
+            var theEmp = team[0].employeeList[emps];
+            if(theEmp.coreID != empID){
+              if(theEmp.total_points >= REQUIREDPOINTS){
+                response[1] += "<tr><td>" + refinedName(theEmp.name) + "</td><td>" + theEmp.coreID+ "</td><td style='color:#46EF62;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
+              }
+              else{
+                response[1] += "<tr><td>" + refinedName(theEmp.name) + "</td><td>" + theEmp.coreID+ "</td><td style='color:#FD4343;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
+              }
+            }
+          }
+          response[1] += "</tbody></table>";
+        }
+
+        // Create the your employees table
+        if(team[2].employeeList.length > 0){
+          response[2] = "<table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center; width: 35%;'>Name</th><th style='text-align:center; width: 25%;'>Core ID</th><th style='text-align:center; width: 15%;'>Total Points</th><th style='text-align:center; width: 25%;'>Show More Details</th></tr></thead><tbody>";
+
+          var needed = team[2].employeeList.length * REQUIREDPOINTS;
+          var total = 0;
+
+          for(emp in team[2].employeeList){
+            var theEmp2 = team[2].employeeList[emp];
+            if(theEmp2.total_points <= REQUIREDPOINTS)
+            {
+              total += theEmp2.total_points;
+            }
+            else {
+              total += REQUIREDPOINTS;
+            }
+            if(theEmp2.total_points >= REQUIREDPOINTS){
+              response[2] += "<tr><td>" + refinedName(theEmp2.name) + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#46EF62;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
             }
             else{
-              response[1] += "<tr><td>" + refinedName(theEmp.name) + "</td><td>" + theEmp.coreID+ "</td><td style='color:#FD4343;'>" + theEmp.total_points + '</td><td><input type="image" id="' + theEmp.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
+              response[2] += "<tr><td>" + refinedName(theEmp2.name) + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#FD4343;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
             }
           }
+          var incomplete = needed - total;
+          response[2] += "</tbody></table>";
+          response[3] = incomplete;
+          response[4] = total;
         }
-        response[1] += "</tbody></table>";
       }
-
-      // Create the your employees table
-      if(team[2].employeeList.length > 0){
-        response[2] = "<table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center; width: 35%;'>Name</th><th style='text-align:center; width: 25%;'>Core ID</th><th style='text-align:center; width: 15%;'>Total Points</th><th style='text-align:center; width: 25%;'>Show More Details</th></tr></thead><tbody>";
-
-        var needed = team[2].employeeList.length * REQUIREDPOINTS;
-        var total = 0;
-
-        for(emp in team[2].employeeList){
-          var theEmp2 = team[2].employeeList[emp];
-          if(theEmp2.total_points <= REQUIREDPOINTS)
-          {
-            total += theEmp2.total_points;
-          }
-          else {
-            total += REQUIREDPOINTS;
-          }
-          if(theEmp2.total_points >= REQUIREDPOINTS){
-            response[2] += "<tr><td>" + refinedName(theEmp2.name) + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#46EF62;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
-          }
-          else{
-            response[2] += "<tr><td>" + refinedName(theEmp2.name) + "</td><td>" + theEmp2.coreID+ "</td><td style='color:#FD4343;'>" + theEmp2.total_points + '</td><td><input type="image" id="' + theEmp2.coreID + '" onclick="showMoreDetails(this)" src="/search_person.svg" style="padding-left:20px; padding-right:20px;"/></td></tr>';
-          }
-        }
-        var incomplete = needed - total;
-        response[2] += "</tbody></table>";
-        response[3] = incomplete;
-        response[4] = total;
+      else{ // If the id was invalid send an invalid response
+        response[0] = "invalid";
+        response[1] = null;
+        response[2] = null;
+        response[3] = null;
+        response[4] = null;
+        response[5] = null;
+        response[6] = null;
       }
-    }
-    else{ // If the id was invalid send an invalid response
-      response[0] = "invalid";
-      response[1] = null;
-      response[2] = null;
-      response[3] = null;
-      response[4] = null;
-      response[5] = null;
-      response[6] = null;
-    }
-      res.send(response);
-  },700);
+        res.send(response);
+    },700);
+  }
+
 });
 
 /**
@@ -1072,7 +1074,7 @@ function executeQuery(query){
 
 /**
 * Attempts to create various tables in the database if they don't currently exist. This relies on the PeriodID.
-* `period` - Stores the period ID (used for querying other tables), the name of the period, when it started, when it ended, and a boolean value declaring if it is the active period
+* `period`                - Stores the period ID (used for querying other tables), the name of the period, when it started, when it ended, and a boolean value declaring if it is the active period
 * `activity_[periodID]`   - When an employee adds points to their score this is where it is saved, the coreID of the employee, the accomplishment they completed, and the description they gave is saved here
 * `emp_points_[periodID]` - This table keeps a record of how many points an employee has for the event when there is a new csv uploaded. This table is a way to prevent any mistakes from wiping all the employee data.
 * `employees_[periodID]`  - Stores the data from the csv file. Keep in mind all the employees are saved in this table from the file not just employees under Faris, we later refine the data to be only those under Faris.
@@ -1290,7 +1292,7 @@ function handleDisconnect() {
 * Listen to the IP:Port
 */
 //app.listen(process.env.PORT);
-var server = app.listen(3005, "10.61.32.135", function() {
+var server = app.listen(3005, "localhost", function() {
   var host = server.address().address;
   var port = server.address().port;
   console.log("Listening at http://%s:%s", host, port);
