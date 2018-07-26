@@ -31,6 +31,14 @@ const EMP_ID_COL      = 4;
 const EMP_JOB_COL     = 6;
 const EMP_MANAGER_COL = 9;
 
+//Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
+const db_config = {
+  host: '10.61.32.135',
+  port: '3306',
+  user: 'root',
+  password: 'Zebra123',
+  database: 'kiosk'
+};
 
 /*---------------------------------VARIABLES----------------------------------*/
 
@@ -80,6 +88,8 @@ var storage = multer.diskStorage({
 });
 var upload = multer({storage:storage});
 
+/*-------------------------------SENDING EMAILS-------------------------------*/
+
 // Mailing bot
 var transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -116,17 +126,6 @@ var monthlyEmailGroupFour = schedule.scheduleJob('0 0 4 * *', function(){
 var monthlyEmailGroupFive = schedule.scheduleJob('0 0 5 * *', function(){
   sendMonthlyEmailToGroup(4);
 });
-
-//Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
-const db_config = {
-  host: '10.61.204.98',
-  port: '3306',
-  user: 'root',
-  password: 'Zebra123',
-  database: 'kiosk'
-};
-
-
 
 /*------------------------------APP GET REQUESTS------------------------------*/
 
@@ -173,7 +172,6 @@ app.get('/admin', function(req, res){
 });
 
 
-
 /*------------------------------APP POST REQUESTS-----------------------------*/
 
 /**
@@ -195,20 +193,27 @@ app.post('/auth', function(req, res) {
   sesh = req.session;
   var username = req.body.username;
   var password = req.body.password;
-  var query = "SELECT `password` FROM `admin` WHERE `username`= " + connection.escape(username);
-  connection.query(query, function(err, result) {
-    if (err) throw err;
-    if(passHash.verify(password, result[0].password)){
-      sesh.logged_in = true;
-      sesh.username = username;
-      return res.redirect('/admin');
-    }
-    else{
-      sesh.logged_in = false;
-      sesh.username = "";
-      return res.redirect('/login');
-    }
-  });
+  if(username == 'admin'){
+    var query = "SELECT `password` FROM `admin` WHERE `username`= " + connection.escape(username);
+    connection.query(query, function(err, result) {
+      if (err){
+        return res.redirect('/login');
+      };
+      if(passHash.verify(password, result[0].password)){
+        sesh.logged_in = true;
+        sesh.username = username;
+        return res.redirect('/admin');
+      }
+      else{
+        sesh.logged_in = false;
+        sesh.username = "";
+        return res.redirect('/login');
+      }
+    });
+  }
+  else{
+    return res.redirect('/login');
+  }
 });
 
 /**
@@ -227,27 +232,27 @@ app.post('/updatePass', function(req, res){
     }
     else{
       if(newPass == repeatPass){
-        if(newPass != currPass){
-          //Store username in future and use that as reference
-          var passCheck = "SELECT `password` FROM `admin` WHERE `username`="+connection.escape(sesh.username);
-          connection.query(passCheck, function(err, result){
-            if (err) throw err;
-            if(passHash.verify(currPass, result[0].password)){
-              var hashNewPass = passHash.generate(String(newPass));
-              var updatePass = "UPDATE `admin` SET `password`=" + connection.escape(hashNewPass) + "WHERE `username`=" + connection.escape("admin");
-              connection.query(updatePass, function(err, result) {
-                if (err) throw err;
-                res.send("Success");
-              });
+        //Store username in future and use that as reference
+        var passCheck = "SELECT `password` FROM `admin` WHERE `username`="+connection.escape(sesh.username);
+        connection.query(passCheck, function(err, result){
+          if (err) throw err;
+          if(passHash.verify(currPass, result[0].password)){
+            if(newPass != currPass){
+            var hashNewPass = passHash.generate(String(newPass));
+            var updatePass = "UPDATE `admin` SET `password`=" + connection.escape(hashNewPass) + "WHERE `username`=" + connection.escape("admin");
+            connection.query(updatePass, function(err, result) {
+              if (err) throw err;
+              res.send("Success");
+            });
+            }else {
+              res.send("SameChange");
             }
-            // Send proper response
-            else{
-              res.send("FailureCurrent");
-            }
-          });
-        }else {
-          res.send("SameChange")
-        }
+          }
+          // Send proper response
+          else{
+            res.send("FailureCurrent");
+          }
+        });
       }
       else{
         res.send("FailureRepeat");
@@ -349,7 +354,7 @@ app.post('/deleteAccomplishmentsTable', function(req,res){
     });
   }
   else{
-    res.send(hacker);
+    res.send("hacker");
   }
 });
 
@@ -1275,7 +1280,7 @@ function handleDisconnect() {
 * Listen to the IP:Port
 */
 //app.listen(process.env.PORT);
-var server = app.listen(3005, "10.61.204.98", function() {
+var server = app.listen(3005, "10.61.32.135", function() {
   var host = server.address().address;
   var port = server.address().port;
   console.log("Listening at http://%s:%s", host, port);
