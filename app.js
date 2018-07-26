@@ -33,11 +33,11 @@ const EMP_MANAGER_COL = 9;
 
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
 const db_config = {
-  host: '10.61.32.135',
+  host: 'localhost',
   port: '3306',
   user: 'root',
   password: 'Zebra123',
-  database: 'kiosk'
+  database: 'innovationtracker'
 };
 
 /*---------------------------------VARIABLES----------------------------------*/
