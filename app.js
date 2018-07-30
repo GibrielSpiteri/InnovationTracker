@@ -24,12 +24,14 @@ const passHash   = require('password-hash'); // Hashes passwords for safe storag
 
 /* Change this value if the required points CHANGED*/
 const REQUIREDPOINTS = 8; // Total number of Points every employee must complete before the end of the year
+const EMPLOYEE_EMAIL_DELAY = 3000 // The delay between each email sent to an employee
 
 /*Change these if the csv formmating CHANGED, The numbers represent the column index*/
 const EMP_NAME_COL    = 0;
 const EMP_ID_COL      = 4;
 const EMP_JOB_COL     = 6;
 const EMP_MANAGER_COL = 9;
+const STARTING_ROW_INDEX = 3;
 
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
 const db_config = {
@@ -126,7 +128,6 @@ var monthlyEmailGroupFour = schedule.scheduleJob('0 0 4 * *', function(){
 var monthlyEmailGroupFive = schedule.scheduleJob('0 0 5 * *', function(){
   sendMonthlyEmailToGroup(4);
 });
-
 
 /*------------------------------APP GET REQUESTS------------------------------*/
 
@@ -365,12 +366,10 @@ app.post('/deleteAccomplishmentsTable', function(req,res){
 * This file should be delimited by commas (,) and should contain the employees' name, coreID, job, and supervisor/manager.
 * In the event that the .csv file's formmating is changed instructions are commented below to help edit the code.
 */
-app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
+app.post('/add_csv', upload.single('fileUpload'), function(req, resp) {
   sesh = req.session;
   if(sesh.logged_in){
     var theFile = __dirname + "/public/downloads/" + req.file.filename;
-
-    console.log(theFile);
     fs.readFile(theFile, {
       encoding: 'utf-8'
     }, function(err, csvData) {
@@ -392,27 +391,23 @@ app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
           executeQuery(drop);
           executeQuery(create);
 
-          // Making a temporary table ->
-          // Store all the employees there ->
-          // Find Faris ->
-          // Create Heirarchy ->
-          // Make a list of all employees under faris ->
-          // Insert all employees into database
-
           var create = "CREATE TABLE `temporaryEmployeeList` (coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
           executeQuery(create);
           //Insert all data
-          for(let row = 2; row < data.length; row++){
+          var insertTemp = "INSERT INTO `temporaryEmployeeList` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES "
+          for(let row = STARTING_ROW_INDEX; row < data.length; row++){
             /* THESE ARE THE LINES TO EDIT INCASE THE CSV FILES FORMATTING IS CHANGED. */
-            var insertTemp = "INSERT INTO `temporaryEmployeeList` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES ("
+            insertTemp += "("
             insertTemp += connection.escape(data[row][EMP_NAME_COL]) /*<- 0 is the column with the employees name*/+ "," +connection.escape(data[row][EMP_ID_COL].toUpperCase())/*<- 4 is the column with the employees unique ID*/ + ","
-            insertTemp += connection.escape(data[row][EMP_JOB_COL]) /*<- 6 is the column with the employees job*/+ "," + connection.escape(data[row][EMP_MANAGER_COL]) /*<- 9 is the column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ +")";
+            insertTemp += connection.escape(data[row][EMP_JOB_COL]) /*<- 6 is the column with the employees job*/+ "," + connection.escape(data[row][EMP_MANAGER_COL]) /*<- 9 is the column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ ;
             /*FINSIH EDITTING*/
-            executeQuery(insertTemp);
+            insertTemp += ")"
+            if(row != data.length-1){
+              insertTemp += ", "
+            }
           }
-
-
-          setTimeout(function(){
+          connection.query(insertTemp, function(err, res) {
+            if (err) throw err;
             //Getting faris from the database by his 'emp_name'
             var get_faris = "SELECT * FROM `temporaryEmployeeList` WHERE `emp_name` = 'Habbaba, Mr. Faris S (Faris)'";
             var newFaris = new Emp("","","","","0");
@@ -449,38 +444,39 @@ app.post('/add_csv', upload.single('fileUpload'), function(req, res) {
                 makeListOfAllPeopleUnderFaris(newFaris, tempAllEmpsUnderFaris);
 
                 //Insert all data
+                var insert = "INSERT INTO `employees_" + connection.escape(periodID) + "` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES "
                 for(emp in tempAllEmpsUnderFaris){
                   /* THESE ARE THE LINES TO EDIT INCASE THE CSV FILES FORMATTING IS CHANGED. */
-                  var insert = "INSERT INTO `employees_" + connection.escape(periodID) + "` (`emp_name`, `coreID`, `job`, `supervisor`, `total_points`) VALUES ("
+                  insert += "("
                   insert += connection.escape(tempAllEmpsUnderFaris[emp].name) /*<- 0 is the column with the employees name*/+ "," +connection.escape((tempAllEmpsUnderFaris[emp].coreID).toUpperCase())/*<- 4 is the column with the employees unique ID*/ + ","
-                  insert += connection.escape(tempAllEmpsUnderFaris[emp].job) /*<- 6 is the column with the employees job*/+ "," + connection.escape(tempAllEmpsUnderFaris[emp].supervisor) /*<- 9 is the column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ +")";
-                  /*FINSIH EDITTING*/
-                  executeQuery(insert);
+                  insert += connection.escape(tempAllEmpsUnderFaris[emp].job) /*<- 6 is the column with the employees job*/+ "," + connection.escape(tempAllEmpsUnderFaris[emp].supervisor) /*<- 9 is the column with the employees manager*/ + "," + 0 /*<- this is the default point value you do not need to change this*/ ;
+                  insert += ")"
+                  if(emp != tempAllEmpsUnderFaris.length-1){
+                    insert += ", "
+                  }
                 }
 
+                connection.query(insert, function(err, res) {
+                  if (err) throw err;
+                  // For the employees still in the table, give them back their points
+                  var refillPoints = "SELECT * FROM `emp_points_" + connection.escape(periodID) + "`";
+                  connection.query(refillPoints, function(err, result) {
+                    if (err) throw console.log(err);
+                    for(emp in result){
+                      var coreIDWithPoints = result[emp].coreID;
+                      var thePoints = result[emp].points;
+                      var updatePoints = "UPDATE `employees_" + connection.escape(periodID) + "` SET `total_points`=" + thePoints + " WHERE `coreID` = " + connection.escape(coreIDWithPoints.toUpperCase());
+                      executeQuery(updatePoints);
+                    }
+                    sortEmps(periodID); // Sort the arrays again after an upload
+                    var drop = "DROP TABLE `temporaryEmployeeList`";
+                    executeQuery(drop);
+                    return resp.send("File Upload Successful");
+                  });
+                });
               });
             });
-          },1000);
-
-          // For the employees still in the table, give them back their points
-          setTimeout(function(){
-            var refillPoints = "SELECT * FROM `emp_points_" + connection.escape(periodID) + "`";
-            connection.query(refillPoints, function(err, result) {
-              if (err) throw err;
-              for(emp in result){
-                var coreIDWithPoints = result[emp].coreID;
-                var thePoints = result[emp].points;
-                var updatePoints = "UPDATE `employees_" + connection.escape(periodID) + "` SET `total_points`=" + thePoints + " WHERE `coreID` = " + connection.escape(coreIDWithPoints.toUpperCase());
-                executeQuery(updatePoints);
-              }
-            });
-          },9500);
-          setTimeout(function(){
-            sortsortEmps(periodID); // Sort the arrays again after an upload
-            var drop = "DROP TABLE `temporaryEmployeeList`";
-            executeQuery(drop);
-            return res.end("File Upload Successful");
-          }, 12000);
+          });
         }
       });
     });
@@ -507,7 +503,6 @@ app.post('/findInformation', function(req, res){
     information[1] = "Invalid ID";
     information[2] = "Invalid ID";
   }
-  console.log(information);
   res.send(information);
 });
 
@@ -581,34 +576,45 @@ app.post('/getPeriods', function(req, res){
 * The function creates three tables to display the employees personal accomplishments,
 * Their groups accomplishments, and their employees accomplishments if they're a supervisor
 */
-app.post('/viewPoints', function(req, res) {
+app.post('/viewPoints', function(req, resp) {
   var empID = req.body.CORE_ID.toUpperCase();
-  if(empID === "INTERNS2018"){
-    response[0] = null
-    response[1] = null
-    response[2] = null
-    response[3] = null
-    response[4] = null
-    response[5] = "<br><br><img src='updatedZebra.png'></img><br><br><h4>Congratulations for finding the easter egg hidden by the 2018 intern team! In the picture being displayed above, you can see the team that created this application. From left to right you can see, (TOM JERM GIB AMAN).</h4><br><br><h4>We would like to thank you for using our application & we hope it serves all of Zebra well.</h4>"
-    res.send(response);
-  } else {
-    var thePeriod = req.body.PERIOD;
-    var personAccomps = [];
-    var results = [];
-    var query = "SELECT * FROM `activity_" + thePeriod + "` WHERE coreID="+ connection.escape(empID);
-    connection.query(query, function(err, activities) {
-      if (err) throw err;
-      for(whatTheEmpDid in activities)
-      {
-        personAccomps.push(activities[whatTheEmpDid]); // Get the employees completed activities
+  var thePeriod = req.body.PERIOD;
+  var personAccomps = [];
+  var results = [];
+  var query = "SELECT * FROM `activity_" + thePeriod + "` WHERE coreID="+ connection.escape(empID);
+  connection.query(query, function(err, activities) {
+    if (err) throw err;
+    for(whatTheEmpDid in activities)
+    {
+      personAccomps.push(activities[whatTheEmpDid]); // Get the employees completed activities
+    }
+
+    accomDescriptions = []; // global variables
+    accomPoints = [];       // These are what is sent to view points
+
+    usedValues = [];
+    var accomp = "SELECT * FROM `accomplishment` WHERE `accompID` IN (";
+    if(personAccomps.length > 0){
+      for(accomplishLocation in personAccomps){
+        if(!usedValues.includes(personAccomps[accomplishLocation].accompID)){
+          accomp += personAccomps[accomplishLocation].accompID;
+          if(accomplishLocation != personAccomps.length-1){
+            accomp += ", "
+          }
+          usedValues.push(personAccomps[accomplishLocation].accompID);
+        }
       }
-    });
-
-    setTimeout(function(){
-      parseAccomplishments(personAccomps); // Get the point value and description of the accomplishment
-    },500);
-
-    setTimeout(function(){ // Create the htmlresponse - all the table data
+    }
+    else{
+      accomp += " -1"
+    }
+    accomp += ")"
+    connection.query(accomp, function(err, res) {
+      if (err) throw err;
+      for(key in res){
+        accomDescriptions.push(res[key].description);
+        accomPoints.push(res[key].points);
+      }
       var pointCount = 0;
       response[0]    = null;
       response[1]    = null;
@@ -622,8 +628,9 @@ app.post('/viewPoints', function(req, res) {
         response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr style='vertical-align:middle;'><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
         for(val in personAccomps)
         {
-          response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[val] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[val]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
-          pointCount += accomPoints[val];
+          var index = usedValues.indexOf(personAccomps[val].accompID)
+          response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[index] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[index]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
+          pointCount += accomPoints[index];
         }
         response[0] += "<tr style='vertical-align:middle;'><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center; vertical-align:middle;'>"
         response[0] += pointCount;
@@ -685,10 +692,9 @@ app.post('/viewPoints', function(req, res) {
         response[5] = null;
         response[6] = null;
       }
-        res.send(response);
-    },700);
-  }
-
+      resp.send(response);
+    });
+  });
 });
 
 /**
@@ -736,37 +742,36 @@ app.post('/addPoints', function(req, res) {
   var DESCRIPTION = req.body.DESCRIPTION;
   var MANAGER = req.body.MANAGER;
   if(CORE_ID != "" && ACCOMPLISHMENT != "" && DESCRIPTION != "" && MANAGER != "" && MANAGER != "Invalid ID"){
-  var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
-    executeQuery(activity);
-    var newPoints;
-    setTimeout(function(){
+    var activity = "INSERT INTO `activity_" + connection.escape(periodID) + "` (`coreID`, `accompID`, `activity_desc`) VALUES (" + connection.escape(CORE_ID) + "," + connection.escape(ACCOMPLISHMENT) + "," +connection.escape(DESCRIPTION) +");";
+    connection.query(activity, function(err, result) {
+      if (err) res.send("Failure");
+      var newPoints;
       var getPoints = "SELECT `points` FROM `accomplishment` WHERE accompID=" + ACCOMPLISHMENT;
       connection.query(getPoints, function(err, result) {
-        if (err) throw err;
+        if (err) res.send("Failure");
         newPoints = result[0].points;
-      });
-    },500);
-    setTimeout(function(){
-      for(emp in all_people[periodID]){
-        if((all_people[periodID])[emp].coreID === CORE_ID){ (all_people[periodID])[emp].total_points += newPoints; }
-      }
-      var ID_Check = "SELECT `coreID` FROM `emp_points_" + connection.escape(periodID) + "` WHERE `coreID` = "  + connection.escape(CORE_ID);
-      connection.query(ID_Check, function(err, result) {
-        if (err) throw err;
-        if(result.length == 0){
-          var newEmpPoints = "INSERT INTO `emp_points_" + connection.escape(periodID) + "` (`coreID`, `points`) VALUES (" + connection.escape(CORE_ID)+ ","+ newPoints +")";
-          executeQuery(newEmpPoints);
-        }
-        else{
-          var points = "UPDATE `emp_points_" + connection.escape(periodID) + "` SET `points`=`points` +" + newPoints + " WHERE `coreID`=" + connection.escape(CORE_ID);
-          executeQuery(points);
-        }
 
-        var updateEmployeePoints = "UPDATE `employees_" + connection.escape(periodID) + "` SET `total_points` = `total_points` + " + newPoints + " WHERE `coreID` = " + connection.escape(CORE_ID);
-        executeQuery(updateEmployeePoints);
+        for(emp in all_people[periodID]){
+          if((all_people[periodID])[emp].coreID === CORE_ID){ (all_people[periodID])[emp].total_points += newPoints; }
+        }
+        var ID_Check = "SELECT `coreID` FROM `emp_points_" + connection.escape(periodID) + "` WHERE `coreID` = "  + connection.escape(CORE_ID);
+        connection.query(ID_Check, function(err, result) {
+          if (err) res.send("Failure");
+          if(result.length == 0){
+            var newEmpPoints = "INSERT INTO `emp_points_" + connection.escape(periodID) + "` (`coreID`, `points`) VALUES (" + connection.escape(CORE_ID)+ ","+ newPoints +")";
+            executeQuery(newEmpPoints);
+          }
+          else{
+            var points = "UPDATE `emp_points_" + connection.escape(periodID) + "` SET `points`=`points` +" + newPoints + " WHERE `coreID`=" + connection.escape(CORE_ID);
+            executeQuery(points);
+          }
+
+          var updateEmployeePoints = "UPDATE `employees_" + connection.escape(periodID) + "` SET `total_points` = `total_points` + " + newPoints + " WHERE `coreID` = " + connection.escape(CORE_ID);
+          executeQuery(updateEmployeePoints);
+          res.send("");
+        });
       });
-    }, 700);
-    res.send("");
+    });
   }
   else{
     res.send("Failure");
@@ -775,36 +780,6 @@ app.post('/addPoints', function(req, res) {
 
 
 /*----------------------------------FUNCTIONS---------------------------------*/
-
-/**
-* Retrieves the Description and Points associated with an accomplishment
-* @param {Array} personAccomps A list of all the activities an  employee completed
-*/
-function parseAccomplishments(personAccomps){
-  accomDescriptions = []; // global variables
-  accomPoints = [];       // These are what is sent to view points
-
-  for(accomplishLocation in personAccomps)
-  {
-    var accomp = "SELECT * FROM `accomplishment` WHERE accompID=" + personAccomps[accomplishLocation].accompID;
-    connection.query(accomp, function(err, res) {
-      if (err) throw err;
-      accomDescriptions.push(res[0].description);
-      accomPoints.push(res[0].points);
-    });
-  }
-}
-
-/**
-* Gets the period ID of the current years period
-*/
-function getPeriodID(){
-  var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
-  connection.query(getCurrentPeriod, function(err, res) {
-    if (err) throw err;
-    periodID = res[0].periodID;
-  });
-}
 
 /**
 * Sorts the Employees by their total points for display in the leaderboard
@@ -839,7 +814,7 @@ function compareValues(key, order='asc') {
 * Then sorts all the employees under Faris' heirarchy chain into the all_people array
 * @param {Int} tempPeriod The current innovation metric period used to query the database
 */
-function sortsortEmps(tempPeriod){
+function sortEmps(tempPeriod){
   //Getting faris from the database by his 'emp_name'
   var get_faris = "SELECT * FROM `employees_" + connection.escape(tempPeriod) + "` WHERE `emp_name` = 'Habbaba, Mr. Faris S (Faris)'";
   var tempfaris = new Emp("","","","","0");
@@ -853,30 +828,28 @@ function sortsortEmps(tempPeriod){
       tempfaris.employeeList = [];
       tempfaris.total_points = res[0].total_points;
     }
+    //Getting all the employees into a list(all_people)
+    var get_all = "SELECT * FROM `employees_" + connection.escape(tempPeriod) + "`";
+    var tempall_people = [];
+    connection.query(get_all, function(err, res) {
+      if (err) throw err;
+      for (var i in res) {
+        //Make a new employee using their information
+        var person = new Emp("","","","");
+        person.name=res[i].emp_name;
+        person.coreID = res[i].coreID;
+        person.job = res[i].job;
+        person.supervisor = res[i].supervisor;
+        person.employeeList = [];
+        person.total_points = res[i].total_points;
+        //Push this to the list of all all_people
+        tempall_people.push(person);
+      }
+      recurseList(tempfaris,tempall_people);
+      all_people[tempPeriod] = tempall_people;
+      allfaris[tempPeriod] = tempfaris;
+    });
   });
-  //Getting all the employees into a list(all_people)
-  var get_all = "SELECT * FROM `employees_" + connection.escape(tempPeriod) + "`";
-  var tempall_people = [];
-  connection.query(get_all, function(err, res) {
-    if (err) throw err;
-    for (var i in res) {
-      //Make a new employee using their information
-      var person = new Emp("","","","");
-      person.name=res[i].emp_name;
-      person.coreID = res[i].coreID;
-      person.job = res[i].job;
-      person.supervisor = res[i].supervisor;
-      person.employeeList = [];
-      person.total_points = res[i].total_points;
-      //Push this to the list of all all_people
-      tempall_people.push(person);
-    }
-  });
-  setTimeout(function(){recurseList(tempfaris,tempall_people); },2000);
-  setTimeout(function(){
-    all_people[tempPeriod] = tempall_people;
-    allfaris[tempPeriod] = tempfaris;
-  },3000);
 }
 
 /**
@@ -937,19 +910,6 @@ function findPersonByID(coreID, person, result){
   return result;
 }
 
-/**
-* Queries the periods table to retrieve every period from the past
-*/
-function getAllPeriods(){
-  var getThePeriods = "SELECT * FROM `period`";
-  connection.query(getThePeriods, function(req, res){
-    if(res.length != 0){
-      for(var i = res.length-1; i >= 0; i--){
-        pastPeriods.set(res[i].periodID, res[i].name);
-      }
-    }
-  });
-}
 
 /**
 * Removes the orginal name formatting
@@ -972,52 +932,31 @@ function refinedName(name){
 * Automatically resets all the database tables - calls resetTables()
 */
 function resetPeriod(){
-  console.log("Beginning to reset the Innovation Period");
-  setTimeout(function(){
-    console.log("5")
-  }, 1000);
-  setTimeout(function(){
-    console.log("4")
-  }, 2000);
-  setTimeout(function(){
-    console.log("3")
-  }, 3000);
-  setTimeout(function(){
-    console.log("2")
-  }, 4000);
-  setTimeout(function(){
-    console.log("1")
-  }, 5000);
-  setTimeout(function(){
-    console.log("Resetting Period");
-    var current_date = new Date();
-    console.log("Current Date : ");
-    console.log(current_date);
-    console.log("Current Year : " + current_date.getFullYear());
-    var current_year = current_date.getFullYear();
-    console.log(current_year+1);
-    var next_year = current_year+1;
-    var periodName = current_year + " - " + next_year;
-    console.log(periodName);
-    resetTables(periodName);
-  }, 6000);
+  console.log("Resetting Period");
+  var current_date = new Date();
+  console.log("Current Date : ");
+  console.log(current_date);
+  console.log("Current Year : " + current_date.getFullYear());
+  var current_year = current_date.getFullYear();
+  console.log(current_year+1);
+  var next_year = current_year+1;
+  var periodName = current_year + " - " + next_year;
+  console.log(periodName);
+  resetTables(periodName);
 }
 
 /**
 * Sends the Emails to the batches
 */
 function sendCheckInnovationEmail(name, coreID, delay){
-  var newName = name;
-  var newCoreID = coreID;
-  var newDelay = delay;
   setTimeout(function(){
-    var findPoints = "SELECT * FROM `employees_" + connection.escape(periodID) + "` WHERE `coreID` = " + connection.escape(newCoreID);
+    var findPoints = "SELECT * FROM `employees_" + connection.escape(periodID) + "` WHERE `coreID` = " + connection.escape(coreID);
     connection.query(findPoints, function(err, result) {
       if (err) throw err;
       var points = result[0].total_points;
       var content = "No HTML Here"
-      var html_content = 'Hello ' + newName + ', this is your monthly innovation score update. You currently have ' + points + ' points and need a total of ' + REQUIREDPOINTS + ' Points.';
-      var email = newCoreID + "@zebra.com";
+      var html_content = 'Hello ' + name + ', this is your monthly innovation score update. You currently have ' + points + ' points and need a total of ' + REQUIREDPOINTS + ' Points.';
+      var email = coreID + "@zebra.com";
       var mailOptions = {
         from: 'Zebra.mail.bot@gmail.com', // sender address
         //to: email, // list of receivers
@@ -1034,7 +973,7 @@ function sendCheckInnovationEmail(name, coreID, delay){
         }
       });
     });
-  }, newDelay);
+  }, delay);
 
 }
 
@@ -1047,7 +986,7 @@ function sendMonthlyEmailToGroup(groupNumber){
   for(employeeEmail in employeeEmailList){
     var refinedEmpName = refinedName(employeeEmailList[employeeEmail].name);
     var coreID = employeeEmailList[employeeEmail].coreID;
-    sendCheckInnovationEmail(refinedEmpName, coreID, (3000*employeeEmail));
+    sendCheckInnovationEmail(refinedEmpName, coreID, (EMPLOYEE_EMAIL_DELAY*employeeEmail));
     // sendCheckInnovationEmail("Herrmann, Mr. Jeremy", "DCW673");
   }
   console.log("List Size: " + employeeEmailList.length);
@@ -1057,7 +996,7 @@ function sendMonthlyEmailToGroup(groupNumber){
 * Create a group of employees for emailing (up to 500 people)
 */
 function createSplitListOfEmployees(){
-  for(var x = 0; x < 5; x++)
+  for(var x = 0; x < 10; x++)
     splitListOfPeople[x] = [];
   for(var x = 0; x < all_people[periodID].length; x++)
   {
@@ -1220,34 +1159,11 @@ function resetTables(periodName){
         if(err){
           return false;
         }
-        sortsortEmps();
+        sortEmps();
         return true;
       });
     });
   });
-}
-
-/**
-* Sorts every employee from every past period
-*/
-function getAllPeoplePeriods(){
-  all_people = [];
-  allfaris = [];
-  for(var key of pastPeriods.keys()){
-    sortsortEmps(key);
-  }
-}
-
-/**
-* Runs the necessary functions to start the application
-*/
-function startApplication(){
-  handleDisconnect();
-
-  setTimeout(function(){getPeriodID();}, 2000);
-  setTimeout(function(){getAllPeriods();}, 3500);
-  setTimeout(function(){getAllPeoplePeriods(); }, 4000);
-
 }
 
 function makeListOfAllPeopleUnderFaris(currentFaris, list){
@@ -1255,7 +1171,6 @@ function makeListOfAllPeopleUnderFaris(currentFaris, list){
 }
 
 function addToUnderFarisList(person, list){
-  //console.log(person);
   list.push(person);
   for(emp in person.employeeList)
   {
@@ -1301,18 +1216,41 @@ var server = app.listen(3005, "localhost", function() {
   console.log("Listening at http://%s:%s", host, port);
 });
 
+function compileApplication(){
+  //Gets the period ID of the current years period
+  var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
+  connection.query(getCurrentPeriod, function(err, res) {
+    if (err) throw err;
+    periodID = res[0].periodID;
+
+    //Queries the periods table to retrieve every period from the past
+    var getThePeriods = "SELECT * FROM `period`";
+    connection.query(getThePeriods, function(req, res){
+      if(res.length != 0){
+        for(var i = res.length-1; i >= 0; i--){
+          pastPeriods.set(res[i].periodID, res[i].name);
+        }
+      }
+
+      //Sorts every employee from every past period
+      all_people = [];
+      allfaris = [];
+      for(var key of pastPeriods.keys()){
+        sortEmps(key);
+      }
+    });
+
+  });
+}
+
 /**
 * Runs the necessary functions to start the application
 */
 function startApplication(){
   // Connect to DB
   handleDisconnect();
-  // Get current period
-  setTimeout(function(){getPeriodID();}, 2000);
-  // Get the past periods
-  setTimeout(function(){getAllPeriods();}, 3500);
-  // Sort all the employees
-  setTimeout(function(){getAllPeoplePeriods(); }, 4000);
+  //Compiled Startup
+  compileApplication();
 
 }
 

@@ -320,7 +320,7 @@ function removeAcheivement(activityid, accompid){
         if(response){
           document.getElementById('closeModal').click();
           viewPoints();
-          alert("Successfully Deleted");
+          // alert("Successfully Deleted");
         }
         else{
           alert("Error Deleting");
