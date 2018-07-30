@@ -374,14 +374,14 @@ app.post('/add_csv', upload.single('fileUpload'), function(req, resp) {
       encoding: 'utf-8'
     }, function(err, csvData) {
       if (err){
-        res.end("Error Reading File");
+        resp.end("Error Reading File");
         //throw err;
       }
       csvParser(csvData, {
         delimiter: ','
       }, function(err, data) {
         if (err) {
-          res.end("Error Parsing File");
+          resp.end("Error Parsing File");
           //throw err;
         }
         else {
@@ -706,7 +706,7 @@ app.post('/removeAcheivement', function(req, res) {
   var selectPoints = "SELECT `points` FROM `accomplishment` WHERE `accompID`=" + connection.escape(accompID);
   connection.query(selectPoints, function(err, result) {
     if(err) {
-      res.end(false);
+      res.send(false);
     }
     else{
       var thePoint = result[0].points;
@@ -1243,6 +1243,7 @@ function compileApplication(){
   });
 }
 
+
 /**
 * Runs the necessary functions to start the application
 */
@@ -1251,7 +1252,6 @@ function startApplication(){
   handleDisconnect();
   //Compiled Startup
   compileApplication();
-
 }
 
 /* RUNNING THE APP */
