@@ -46,38 +46,6 @@ $(document).ready(function() {
 });
 
 /**
-* Disable current tables and create new ones
-*/
-function resetPeriod(){
-  var name = document.getElementById("period_name").value;
-  if(name == ""){
-    alert("Please enter a name");
-  }
-  else{
-    $.ajax({
-      type: "POST",
-      url: "/resetTables",
-      data: { "periodName": name },
-      cache: false,
-      success: function(response){
-        if(response == "hacker"){
-          alert("You're playing with fire trying to hack this one! :O");
-        }
-        if(!response){
-          alert("Error Occurred");
-          return true;
-        }
-        else{
-          alert("Successfully Executed");
-          return true;
-        }
-      }
-    });
-  }
-  return false;
-}
-
-/**
 * Request to change admin password
 */
 function changePass(){

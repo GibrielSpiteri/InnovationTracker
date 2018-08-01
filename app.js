@@ -44,40 +44,31 @@ const db_config = {
 
 //Creating the Employee class
 function Emp(name, coreID, job, supervisor, employeeList, total_points){
-  this.name         = name;
-  this.coreID       = coreID;
-  this.job          = job;
-  this.supervisor   = supervisor;   // Who supervises this employee
-  this.employeeList = employeeList; // Who this employee supervises
-  this.total_points = total_points; // How many points an employee accumulated
+  this.name         = name;         // String
+  this.coreID       = coreID;       // String
+  this.job          = job;          // String
+  this.supervisor   = supervisor;   // String - Who supervises this employee
+  this.employeeList = employeeList; // Array of Emps - Who this employee supervises
+  this.total_points = total_points; // Int - How many points an employee accumulated
 }
 
 //Defining Global Variables along with Constant Variables
-var all_people             = []; // all the employees in the current and past periods
-var allfaris               = []; // Tree of all employees Faris supervises and the employees those people supervise
-var splitListOfPeople      = []; // Batch of 100s
-var response               = []; // mail response
-var accomDescriptions      = []; // The accomplishments in the dropdown menu
-var accomPoints            = []; // The point values accociated with every achievement
-var faris                  = new Emp("","","","","0"); // Starting node for the tree creation
-var pastPeriods            = new Map(); // The history of the Innovation metric
-var logged_in              = false; // Admin login boolean
-var periodID               = null;  // The current running period
-var connection;            // Connection to database
-var sesh;                  // Admin login session
-const DOWNLOAD_FOLDER      = './public/downloads/' // Where to download files
+var all_people             = []; // Array of Emps - all the employees in the current and past periods
+var allfaris               = []; // Array of Emps - Tree of all employees Faris supervises and the employees those people supervise
+var splitListOfPeople      = []; // Array of 100 Emps - Batch of 100s
+var response               = []; // Array of Strings - mail response
+var accomDescriptions      = []; // Array of Strings - The accomplishments in the dropdown menu
+var accomPoints            = []; // Array of Ints - The point values accociated with every achievement
+var faris                  = new Emp("","","","","0"); // Emp Object - Starting node for the tree creation
+var pastPeriods            = new Map(); // Map of all prior periods - The history of the Innovation metric
+var logged_in              = false; // Boolean - Admin login boolean
+var periodID               = null;  // Int - The current running period
+var connection;            // MySql Object - Connection to database
+var sesh;                  // Session Variable - Admin login session
+const DOWNLOAD_FOLDER      = './public/downloads/' // String (download path) - Where to download files
 
 
 /*-----------------------------APPLICATION SETUP------------------------------*/
-
-//Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
-const db_config = {
-  host: 'localhost',
-  port: '3306',
-  user: 'root',
-  password: 'Zebra123',
-  database: 'innovationtracker'
-};
 
 //Setting up the application
 var app = express();
@@ -271,24 +262,6 @@ app.post('/updatePass', function(req, res){
   }
   else {
     res.send("log in");
-  }
-});
-
-/**
-* Accessed through the admin page.
-* This function manually ends the current tracking period and starts the next tracking period.
-* Points will no longer be added to the previous tracking period.
-* All the employees accomplishments and points are saved in their respective tables to be viewed online.
-*/
-app.post('/resetTables', function(req,res){
-  sesh = req.session;
-  if(sesh.logged_in){
-    var periodName = req.body.periodName;
-    var result = resetTables(periodName);
-    res.send(result);
-  }
-  else{
-    res.send("hacker")
   }
 });
 
@@ -1072,7 +1045,7 @@ function executeQuery(query){
 
 /**
 * Attempts to create various tables in the database if they don't currently exist. This relies on the PeriodID.
-* `period` - Stores the period ID (used for querying other tables), the name of the period, when it started, when it ended, and a boolean value declaring if it is the active period
+* `period`                - Stores the period ID (used for querying other tables), the name of the period, when it started, when it ended, and a boolean value declaring if it is the active period
 * `activity_[periodID]`   - When an employee adds points to their score this is where it is saved, the coreID of the employee, the accomplishment they completed, and the description they gave is saved here
 * `emp_points_[periodID]` - This table keeps a record of how many points an employee has for the event when there is a new csv uploaded. This table is a way to prevent any mistakes from wiping all the employee data.
 * `employees_[periodID]`  - Stores the data from the csv file. Keep in mind all the employees are saved in this table from the file not just employees under Faris, we later refine the data to be only those under Faris.
@@ -1215,7 +1188,7 @@ function resetTables(periodName){
         if(err){
           return false;
         }
-        sortsortEmps();
+        sortsortEmps(periodID);
         return true;
       });
     });
@@ -1231,18 +1204,6 @@ function getAllPeoplePeriods(){
   for(var key of pastPeriods.keys()){
     sortsortEmps(key);
   }
-}
-
-/**
-* Runs the necessary functions to start the application
-*/
-function startApplication(){
-  handleDisconnect();
-
-  setTimeout(function(){getPeriodID();}, 2000);
-  setTimeout(function(){getAllPeriods();}, 3500);
-  setTimeout(function(){getAllPeoplePeriods(); }, 4000);
-
 }
 
 function makeListOfAllPeopleUnderFaris(currentFaris, list){
