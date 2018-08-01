@@ -98,6 +98,7 @@ $('#core_id').keypress(function(e) {
       if(elem.style.width.substring(0,elem.style.width.length-1) == "0")
         typingTimer = setTimeout(findInformation, 0);
     }else{
+      document.getElementById("valid").innerHTML = "Invalid ID";
       document.getElementById("valid").style.visibility = "hidden";
       document.getElementById("name").value = "";
       document.getElementById("manager").value = "";
@@ -112,10 +113,19 @@ $('#core_id').focusout(function(){
     if(elem.style.width.substring(0,elem.style.width.length-1) == "0")
       findInformation();
   }else{
+    document.getElementById("valid").innerHTML = "Invalid ID";
     document.getElementById("valid").style.visibility = "hidden";
     document.getElementById("name").value = "";
     document.getElementById("manager").value = "";
   }
+});
+
+$('#core_id').on('keyup', function() {
+    document.getElementById("core_id_view").value = $('#core_id').val();
+});
+
+$('#core_id_view').on('keyup', function() {
+    document.getElementById("core_id").value = $('#core_id_view').val();
 });
 
 
@@ -146,12 +156,14 @@ function findInformation(){
     success: function(response){
       if(response[0] == "Invalid ID")
       {
+        document.getElementById("valid").innerHTML = "Invalid ID";
         document.getElementById("valid").style.visibility = "visible";
         document.getElementById("name").value = "";
         document.getElementById("manager").value = "";
       }
       else{
-        document.getElementById("valid").style.visibility = "hidden";
+        document.getElementById("valid").innerHTML = response[2];
+        document.getElementById("valid").style.visibility = "visible";
         document.getElementById("name").value = response[0];
         document.getElementById("manager").value = response[1];
       }
@@ -197,9 +209,7 @@ function viewPoints(){
         setTimeout(alert("Please enter a valid Employee ID"),1000);
       }
       else{
-        document.getElementById("userTable").innerHTML = response[0];
-        document.getElementById("userTable").style.visibility ="visible";
-        document.getElementById("btnCollapseOne").style.visibility ="visible";
+
         document.getElementById("collapseOne").style = "";
         document.getElementById("userInformation").innerHTML = response[5];
 
@@ -217,6 +227,17 @@ function viewPoints(){
         $("#btnCollapseThree").addClass("collapsed");
         $("#collapseThree").removeClass("in");
         $("#collapseThree").attr("aria-expanded","false");
+
+        if(response[0] != null){
+          document.getElementById("userTable").innerHTML = response[0];
+          document.getElementById("userTable").style.visibility ="visible";
+          document.getElementById("btnCollapseOne").style.visibility ="visible";
+        }
+        else{
+          document.getElementById("userTable").innerHTML = "";
+          document.getElementById("userTable").style.visibility ="hidden";
+          document.getElementById("btnCollapseOne").style.visibility ="hidden";
+        }
 
         if(response[1] != null){
           document.getElementById("groupList").innerHTML = response[1];
@@ -299,7 +320,7 @@ function removeAcheivement(activityid, accompid){
         if(response){
           document.getElementById('closeModal').click();
           viewPoints();
-          alert("Successfully Deleted");
+          // alert("Successfully Deleted");
         }
         else{
           alert("Error Deleting");
