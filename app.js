@@ -101,8 +101,6 @@ var transporter = nodemailer.createTransport({
   }
 });
 
-
-
 /*Auto Reset the period - Occurs every January 1st*/
 var yearlyReset = schedule.scheduleJob('0 0 1 1 *', function(){
   resetPeriod();
@@ -1239,21 +1237,12 @@ function handleDisconnect() {
 /**
 * Listen to the IP:Port
 */
-<<<<<<< HEAD
 app.listen(process.env.PORT);
 // var server = app.listen(3005, "localhost", function() {
 //   var host = server.address().address;
 //   var port = server.address().port;
 //   console.log("Listening at http://%s:%s", host, port);
 // });
-=======
-//app.listen(process.env.PORT);
-var server = app.listen(3005, "10.61.32.135", function() {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log("Listening at http://%s:%s", host, port);
-});
->>>>>>> 426274a4693834684abe8da6600324424a7ac61e
 
 function compileApplication(){
   //Gets the period ID of the current years period
