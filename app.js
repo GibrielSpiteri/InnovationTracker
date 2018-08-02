@@ -23,14 +23,14 @@ const passHash   = require('password-hash'); // Hashes passwords for safe storag
 /*----------------------------MODIFYABLE CONSTANTS----------------------------*/
 
 /* Change this value if the required points CHANGED*/
-const REQUIREDPOINTS = 8; // Total number of Points every employee must complete before the end of the year
+const REQUIREDPOINTS       = 8; // Total number of Points every employee must complete before the end of the year
 const EMPLOYEE_EMAIL_DELAY = 3000 // The delay between each email sent to an employee
 
 /*Change these if the csv formmating CHANGED, The numbers represent the column index*/
-const EMP_NAME_COL    = 0;
-const EMP_ID_COL      = 4;
-const EMP_JOB_COL     = 6;
-const EMP_MANAGER_COL = 9;
+const EMP_NAME_COL       = 0;
+const EMP_ID_COL         = 4;
+const EMP_JOB_COL        = 6;
+const EMP_MANAGER_COL    = 9;
 const STARTING_ROW_INDEX = 3;
 
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
@@ -111,21 +111,29 @@ var yearlyReset = schedule.scheduleJob('0 0 1 1 *', function(){
 /**
 *Send email reminders to every group of 100
 */
-var monthlyEmailGroupOne = schedule.scheduleJob('0 0 1 * *', function(){
+var monthlyEmailGroupOne = schedule.scheduleJob('0 0 14 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(0);
 });
-var monthlyEmailGroupTwo = schedule.scheduleJob('0 0 2 * *', function(){
+var monthlyEmailGroupTwo = schedule.scheduleJob('0 0 15 * *', function(){
+  makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
+  createSplitListOfEmployees();
   sendMonthlyEmailToGroup(1);
 });
-var monthlyEmailGroupThree = schedule.scheduleJob('0 0 3 * *', function(){
+var monthlyEmailGroupThree = schedule.scheduleJob('0 0 16 * *', function(){
+  makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
+  createSplitListOfEmployees();
   sendMonthlyEmailToGroup(2);
 });
-var monthlyEmailGroupFour = schedule.scheduleJob('0 0 4 * *', function(){
+var monthlyEmailGroupFour = schedule.scheduleJob('0 0 17 * *', function(){
+  makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
+  createSplitListOfEmployees();
   sendMonthlyEmailToGroup(3);
 });
-var monthlyEmailGroupFive = schedule.scheduleJob('0 0 5 * *', function(){
+var monthlyEmailGroupFive = schedule.scheduleJob('0 0 18 * *', function(){
+  makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
+  createSplitListOfEmployees();
   sendMonthlyEmailToGroup(4);
 });
 
@@ -936,8 +944,49 @@ function sendCheckInnovationEmail(name, coreID, delay){
     connection.query(findPoints, function(err, result) {
       if (err) throw err;
       var points = result[0].total_points;
-      var content = "No HTML Here"
-      var html_content = 'Hello ' + name + ', this is your monthly innovation score update. You currently have ' + points + ' points and need a total of ' + REQUIREDPOINTS + ' Points.';
+      var content = "No HTML Here";
+      var html_content = "";
+      var today = new Date();
+
+      switch(today.getMonth()){
+        case 0:
+          html_content = "Hey " + name + "! Happy New Year! This is your email reminder that the Innovation Tracker has reset for the year and it's time to get another " + REQUIREDPOINTS + " points. Best of luck and enjoy the holidays :)";
+          break;
+        case 1:
+          html_content = "Hey " + name + "! It's Feburary and love is in the air, but that hasn't stopped Cupid from getting his Innovation points! So far you got " + points + " out of " + REQUIREDPOINTS + " points";
+          break;
+        case 2:
+          html_content = "Hey " + name + "! I hope you had a productive winter, spring is right around the corner now! You managed to get " + points + " out of " + REQUIREDPOINTS + " points, if you aren't proud of what you have so far don't worry! you still have 10 months to go!";
+          break;
+        case 3:
+          html_content = "Hey " + name + "! You made it to April so you know that means... Easter point hunt! You found " + points + " out of " + REQUIREDPOINTS + " points so far, are you in the lead? Oh by the way, I'm sure you noticed the leaderboard on the website. So even if you got the minium " + REQUIREDPOINTS + " points, keep recording what you did! The winner at the end of the year has bragging rights!";
+          break;
+        case 4:
+          html_content = "Hey " + name + "! April Showers bring May Innovation points! Mothers day is coming up don't forget to stock up some extra points for a gift :) Do you think " + points + " out of " + REQUIREDPOINTS + " points is enough to make her happy?";
+          break;
+        case 5:
+          html_content = "Hey " + name + "! June has finally arrived, this exciting month means summer is coming and so are the interns! Did you know for every intern you mentor you get 2 Innovation points, and they do all your work as an added bonus! Hire as many as you can to get your score higher, which is " + points + " out of " + REQUIREDPOINTS + " points by the way :)";
+          break;
+        case 6:
+          html_content = "Hey " + name + "! Is the weather scorching yet? July is heating everything up as it passes through! But I'm sure your Innovation points are even hotter. You got " + points + " out of " + REQUIREDPOINTS + " points.";
+          break;
+        case 7:
+          html_content = "Hey " + name + "! August is here and it's almost time to say good bye to the interns :( Did you hire a bunch to boost your score? You have " + points + " out of " + REQUIREDPOINTS + " points. Did you know that this application was made by Jay White's 2018 Intern Team? Let him know if we did a good job!";
+          break;
+        case 8:
+          html_content = "Hey " + name + "! Woah is it back to school time already? I know September might be a stressful time for you parents out there but don't forget you only have 4 more months to finish your minimum requirements. You have " + points + " out of " + REQUIREDPOINTS + " points, did you save yourself the stress by getting it done early? Yea, I wouldn't have either :/";
+          break;
+        case 9:
+          html_content = "BOO! Did I scare you "  + name + "? It's the spookiest time of the year, October! We got ghosts and ghouls running about but do you know what's really scarry? Not finishing your Innovation points on time! AHHH!! Don't worry I'm sure you'll be fine, you have " + points + " out of " + REQUIREDPOINTS + " points after all.";
+          break;
+        case 10:
+          html_content = "Hey " + name + "! November is a time to be grateful, you know what I'm grateful for? The Innovation Tracker :) Didn't it make keeping track of all your accomplishments so easy? Oh and I'm grateful you got " + points + " out of " + REQUIREDPOINTS + " points!";
+          break;
+        case 11:
+          html_content = "Hey " + name + "! December means it's the giving season! So I'll be giving you one last reminder to add your points to the tracker!! On January 1st everything you put into the tracker will be logged away into history. You won't be able to edit anything you did this year anymore, but you'll stil be able to see everything you did. You managed to get " + points + " out of " + REQUIREDPOINTS + " points in 11 months! If you still got some points to add, don't wait around!";
+          break;
+      }
+      //html_content += " Tracker link: "
       var email = coreID + "@zebra.com";
       var mailOptions = {
         from: 'Zebra.mail.bot@gmail.com', // sender address
@@ -1192,7 +1241,7 @@ function handleDisconnect() {
 * Listen to the IP:Port
 */
 //app.listen(process.env.PORT);
-var server = app.listen(3005, "localhost", function() {
+var server = app.listen(3005, "10.61.32.135", function() {
   var host = server.address().address;
   var port = server.address().port;
   console.log("Listening at http://%s:%s", host, port);
