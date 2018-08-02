@@ -987,8 +987,8 @@ function sendCheckInnovationEmail(name, coreID, delay){
       var email = coreID + "@zebra.com";
       var mailOptions = {
         from: 'Zebra.mail.bot@gmail.com', // sender address
-        //to: email, // list of receivers
-        to: "Jeremy.Herrmann@stonybrook.edu",
+        to: email, // list of receivers
+        // to: "Jeremy.Herrmann@stonybrook.edu",
         subject: 'Monthly Innovation Score Update', // Subject line
         text: content,
         html: html_content
