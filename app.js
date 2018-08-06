@@ -35,11 +35,11 @@ const STARTING_ROW_INDEX = 3;
 
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
 const db_config = {
-  host: '10.61.32.135',
+  host: 'localhost',
   port: '3306',
   user: 'root',
   password: 'Zebra123',
-  database: 'kiosk'
+  database: 'innovationtracker'
 };
 
 /*---------------------------------VARIABLES----------------------------------*/
@@ -100,8 +100,6 @@ var transporter = nodemailer.createTransport({
     pass: '^.j\"gk)253{j]hCJr&gZ9N\'^Th5Fh3V9/K5gU^7aW64whrn(xwB+TksM)9ZQ'
   }
 });
-
-
 
 /*Auto Reset the period - Occurs every January 1st*/
 var yearlyReset = schedule.scheduleJob('0 0 1 1 *', function(){
@@ -707,7 +705,6 @@ app.post('/removeAcheivement', function(req, res) {
     }
     else{
       var thePoint = result[0].points;
-
       var getCoreId = "SELECT `coreID` FROM `activity_"+ connection.escape(periodID) +"` WHERE `activityID`=" + connection.escape(activityID);
       connection.query(getCoreId, function(err, result) {
         if(err) throw err;
@@ -775,6 +772,9 @@ app.post('/addPoints', function(req, res) {
   }
 });
 
+app.get('*', function(req, res){
+  return res.redirect("/");
+});
 
 /*----------------------------------FUNCTIONS---------------------------------*/
 
@@ -787,7 +787,6 @@ function compareValues(key, order='asc') {
        !b.hasOwnProperty(key)) {
   	  return 0;
     }
-
     const varA = (typeof a[key] === 'string') ?
       a[key].toUpperCase() : a[key];
     const varB = (typeof b[key] === 'string') ?
@@ -867,10 +866,8 @@ function recurseList(person,thePeople){
     {
       person.employeeList.push(thePeople[val]);
       recurseList(thePeople[val], thePeople);
-
     }
   }
-
 }
 
 /**
@@ -997,8 +994,8 @@ function sendCheckInnovationEmail(name, coreID, delay){
       var email = coreID + "@zebra.com";
       var mailOptions = {
         from: 'Zebra.mail.bot@gmail.com', // sender address
-        //to: email, // list of receivers
-        to: "Jeremy.Herrmann@stonybrook.edu",
+        to: email, // list of receivers
+        // to: "Jeremy.Herrmann@stonybrook.edu",
         subject: 'Monthly Innovation Score Update', // Subject line
         text: content,
         html: html_content
@@ -1197,7 +1194,7 @@ function resetTables(periodName){
         if(err){
           return false;
         }
-        sortEmps();
+        sortEmps(periodID);
         return true;
       });
     });
@@ -1247,12 +1244,12 @@ function handleDisconnect() {
 /**
 * Listen to the IP:Port
 */
-//app.listen(process.env.PORT);
-var server = app.listen(3005, "10.61.32.135", function() {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log("Listening at http://%s:%s", host, port);
-});
+app.listen(process.env.PORT);
+// var server = app.listen(3005, "localhost", function() {
+//   var host = server.address().address;
+//   var port = server.address().port;
+//   console.log("Listening at http://%s:%s", host, port);
+// });
 
 function compileApplication(){
   //Gets the period ID of the current years period
