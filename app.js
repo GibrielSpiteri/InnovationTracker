@@ -578,18 +578,21 @@ app.post('/viewPoints', function(req, resp) {
     {
       personAccomps.push(activities[whatTheEmpDid]); // Get the employees completed activities
     }
-
     accomDescriptions = []; // global variables
     accomPoints = [];       // These are what is sent to view points
-
     usedValues = [];
     var accomp = "SELECT * FROM `accomplishment` WHERE `accompID` IN (";
+    var numOrder = "";
     if(personAccomps.length > 0){
       for(accomplishLocation in personAccomps){
         if(!usedValues.includes(personAccomps[accomplishLocation].accompID)){
-          accomp += personAccomps[accomplishLocation].accompID;
-          if(accomplishLocation != personAccomps.length-1){
-            accomp += ", "
+          if(accomplishLocation != 0){
+            accomp += ", " + personAccomps[accomplishLocation].accompID;
+            numOrder += ", " + personAccomps[accomplishLocation].accompID;
+          }
+          else{
+            accomp += personAccomps[accomplishLocation].accompID;
+            numOrder += personAccomps[accomplishLocation].accompID;
           }
           usedValues.push(personAccomps[accomplishLocation].accompID);
         }
@@ -598,7 +601,11 @@ app.post('/viewPoints', function(req, resp) {
     else{
       accomp += " -1"
     }
-    accomp += ")"
+    if(numOrder == ""){
+      accomp += ")"
+    }else {
+      accomp += ") ORDER BY FIELD( accompID, " + numOrder +")"
+    }
     connection.query(accomp, function(err, res) {
       if (err) throw err;
       for(key in res){
