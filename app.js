@@ -38,11 +38,11 @@ const EMC_VP_ID = "EPOR05";
 
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
 const db_config = {
-  host: '10.61.32.135',
+  host: 'localhost',
   port: '3306',
   user: 'root',
   password: 'Zebra123',
-  database: 'kiosk'
+  database: 'innovationtracker'
 };
 
 /*---------------------------------VARIABLES----------------------------------*/
@@ -1252,12 +1252,12 @@ function handleDisconnect() {
 /**
 * Listen to the IP:Port
 */
-// app.listen(process.env.PORT);
-var server = app.listen(3005, "10.61.32.135", function() {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log("Listening at http://%s:%s", host, port);
-});
+app.listen(process.env.PORT);
+// var server = app.listen(3005, "localhost", function() {
+//   var host = server.address().address;
+//   var port = server.address().port;
+//   console.log("Listening at http://%s:%s", host, port);
+// });
 
 function compileApplication(){
   //Gets the period ID of the current years period

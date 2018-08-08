@@ -128,6 +128,9 @@ $('#core_id_view').on('keyup', function() {
     document.getElementById("core_id").value = $('#core_id_view').val();
 });
 
+function viewInstructions(){
+  alert("VIEWING INSTRUCTIONS");
+}
 
 /**
 *Function to find the manager and input the manager into the text box
