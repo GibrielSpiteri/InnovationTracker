@@ -1,4 +1,6 @@
 /* JavaScript functions for the Main Index Page */
+var prevViewID = "";
+
 
 //Functions that occur when the window is reloaded - Loading the periods and accomplishments list
 window.onload = function(){
@@ -121,16 +123,21 @@ $('#core_id').focusout(function(){
 });
 
 $('#core_id').on('keyup', function() {
-    document.getElementById("core_id_view").value = $('#core_id').val();
+    // document.getElementById("core_id_view").value = $('#core_id').val();
+    if(prevViewID == ""){
+      document.getElementById("core_id_view").value = $('#core_id').val();
+    }else{
+      document.getElementById("core_id_view").value = prevViewID;
+    }
+    // if(prevViewID != "" && (document.getElementById("core_id_view").value != document.getElementById("coreID").value)){
+    //
+    // }
+    //
 });
 
 $('#core_id_view').on('keyup', function() {
     document.getElementById("core_id").value = $('#core_id_view').val();
 });
-
-function viewInstructions(){
-  alert("VIEWING INSTRUCTIONS");
-}
 
 /**
 *Function to find the manager and input the manager into the text box
@@ -185,6 +192,7 @@ function viewPoints(){
   btn.disabled = true;
   var core_id = document.getElementById("core_id_view").value;
   var period = document.getElementById("periods").value;
+  prevViewID = core_id;
   $.ajax({
     type: "POST",
     url: "/viewPoints",
@@ -378,7 +386,7 @@ function addPoints(){
           document.getElementById("view_points").classList.add('in');
           document.getElementById("core_id_view").value = core_id;
           document.getElementById("viewPointButton").click();
-          document.getElementById("accomplishment").value = "";
+          document.getElementById("accomplishment").value = "1";
           document.getElementById("desc").value = "";
         }
       }
