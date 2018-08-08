@@ -641,7 +641,7 @@ app.post('/viewPoints', function(req, resp) {
         response[0] += "</tbody></table";
 
         // Create the your group table
-        if(team[0].employeeList != null){
+        if(team[0].employeeList != null && team[0].employeeList.length > 1){
           response[1] = "<table width='100%' style='margin:0px; padding: 0;' class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr><th style='text-align:center; width: 35%;'>Name</th><th style='text-align:center; width: 25%;'>Core ID</th><th style='text-align:center; width: 15%;'>Total Points</th><th style='text-align:center; width: 25%;'>Show More Details</th></tr></thead><tbody>";
           for(emps in team[0].employeeList){
             var theEmp = team[0].employeeList[emps];
@@ -835,23 +835,32 @@ function sortEmps(tempPeriod){
     //Getting all the employees into a list(all_people)
     var get_all = "SELECT * FROM `employees_" + connection.escape(tempPeriod) + "`";
     var tempall_people = [];
+    //console.log(tempfaris)
+    tempall_people.push(tempfaris);
     connection.query(get_all, function(err, res) {
-      if (err) throw err;
+      if (err){
+        console.log("SELECT ALL EMPLOYEES QUERY FAILED IN SORTEMPS()");
+        throw err;
+      }
+
       for (var i in res) {
-        //Make a new employee using their information
-        var person = new Emp("","","","");
-        person.name=res[i].emp_name;
-        person.coreID = res[i].coreID;
-        person.job = res[i].job;
-        person.supervisor = res[i].supervisor;
-        person.employeeList = [];
-        person.total_points = res[i].total_points;
-        //Push this to the list of all all_people
-        tempall_people.push(person);
+        if(res[i].job.toLowerCase().includes("engineer")){
+          //Make a new employee using their information
+          var person = new Emp("","","","");
+          person.name=res[i].emp_name;
+          person.coreID = res[i].coreID;
+          person.job = res[i].job;
+          person.supervisor = res[i].supervisor;
+          person.employeeList = [];
+          person.total_points = res[i].total_points;
+          //Push this to the list of all all_people
+          tempall_people.push(person);
+        }
       }
       recurseList(tempfaris,tempall_people);
       all_people[tempPeriod] = tempall_people;
       allfaris[tempPeriod] = tempfaris;
+      console.log(all_people);
     });
   });
 }
@@ -868,6 +877,7 @@ function printFaris(farisObject){
 * Recursively calls itself until it finds the given person it is searching for
 */
 function recurseList(person,thePeople){
+
   for(val in thePeople)
   {
     if(thePeople[val].supervisor === person.name)
@@ -899,17 +909,28 @@ function printTree(person, currentTabs){
 * @param {Array} result The results of the search, contains the supervisor of the searched person, their name, and their employees
 */
 function findPersonByID(coreID, person, result){
-  for(emp in person.employeeList){
-    if(person.employeeList[emp].coreID === coreID){
-      result.push(person);
-      result.push(person.employeeList[emp].name);
-      result.push(person.employeeList[emp]);
-    }
-    else{
-      findPersonByID(coreID, person.employeeList[emp],result);
-    }
+  if(coreID == EMC_VP_ID){
+    console.log(person);
+    var joeWhite = new Emp(person.supervisor, "", "", person, 0)
+    result.push(joeWhite);
+    result.push(person.name);
+    result.push(person);
+    return result;
   }
-  return result;
+  else{
+    for(emp in person.employeeList){
+      if(person.employeeList[emp].coreID == coreID){
+        result.push(person);
+        result.push(person.employeeList[emp].name);
+        result.push(person.employeeList[emp]);
+      }
+      else{
+        findPersonByID(coreID, person.employeeList[emp],result);
+      }
+    }
+    //console.log(result);
+    return result;
+  }
 }
 
 
@@ -923,6 +944,9 @@ function refinedName(name){
   if(name.indexOf(",") >= 0){
     refinedNames = name.split(", ");
     refinedNames = refinedNames[1] + " " + refinedNames[0];
+  }
+  else{
+    refinedNames = name;
   }
   if(refinedNames.indexOf("(") >= 0 && refinedNames.indexOf(")") >= 0){
     refinedNames = refinedNames.substring(0, refinedNames.indexOf("(")) + refinedNames.substring(refinedNames.indexOf(")")+2, refinedNames.length)
