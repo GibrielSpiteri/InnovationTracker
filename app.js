@@ -33,13 +33,16 @@ const EMP_JOB_COL        = 6;
 const EMP_MANAGER_COL    = 9;
 const STARTING_ROW_INDEX = 3;
 
+/* The Orginating Manager's Core ID*/
+const EMC_VP_ID = "EPOR05";
+
 //Defining the settings for the database - Will have to change this when moving the server to AWS or Savahnna
 const db_config = {
-  host: 'localhost',
+  host: '10.61.32.135',
   port: '3306',
   user: 'root',
   password: 'Zebra123',
-  database: 'innovationtracker'
+  database: 'kiosk'
 };
 
 /*---------------------------------VARIABLES----------------------------------*/
@@ -485,7 +488,12 @@ app.post('/findInformation', function(req, res){
   if(employee[0] != null){
     information[0] = refinedName(employee[1]);
     information[1] = refinedName(employee[0].name);
-    information[2] = "You currently have " + employee[2].total_points + " points.";
+    if(employee[2].total_points != 1){
+      information[2] = "You currently have " + employee[2].total_points + " points";
+    }
+    else{
+      information[2] = "You currently have " + employee[2].total_points + " point";
+    }
   } else{
     information[0] = "Invalid ID";
     information[1] = "Invalid ID";
@@ -812,7 +820,7 @@ function compareValues(key, order='asc') {
 */
 function sortEmps(tempPeriod){
   //Getting faris from the database by his 'emp_name'
-  var get_faris = "SELECT * FROM `employees_" + connection.escape(tempPeriod) + "` WHERE `emp_name` = 'Habbaba, Mr. Faris S (Faris)'";
+  var get_faris = "SELECT * FROM `employees_" + connection.escape(tempPeriod) + "` WHERE `coreID` = '" + EMC_VP_ID + "'";
   var tempfaris = new Emp("","","","","0");
   connection.query(get_faris, function(err, res) {
     if (err) throw err;
@@ -1244,12 +1252,12 @@ function handleDisconnect() {
 /**
 * Listen to the IP:Port
 */
-app.listen(process.env.PORT);
-// var server = app.listen(3005, "localhost", function() {
-//   var host = server.address().address;
-//   var port = server.address().port;
-//   console.log("Listening at http://%s:%s", host, port);
-// });
+// app.listen(process.env.PORT);
+var server = app.listen(3005, "10.61.32.135", function() {
+  var host = server.address().address;
+  var port = server.address().port;
+  console.log("Listening at http://%s:%s", host, port);
+});
 
 function compileApplication(){
   //Gets the period ID of the current years period
