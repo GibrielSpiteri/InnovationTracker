@@ -1124,7 +1124,7 @@ function initializeTables(){
   var checkAccomps = "SELECT * FROM `accomplishment`";
   connection.query(checkAccomps, function(err, result) {
     if(result == 0){
-      var insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (1,'Choose your Acomplisment',0,1);";
+      var insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (1,'Choose your Accomplishment',0,1);";
       executeQuery(insertBasicAccomp);
       insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (2,'Identify a meaningful problem that needs a solution',1,1);";
       executeQuery(insertBasicAccomp);
