@@ -42,7 +42,7 @@ const db_config = {
   port: '3306',
   user: 'root',
   password: 'Zebra123',
-  database: 'innovationtracker'
+  database: 'kiosk'
 };
 
 /*---------------------------------VARIABLES----------------------------------*/
@@ -112,30 +112,40 @@ var yearlyReset = schedule.scheduleJob('0 0 1 1 *', function(){
 /**
 *Send email reminders to every group of 100
 */
-var monthlyEmailGroupOne = schedule.scheduleJob('0 0 14 * *', function(){
+var monthlyEmailGroupOne = schedule.scheduleJob('0 0 1 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(0);
 });
-var monthlyEmailGroupTwo = schedule.scheduleJob('0 0 15 * *', function(){
+var monthlyEmailGroupTwo = schedule.scheduleJob('0 0 2 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(1);
 });
-var monthlyEmailGroupThree = schedule.scheduleJob('0 0 16 * *', function(){
+var monthlyEmailGroupThree = schedule.scheduleJob('0 0 3 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(2);
 });
-var monthlyEmailGroupFour = schedule.scheduleJob('0 0 17 * *', function(){
+var monthlyEmailGroupFour = schedule.scheduleJob('0 0 4 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(3);
 });
-var monthlyEmailGroupFive = schedule.scheduleJob('0 0 18 * *', function(){
+var monthlyEmailGroupFive = schedule.scheduleJob('0 0 5 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(4);
+});
+var monthlyEmailGroupSix = schedule.scheduleJob('0 0 6 * *', function(){
+  makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
+  createSplitListOfEmployees();
+  sendMonthlyEmailToGroup(5);
+});
+var monthlyEmailGroupSeven = schedule.scheduleJob('0 0 7 * *', function(){
+  makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
+  createSplitListOfEmployees();
+  sendMonthlyEmailToGroup(6);
 });
 
 /*------------------------------APP GET REQUESTS------------------------------*/
@@ -182,7 +192,12 @@ app.get('/admin', function(req, res){
   }
 });
 
-
+/**
+* Reject IE browser
+*/
+app.get('/NoIE', function(req, res) {
+  res.render('pages/RejectIE');
+});
 /*------------------------------APP POST REQUESTS-----------------------------*/
 
 /**
@@ -835,7 +850,6 @@ function sortEmps(tempPeriod){
     //Getting all the employees into a list(all_people)
     var get_all = "SELECT * FROM `employees_" + connection.escape(tempPeriod) + "`";
     var tempall_people = [];
-    //console.log(tempfaris)
     tempall_people.push(tempfaris);
     connection.query(get_all, function(err, res) {
       if (err){
@@ -860,7 +874,6 @@ function sortEmps(tempPeriod){
       recurseList(tempfaris,tempall_people);
       all_people[tempPeriod] = tempall_people;
       allfaris[tempPeriod] = tempfaris;
-      console.log(all_people);
     });
   });
 }
@@ -910,7 +923,6 @@ function printTree(person, currentTabs){
 */
 function findPersonByID(coreID, person, result){
   if(coreID == EMC_VP_ID){
-    console.log(person);
     var joeWhite = new Emp(person.supervisor, "", "", person, 0)
     result.push(joeWhite);
     result.push(person.name);
@@ -1099,13 +1111,12 @@ function initializeTables(){
     if(result.length == 0){
       var current_date = new Date();
       var current_year = current_date.getFullYear();
-      var next_year = current_year+1;
-      var periodName = current_year + " - " + next_year;
-      var makeFirstPeriod = "INSERT INTO `period` (`name`, `startTime`, `currentPeriod`) VALUES ('" + periodName + "', NOW(), TRUE)";
+      var makeFirstPeriod = "INSERT INTO `period` (`name`, `startTime`, `currentPeriod`) VALUES ('" + current_year + "', NOW(), TRUE)";
         connection.query(makeFirstPeriod, function(err, result) {
           var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
           connection.query(getCurrentPeriod, function(err, result) {
             periodID = result[0].periodID;
+
             var activity = "CREATE TABLE IF NOT EXISTS activity_" + connection.escape(result[0].periodID) + "(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(50), accompID INT(3), activity_desc VARCHAR(2500))";
             executeQuery(activity);
 
@@ -1276,12 +1287,12 @@ function handleDisconnect() {
 /**
 * Listen to the IP:Port
 */
-app.listen(process.env.PORT);
-// var server = app.listen(3005, "localhost", function() {
-//   var host = server.address().address;
-//   var port = server.address().port;
-//   console.log("Listening at http://%s:%s", host, port);
-// });
+// app.listen(process.env.PORT);
+var server = app.listen(3005, "10.61.32.135", function() {
+  var host = server.address().address;
+  var port = server.address().port;
+  console.log("Listening at http://%s:%s", host, port);
+});
 
 function compileApplication(){
   //Gets the period ID of the current years period
@@ -1319,6 +1330,7 @@ function startApplication(){
   handleDisconnect();
   //Compiled Startup
   compileApplication();
+  resetTables();
 }
 
 /* RUNNING THE APP */
