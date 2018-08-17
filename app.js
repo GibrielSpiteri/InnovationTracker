@@ -1348,9 +1348,8 @@ function compileApplication(){
 function startApplication(){
   // Connect to DB
   handleDisconnect();
-  // addEmps();
   //Compiled Startup
-  setTimeout(function(){compileApplication();;},3000);
+  compileApplication();
 
 
 }
