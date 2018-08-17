@@ -1193,6 +1193,11 @@ function initializeTables(){
       insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (21,'[CUSTOM]',1,1);";
       executeQuery(insertBasicAccomp);
     }
+    else if(result[0].description == "Choose your Acomplisment"){
+      var properString = "Choose your Accomplishment"
+      var fixMisspelling = 'UPDATE `accomplishment` SET `description`=' + connection.escape(properString) + ' WHERE `accompID`=1';
+      executeQuery(fixMisspelling);
+    }
   });
   var admin_login = "CREATE TABLE IF NOT EXISTS `admin`(username VARCHAR(25), password VARCHAR(100))";
   connection.query(admin_login, function(err, result) {
