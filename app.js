@@ -643,11 +643,21 @@ app.post('/viewPoints', function(req, resp) {
       //Write the personal accomplishments table
       if(team[0] != null){
         response[5] = "<h4>Name: " + refinedName(team[1]) + "</h4><h4>Manager: " + refinedName(team[0].name) + "</h4></br>";
-        response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr style='vertical-align:middle;'><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
+        if(thePeriod == periodID){
+          response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr style='vertical-align:middle;'><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
+        }
+        else{
+          response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr style='vertical-align:middle;'><th style='text-align:center; width:40%'>Accomplishment</th><th style='text-align:center; width:50%'>Description</th><th style='text-align:center; width:10%'>Points</th></tr></thead><tbody>";
+        }
         for(val in personAccomps)
         {
           var index = usedValues.indexOf(personAccomps[val].accompID)
-          response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[index] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[index]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
+          if(thePeriod == periodID){
+            response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[index] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[index]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
+          }
+          else{
+            response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[index] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[index]+ "</td></tr>";
+          }
           pointCount += accomPoints[index];
         }
         response[0] += "<tr style='vertical-align:middle;'><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center; vertical-align:middle;'>"
@@ -890,13 +900,18 @@ function printFaris(farisObject){
 * Recursively calls itself until it finds the given person it is searching for
 */
 function recurseList(person,thePeople){
-
+person.employeeList = [];
   for(val in thePeople)
   {
-    if(thePeople[val].supervisor === person.name)
+    if(thePeople[val].supervisor == person.name)
     {
-      person.employeeList.push(thePeople[val]);
-      recurseList(thePeople[val], thePeople);
+      if(thePeople[val].name != ""){
+        person.employeeList.push(thePeople[val]);
+        recurseList(thePeople[val], thePeople);
+      }
+      else{
+        console.log("No Employees in Database");
+      }
     }
   }
 }
@@ -1328,9 +1343,11 @@ function compileApplication(){
 function startApplication(){
   // Connect to DB
   handleDisconnect();
+  // addEmps();
   //Compiled Startup
-  compileApplication();
-  resetTables();
+  setTimeout(function(){compileApplication();;},3000);
+
+
 }
 
 /* RUNNING THE APP */
