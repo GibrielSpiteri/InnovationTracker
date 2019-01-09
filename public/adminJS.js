@@ -1,12 +1,6 @@
 /* JavaScript functions for the Admin Page */
 
 /* eslint-disable */
-/* eslint-env jquery */
-/* eslint-env browser */
-/* eslint prefer-arrow-callback: 0 */
-
-/* eslint func-names: ["error", "never"] */
-
 
 /**
 * Display File name with jQuery
