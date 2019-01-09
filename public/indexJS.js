@@ -1,4 +1,7 @@
 /* JavaScript functions for the Main Index Page */
+/* eslint-disable */
+
+
 var prevViewID = "";
 
 

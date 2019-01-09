@@ -1,7 +1,9 @@
+<!DOCTYPE html>
+
 <html lang="en" style="overflow-y: scroll;">
   <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <!-- Style Sheets -->
     <link rel="stylesheet" href="/stylesheet.css"/>
     <link rel="stylesheet" href="/bootstrap.css"/>
@@ -9,12 +11,18 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="icon" href="/favicon.ico">
+    <title>Zebra Innovation Tracker - Administrator Login</title>
   </head>
+
+  <body>
+
   <div id="myProgress">
     <div style="height:2px; width:0%;" id="myBar"></div>
   </div>
+
+
   <header class="header" style="background-color:#333E47;">
-    <nav class="navbar navbar-default" role="navigation" style="background-color:#333E47;">
+    <nav class="navbar navbar-default" style="background-color:#333E47;">
       <div class="navbar-header">
         <a class="navbar-brand" href="/" style="font-size:30px; color:#ffffff; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:30px;">Innovation Tracker</a>
       </div>
@@ -25,7 +33,6 @@
       </div>
     </nav>
   </header>
-  <body>
     <div style="background-color:#878783 ; height:2px;"></div>
     <br>
     <br>
@@ -42,9 +49,9 @@
               <div style="width:100%; margin:0 auto;">
                 <br>
                 <!-- Heading giving the user directions -->
-                <h2 style="color:#333; text-align:center;">Login</h2></br>
+                <h2 style="color:#333; text-align:center;">Login</h2><br>
                 <!-- Creating the form for the user -->
-                <form id="login_form" action="/auth" method="POST" value="form">
+                <form id="login_form" action="/auth" method="POST">
                   <div class="form-group row">
                     <label for="username" class="col-sm-4 col-form-label">Username</label>
                     <div class="col-sm-8">

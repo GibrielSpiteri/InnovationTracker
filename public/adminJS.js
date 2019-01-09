@@ -1,45 +1,53 @@
 /* JavaScript functions for the Admin Page */
 
+/* eslint-disable */
+/* eslint-env jquery */
+/* eslint-env browser */
+/* eslint prefer-arrow-callback: 0 */
+
+/* eslint func-names: ["error", "never"] */
+
+
 /**
 * Display File name with jQuery
 */
-jQuery("input#fileUpload").change(function () {
-    $( "label#file_name" ).replaceWith( "<label id='file_name'>Current File Selected : " + jQuery(this).val().replace("C:\\fakepath\\", "") + "</label>" );
+jQuery('input#fileUpload').change(function () {
+  $('label#file_name').replaceWith("<label id='file_name'>Current File Selected : " + jQuery(this).val().replace("C:\\fakepath\\", "") + "</label>");
 });
 
 /**
 * Load the accomplishments list when the page loads
 */
-window.onload = function(){
+window.onload = function () {
   loadAccomps();
-}
+};
 
 /**
 * Status Message for uploading CSV
 */
-$(document).ready(function() {
-  $('#uploadForm').submit(function() {
-    $("#status").empty().text("File is uploading...");
-      $(this).ajaxSubmit({
-        error: function(xhr) {
-          status('Error: ' + xhr.status);
-        },
-        success: function(response) {
-          $("#status").empty().text(response);
-          if(response == "File Upload Successful"){
-            $( "label#file_name" ).replaceWith("");
-            alert("Successfully Uploaded");
-            return true;
-          }
-          else if(response == "Hacker!"){
-            alert("Hackers are mean people that try to break things dontcha think? :<");
-            return true;
-          }
-          else{
-            alert("Error Uploading File, Please Ensure The File Follows the Proper Formatting Guidelines");
-            return true;
-          }
+$(document).ready(function () {
+  $('#uploadForm').submit(function () {
+    $('#status').empty().text('File is uploading...');
+    $(this).ajaxSubmit({
+      error: function (xhr) {
+        status('Error: ' + xhr.status);
+      },
+      success: function(response) {
+        $("#status").empty().text(response);
+        if(response == "File Upload Successful"){
+          $( "label#file_name" ).replaceWith("");
+          alert("Successfully Uploaded");
+          return true;
         }
+        else if(response == "Hacker!"){
+          alert("Hackers are mean people that try to break things dontcha think? :<");
+          return true;
+        }
+        else{
+          alert("Error Uploading File, Please Ensure The File Follows the Proper Formatting Guidelines");
+          return true;
+        }
+      }
     });
   return false;
   });
@@ -48,7 +56,7 @@ $(document).ready(function() {
 /**
 * Request to change admin password
 */
-function changePass(){
+function changePass() {
   var currPass = document.getElementById("currPassword").value;
   var newPass = document.getElementById("newPassword").value;
   var repeatPass = document.getElementById("repeatPassword").value;

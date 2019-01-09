@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 //Retreiving the neccessary imports below
 /**
 *When installing the application for the first time,
@@ -42,7 +44,7 @@ const db_config = {
   port: '3306',
   user: 'root',
   password: 'Zebra123',
-  database: 'kiosk'
+  database: 'innovation_tracker'
 };
 
 /*---------------------------------VARIABLES----------------------------------*/
@@ -80,7 +82,7 @@ var app = express();
 app.use(express.static(path.join(__dirname, '/public'))); // public directory
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(bodyParser.json());
-app.use(session({secret:'Innovate'}));
+app.use(session({secret:'Innovate', resave: false, saveUninitialized: false}));
 app.set('view engine', 'ejs'); // Use .ejs files for HTML
 var StatusEnum = Object.freeze({"open":1, "closed": 2});
 
@@ -1308,7 +1310,7 @@ function handleDisconnect() {
 * Listen to the IP:Port
 */
 // app.listen(process.env.PORT);
-var server = app.listen(3005, "10.61.32.135", function() {
+var server = app.listen(3006, "localhost", function() {
   var host = server.address().address;
   var port = server.address().port;
   console.log("Listening at http://%s:%s", host, port);

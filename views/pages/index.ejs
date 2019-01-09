@@ -1,10 +1,12 @@
 
+<!DOCTYPE html>
+
 <html lang="en" style="overflow-y: scroll;">
 
   <head>
     <!-- TYPE IN INTERNS2018 -->
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <!-- Style Sheets -->
     <link rel="stylesheet" href="/stylesheet.css"/>
     <link rel="stylesheet" href="/bootstrap.css"/>
@@ -12,38 +14,39 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="icon" href="/favicon.ico">
+    <title>Zebra Innovation Tracker</title>
   </head>
+
+  <body>
+
   <div id="myProgress">
     <div style="height:2px; width:0%;" id="myBar"></div>
   </div>
 
   <header class="header" style="background-color:#333E47;">
-    <nav class="navbar navbar-default" role="navigation" style="background-color:#333E47;">
+    <nav class="navbar navbar-default" style="background-color:#333E47;">
 
       <div class="navbar-header">
         <a class="navbar-brand" href="/" style="font-size:30px; color:#ffffff; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:30px;">Innovation Tracker</a>
       </div>
 
-      </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-left">
             <li><a class="navbar-brand" href="/" style="font-size:30px; color:#ffffff; min-height:80px;"><span><img src="/zebra.png" alt="zebra"/></span></a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li data-toggle='modal' data-target='#instructionAlert' class="navbar-brand" style="font-size:15px; color:#ffffff; min-width:80px; min-height:80px; cursor:hand;"><span><img src="/info.png" style="padding-left:20px; padding-right:0px; padding-top:10px; padding-bottom:10px; cursor:hand; min-width:40px; min-height:40px;" alt="info"/>Instructions</span></li>
+            <li data-toggle='modal' data-target='#instructionAlert' class="navbar-brand" style="font-size:15px; color:#ffffff; min-width:80px; min-height:80px; cursor:pointer;"><span><img src="/info.png" style="padding-left:20px; padding-right:0px; padding-top:10px; padding-bottom:10px; cursor:pointer; min-width:40px; min-height:40px;" alt="info"/>Instructions</span></li>
         </ul>
       </div>
     </nav>
   </header>
-
-  <body>
 
     <div style="background-color:#878783 ; height:2px;"></div>
     <br>
     <br>
     <div style="width:100%; text-align:center;">
       <!--Center Piece with rounded edges -->
-      <div style="width:60%; margin:auto; border: #333E47 1px solid; border-radius:15px;">
+      <div style="width:60%; min-height: 500px; margin:auto; border: #333E47 1px solid; border-radius:15px;">
         <br>
         <!--Content Div with spacing from edges -->
         <div style="width:80%; margin:auto;">
@@ -51,11 +54,11 @@
           <ul class="nav nav-tabs" id="headerTabs" role="tablist">
             <!-- Add Points Tab -->
             <li id="add_points_tab" class="nav-item active">
-              <a class="nav-link" id="addPoints-tab" data-toggle="tab" href="#add_points" role="tab" aria-controls="addPoints" aria-selected="true" onclick="findInformation()">Add Points</a>
+              <a class="nav-link" id="addPoints-tab" data-toggle="tab" href="#add_points" role="tab" aria-controls="add_points" aria-selected="true" onclick="findInformation()">Add Points</a>
             </li>
             <!-- Viewing Points Tab -->
             <li id="view_points_tab" class="nav-item">
-              <a class="nav-link" id="viewPoints-tab" data-toggle="tab" href="#view_points" role="tab" aria-controls="viewPoints" aria-selected="false">View Points</a>
+              <a class="nav-link" id="viewPoints-tab" data-toggle="tab" href="#view_points" role="tab" aria-controls="view_points" aria-selected="false">View Points</a>
             </li>
             <!-- Leaderboard Tab -->
             <li id="leaderboard_tab" class="nav-item">
@@ -74,8 +77,8 @@
                     <input type="text" class="form-control" id="core_id" name="core_id" style="text-transform:uppercase;">
                   </div>
                   <div class="form-group col-md-6 no-border" style="text-align:left;">
-                    <label style="visibility: hidden;" class="control-label" for="valid">Valid</label>
-                    <h4 style="visibility: hidden; text-align:left; vertical-align:middle" id="valid" name="valid">Invalid ID</h4>
+                    <label style="visibility: hidden;" class="control-label">Valid</label>
+                    <h4 style="visibility: hidden; text-align:left; vertical-align:middle" id="valid">Invalid ID</h4>
                     <!-- <input style="visibility: hidden; border:0; pointer-events: none;" type="text" ng-class="{'no-border': toggle}" class="form-control no-border" id="valid" name="valid"> -->
                   </div>
                 </div>
@@ -91,7 +94,7 @@
                 </div>
                 <div class="form-row">
                   <div class="form-group col-md-12" style="text-align:left;">
-                    <label for="accomplishment">Select an Accomplishment</label>
+                    <label>Select an Accomplishment</label>
                     <div id="accompList">
 
                     </div>
@@ -106,7 +109,7 @@
 
                 <div class="form-group row">
                   <div class="col-sm-12">
-                    <button id="submitPoints"type="submit" onclick="addPoints()" class="btn btn-primary">Submit</button>
+                    <button id="submitPoints" type="submit" onclick="addPoints()" class="btn btn-primary">Submit</button>
                   </div>
                 </div>
                 <br>
@@ -130,7 +133,7 @@
               <br>
               <div class="form-row">
                 <div class="form-group col-md-12">
-                  <a class="btn btn-primary" onclick="viewPoints()" id="viewPointButton" type="submit">Submit</a>
+                  <button class="btn btn-primary" onclick="viewPoints()" id="viewPointButton" type="submit">Submit</button>
                 </div>
               </div>
               <br><br><br>
@@ -166,7 +169,7 @@
                     </div>
                   </div>
                 </div>
-              </br>
+              <br>
                 <div class="card">
                   <div class="card-header" id="headingTwo">
                     <!-- <h5 class="mb-0"> -->
@@ -184,7 +187,7 @@
                     </div>
                   </div>
                 </div>
-              </br>
+              <br>
                 <div class="card">
                   <div class="card-header" id="headingThree">
                     <!-- <h5 class="mb-0"> -->
@@ -226,9 +229,8 @@
             <!-- Leaderboard tab content tab -->
             <div class="tab-pane fade" id="leaderboard" role="tabpanel" style="min-height:70%;" aria-labelledby="leaderboard-tab" >
               <div style="width:100%; margin:0 auto;">
-                <br>
                 <!-- Below is the div that contains the employees with the top five innovation scores -->
-                <div class="list-group" id="leaderboardTable" style="visibility:hidden;"></div>
+                <div class="list-group" id="leaderboardTable" style="min-height:80%;"></div>
                 <br>
               </div>
             </div>
@@ -248,7 +250,7 @@
                 <!--Center Piece with rounded edges -->
                 <div style="width:90%; margin:auto; border: #333E47 1px solid; border-radius:15px;">
                   <!-- Div containing the content -->
-                  <div class="tab-content" id="headerTabContent">
+                  <div class="tab-content" id="headerTabContent2">
                     <div style="width:100%; margin:0 auto;">
                       <div style="width:100%;">
                         <div style="width:48%; display:inline-block;">
@@ -303,8 +305,11 @@
         </div>
       </div>
     </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="/indexJS.js"></script>
+    <script src="/canvasjs.min.js"></script>
+
   </body>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script src="/indexJS.js"></script>
-  <script src="/canvasjs.min.js"></script>
+
 </html>
