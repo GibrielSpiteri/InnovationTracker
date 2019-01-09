@@ -150,13 +150,15 @@ var monthlyEmailGroupSeven = schedule.scheduleJob('0 0 7 * *', function(){
   sendMonthlyEmailToGroup(6);
 });
 
+
 /*------------------------------APP GET REQUESTS------------------------------*/
+
 
 /**
 * Directs the user to the main application page. ~ index.ejs
 */
 app.get('/', function(req, res) {
-  res.render('pages/index');
+  res.render('pages/index')
 });
 
 /**
@@ -1359,3 +1361,4 @@ function startApplication(){
 /* RUNNING THE APP */
 //Calling the main function below
 startApplication();
+
