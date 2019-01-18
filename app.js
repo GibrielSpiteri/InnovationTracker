@@ -211,7 +211,7 @@ app.post("/logout", function(req, res){
   sesh = req.session;
   sesh.logged_in = false;
   sesh.username = "";
-  return res.redirect("/login");
+  return res.redirect("/login"); 
 });
 
 /**
