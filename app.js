@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 //Retreiving the neccessary imports below
 /**
 *When installing the application for the first time,
@@ -42,7 +44,7 @@ const db_config = {
   port: '3306',
   user: 'root',
   password: 'Zebra123',
-  database: 'innovationtracker'
+  database: 'innovation_tracker'
 };
 
 /*---------------------------------VARIABLES----------------------------------*/
@@ -80,7 +82,7 @@ var app = express();
 app.use(express.static(path.join(__dirname, '/public'))); // public directory
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(bodyParser.json());
-app.use(session({secret:'Innovate'}));
+app.use(session({secret:'Innovate', resave: false, saveUninitialized: false}));
 app.set('view engine', 'ejs'); // Use .ejs files for HTML
 var StatusEnum = Object.freeze({"open":1, "closed": 2});
 
@@ -112,39 +114,51 @@ var yearlyReset = schedule.scheduleJob('0 0 1 1 *', function(){
 /**
 *Send email reminders to every group of 100
 */
-var monthlyEmailGroupOne = schedule.scheduleJob('0 0 14 * *', function(){
+var monthlyEmailGroupOne = schedule.scheduleJob('0 0 1 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(0);
 });
-var monthlyEmailGroupTwo = schedule.scheduleJob('0 0 15 * *', function(){
+var monthlyEmailGroupTwo = schedule.scheduleJob('0 0 2 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(1);
 });
-var monthlyEmailGroupThree = schedule.scheduleJob('0 0 16 * *', function(){
+var monthlyEmailGroupThree = schedule.scheduleJob('0 0 3 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(2);
 });
-var monthlyEmailGroupFour = schedule.scheduleJob('0 0 17 * *', function(){
+var monthlyEmailGroupFour = schedule.scheduleJob('0 0 4 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(3);
 });
-var monthlyEmailGroupFive = schedule.scheduleJob('0 0 18 * *', function(){
+var monthlyEmailGroupFive = schedule.scheduleJob('0 0 5 * *', function(){
   makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
   createSplitListOfEmployees();
   sendMonthlyEmailToGroup(4);
 });
+var monthlyEmailGroupSix = schedule.scheduleJob('0 0 6 * *', function(){
+  makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
+  createSplitListOfEmployees();
+  sendMonthlyEmailToGroup(5);
+});
+var monthlyEmailGroupSeven = schedule.scheduleJob('0 0 7 * *', function(){
+  makeListOfAllPeopleUnderFaris(allfaris[periodID], all_people[periodID]);
+  createSplitListOfEmployees();
+  sendMonthlyEmailToGroup(6);
+});
+
 
 /*------------------------------APP GET REQUESTS------------------------------*/
+
 
 /**
 * Directs the user to the main application page. ~ index.ejs
 */
 app.get('/', function(req, res) {
-  res.render('pages/index');
+  res.render('pages/index')
 });
 
 /**
@@ -182,7 +196,12 @@ app.get('/admin', function(req, res){
   }
 });
 
-
+/**
+* Reject IE browser
+*/
+app.get('/NoIE', function(req, res) {
+  res.render('pages/RejectIE');
+});
 /*------------------------------APP POST REQUESTS-----------------------------*/
 
 /**
@@ -192,7 +211,7 @@ app.post("/logout", function(req, res){
   sesh = req.session;
   sesh.logged_in = false;
   sesh.username = "";
-  return res.redirect("/login");
+  return res.redirect("/login"); 
 });
 
 /**
@@ -628,11 +647,21 @@ app.post('/viewPoints', function(req, resp) {
       //Write the personal accomplishments table
       if(team[0] != null){
         response[5] = "<h4>Name: " + refinedName(team[1]) + "</h4><h4>Manager: " + refinedName(team[0].name) + "</h4></br>";
-        response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr style='vertical-align:middle;'><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
+        if(thePeriod == periodID){
+          response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr style='vertical-align:middle;'><th style='text-align:center; width:35%'>Accomplishment</th><th style='text-align:center; width:40%'>Description</th><th style='text-align:center; width:10%'>Points</th><th style='text-align:center; width:9%'>Delete</th></tr></thead><tbody>";
+        }
+        else{
+          response[0] = "<table class='table table-striped table-hover table-responsive'><thead class='thead-dark'><tr style='vertical-align:middle;'><th style='text-align:center; width:40%'>Accomplishment</th><th style='text-align:center; width:50%'>Description</th><th style='text-align:center; width:10%'>Points</th></tr></thead><tbody>";
+        }
         for(val in personAccomps)
         {
           var index = usedValues.indexOf(personAccomps[val].accompID)
-          response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[index] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[index]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
+          if(thePeriod == periodID){
+            response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[index] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[index]+ "</td><td><input type='image' onclick='removeAcheivement("+ personAccomps[val].activityID +"," + personAccomps[val].accompID +")' data-toggle='modal' data-target='#deleteAlert' src='/delete.png' style='width:25px; height:25px' /></td></tr>";
+          }
+          else{
+            response[0] += "<tr><td style='text-align:center;'>" + accomDescriptions[index] + "</td><td style='text-align:center; word-break:break-all;'>" + personAccomps[val].activity_desc + "</td><td style='text-align:center;'>" + accomPoints[index]+ "</td></tr>";
+          }
           pointCount += accomPoints[index];
         }
         response[0] += "<tr style='vertical-align:middle;'><td></td><td><h4 style='text-align: right;'>Total Points</h4></td><td style='text-align:center; vertical-align:middle;'>"
@@ -835,7 +864,6 @@ function sortEmps(tempPeriod){
     //Getting all the employees into a list(all_people)
     var get_all = "SELECT * FROM `employees_" + connection.escape(tempPeriod) + "`";
     var tempall_people = [];
-    //console.log(tempfaris)
     tempall_people.push(tempfaris);
     connection.query(get_all, function(err, res) {
       if (err){
@@ -860,7 +888,6 @@ function sortEmps(tempPeriod){
       recurseList(tempfaris,tempall_people);
       all_people[tempPeriod] = tempall_people;
       allfaris[tempPeriod] = tempfaris;
-      console.log(all_people);
     });
   });
 }
@@ -877,13 +904,18 @@ function printFaris(farisObject){
 * Recursively calls itself until it finds the given person it is searching for
 */
 function recurseList(person,thePeople){
-
+person.employeeList = [];
   for(val in thePeople)
   {
-    if(thePeople[val].supervisor === person.name)
+    if(thePeople[val].supervisor == person.name)
     {
-      person.employeeList.push(thePeople[val]);
-      recurseList(thePeople[val], thePeople);
+      if(thePeople[val].name != ""){
+        person.employeeList.push(thePeople[val]);
+        recurseList(thePeople[val], thePeople);
+      }
+      else{
+        console.log("No Employees in Database");
+      }
     }
   }
 }
@@ -910,7 +942,6 @@ function printTree(person, currentTabs){
 */
 function findPersonByID(coreID, person, result){
   if(coreID == EMC_VP_ID){
-    console.log(person);
     var joeWhite = new Emp(person.supervisor, "", "", person, 0)
     result.push(joeWhite);
     result.push(person.name);
@@ -1099,13 +1130,12 @@ function initializeTables(){
     if(result.length == 0){
       var current_date = new Date();
       var current_year = current_date.getFullYear();
-      var next_year = current_year+1;
-      var periodName = current_year + " - " + next_year;
-      var makeFirstPeriod = "INSERT INTO `period` (`name`, `startTime`, `currentPeriod`) VALUES ('" + periodName + "', NOW(), TRUE)";
+      var makeFirstPeriod = "INSERT INTO `period` (`name`, `startTime`, `currentPeriod`) VALUES ('" + current_year + "', NOW(), TRUE)";
         connection.query(makeFirstPeriod, function(err, result) {
           var getCurrentPeriod = "SELECT `periodID` FROM `period` WHERE `currentPeriod`=TRUE"
           connection.query(getCurrentPeriod, function(err, result) {
             periodID = result[0].periodID;
+
             var activity = "CREATE TABLE IF NOT EXISTS activity_" + connection.escape(result[0].periodID) + "(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(50), accompID INT(3), activity_desc VARCHAR(2500))";
             executeQuery(activity);
 
@@ -1124,7 +1154,7 @@ function initializeTables(){
   var checkAccomps = "SELECT * FROM `accomplishment`";
   connection.query(checkAccomps, function(err, result) {
     if(result == 0){
-      var insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (1,'Choose your Acomplisment',0,1);";
+      var insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (1,'Choose your Accomplishment',0,1);";
       executeQuery(insertBasicAccomp);
       insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (2,'Identify a meaningful problem that needs a solution',1,1);";
       executeQuery(insertBasicAccomp);
@@ -1166,6 +1196,11 @@ function initializeTables(){
       executeQuery(insertBasicAccomp);
       insertBasicAccomp = "INSERT INTO `accomplishment` (`accompID`,`description`,`points`,`enabled`) VALUES (21,'[CUSTOM]',1,1);";
       executeQuery(insertBasicAccomp);
+    }
+    else if(result[0].description == "Choose your Acomplisment"){
+      var properString = "Choose your Accomplishment"
+      var fixMisspelling = 'UPDATE `accomplishment` SET `description`=' + connection.escape(properString) + ' WHERE `accompID`=1';
+      executeQuery(fixMisspelling);
     }
   });
   var admin_login = "CREATE TABLE IF NOT EXISTS `admin`(username VARCHAR(25), password VARCHAR(100))";
@@ -1277,12 +1312,12 @@ function handleDisconnect() {
 /**
 * Listen to the IP:Port
 */
-app.listen(process.env.PORT);
-// var server = app.listen(3005, "localhost", function() {
-//   var host = server.address().address;
-//   var port = server.address().port;
-//   console.log("Listening at http://%s:%s", host, port);
-// });
+// app.listen(process.env.PORT);
+var server = app.listen(3006, "localhost", function() {
+  var host = server.address().address;
+  var port = server.address().port;
+  console.log("Listening at http://%s:%s", host, port);
+});
 
 function compileApplication(){
   //Gets the period ID of the current years period
@@ -1320,8 +1355,11 @@ function startApplication(){
   handleDisconnect();
   //Compiled Startup
   compileApplication();
+
+
 }
 
 /* RUNNING THE APP */
 //Calling the main function below
 startApplication();
+

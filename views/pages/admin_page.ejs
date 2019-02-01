@@ -1,7 +1,9 @@
+<!DOCTYPE html>
+
 <html lang="en" style="overflow-y: scroll;">
   <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <!-- Style Sheets -->
     <link rel="stylesheet" href="/stylesheet.css"/>
     <link rel="stylesheet" href="/bootstrap.css"/>
@@ -10,14 +12,18 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <link rel="icon" href="/favicon.ico">
+    <title>Zebra Technologies - Administrator Login</title>
   </head>
+
+  <body>
+
   <!-- Loading bar on top of page -->
   <div id="myProgress">
     <div style="height:2px; width:0%;" id="myBar"></div>
   </div>
   <!-- Page header -->
   <header class="header" style="background-color:#333E47;">
-    <nav class="navbar navbar-default" role="navigation" style="background-color:#333E47;">
+    <nav class="navbar navbar-default" style="background-color:#333E47;">
       <div class="navbar-header">
         <a class="navbar-brand" href="/" style="font-size:30px; color:#ffffff; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:30px;">Innovation Tracker</a>
       </div>
@@ -26,15 +32,14 @@
             <li><a class="navbar-brand" href="/" style="font-size:30px; color:#ffffff; min-height:80px;"><span><img src="/zebra.png" alt="zebra"/></span></a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li><a class="navbar-brand" style="font-size:30px; color:#333E47; min-height:80px; margin:0 auto; vertical-align:middle; padding-top:22px;"><span><form action="/logout" method="POST">
+            <li><form action="/logout" method="POST">
               <button style="font-size: 20px;" type="submit" class="btn btn-light">Logout</button>
-            </form></span></a></li>
+            </form></li>
         </ul>
       </div>
     </nav>
   </header>
 
-  <body>
     <div style="background-color:#878783 ; height:2px;"></div>
     <br>
     <br>
@@ -47,13 +52,13 @@
           <!--Unorderd list of header tabs -->
           <ul class="nav nav-tabs" id="headerTabs" role="tablist">
             <li id="upload_csv_tab" class="nav-item active">
-              <a class="nav-link" id="uploadCsv-tab" data-toggle="tab" href="#upload_csv" role="tab" aria-controls="uploadCsv" aria-selected="true">Upload New Employee List</a>
+              <a class="nav-link" id="uploadCsv-tab" data-toggle="tab" href="#upload_csv" role="tab" aria-controls="upload_csv" aria-selected="true">Upload New Employee List</a>
             </li>
             <li>
-              <a class="nav-link" id="editAccomplishments-tab" data-toggle="tab" href="#edit_accomplishments" role="tab" aria-controls="editAccomplishments" aria-selected="false"> Update Accomplishments </a>
+              <a class="nav-link" id="editAccomplishments-tab" data-toggle="tab" href="#edit_accomplishments" role="tab" aria-controls="edit_accomplishments" aria-selected="false"> Update Accomplishments </a>
             </li>
             <li id="change_credentials_tab" class="nav-item">
-              <a class="nav-link" id="changeCredentials-tab" data-toggle="tab" href="#change_credentials" role="tab" aria-controls="changeCredentials" aria-selected="false">Update Credentials</a>
+              <a class="nav-link" id="changeCredentials-tab" data-toggle="tab" href="#change_credentials" role="tab" aria-controls="change_credentials" aria-selected="false">Update Credentials</a>
             </li>
 
           </ul>
@@ -64,7 +69,7 @@
               <div style="width:100%; margin:0 auto;">
                 <br>
                 <!-- Heading giving the user directions -->
-                <h5 style="color:#333E47; text-align:center;">Upload a csv file containing current Zebra Employees and click "Submit" to update the current database.</h5></br>
+                <h5 style="color:#333E47; text-align:center;">Upload a csv file containing current Zebra Employees and click "Submit" to update the current database.</h5><br>
                 <!-- Upload CSV/Excel -->
                 <form id="uploadForm" enctype="multipart/form-data" method="POST" action="/add_csv">
                   <div class="form-group row">
@@ -73,7 +78,7 @@
                       <label for="fileUpload" class="custom-file-upload">
                         <i class="fa fa-cloud-upload"></i>Select CSV File
                       </label>
-                      <input id="fileUpload" name="fileUpload" class="file_element" style="visibility:hidden;"type="file" accept=".csv"/>
+                      <input id="fileUpload" name="fileUpload" class="file_element" style="visibility:hidden;" type="file" accept=".csv"/>
                       <label id="file_name"></label>
                       <br>
                       <label id="status"></label>
@@ -145,7 +150,7 @@
               <div style="width:100%; margin:0 auto;">
                 <br>
                 <!-- Heading giving the user directions -->
-                <h5 style="color:#333; text-align:center;">Please enter your current password and the new password.</h5></br>
+                <h5 style="color:#333; text-align:center;">Please enter your current password and the new password.</h5><br>
                 <!-- Creating the form for the user -->
                   <div class="form-group row">
                     <label for="currPassword" class="col-sm-4 col-form-label">Current Password</label>
@@ -177,10 +182,13 @@
         </div>
       </div>
     </div>
+
+    <!-- JavaScript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
+    <script src="/adminJS.js"></script>
+
   </body>
 
-  <!-- JavaScript -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
-  <script src="/adminJS.js"></script>
+  
 </html>

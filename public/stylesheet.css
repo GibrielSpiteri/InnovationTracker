@@ -5,7 +5,7 @@ html{
 .header{
   width: 100%;
   height: 9%;
-  min-height: ;
+  min-height: 0%;
   border: 0px;
   border-bottom: 2px;
   border-color: #333E47;
@@ -61,10 +61,7 @@ table, tr, th, td{
   word-break:keep-all;
   word-wrap: normal;
 }
-th{
-  /* padding:20px;  */
-  /* width:auto; */
-}
+
 .raisedbox {
 	padding: 10px;
   border: 1px solid #333E47;
