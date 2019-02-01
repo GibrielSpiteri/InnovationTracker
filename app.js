@@ -1209,6 +1209,7 @@ function resetTables(periodName){
     executeQuery(newPeriodTable);
 
     periodID += 1;
+    pastPeriods.set(periodID, periodName);
 
     var activity = "CREATE TABLE IF NOT EXISTS activity_" + connection.escape(periodID) + "(activityID INT AUTO_INCREMENT PRIMARY KEY, coreID VARCHAR(50), accompID INT(3), activity_desc VARCHAR(2500))";
     executeQuery(activity);
