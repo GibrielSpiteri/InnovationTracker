@@ -57,6 +57,9 @@
             <li>
               <a class="nav-link" id="editAccomplishments-tab" data-toggle="tab" href="#edit_accomplishments" role="tab" aria-controls="edit_accomplishments" aria-selected="false"> Update Accomplishments </a>
             </li>
+            <li id="reset_period_tab" class="nav-item">
+              <a class="nav-link" id="resetPeriod-tab" data-toggle="tab" href="#reset_period" role="tab" aria-controls="reset_period" aria-selected="false">Reset Period</a>
+            </li>
             <li id="change_credentials_tab" class="nav-item">
               <a class="nav-link" id="changeCredentials-tab" data-toggle="tab" href="#change_credentials" role="tab" aria-controls="change_credentials" aria-selected="false">Update Credentials</a>
             </li>
@@ -145,6 +148,22 @@
               </div>
             </div>
 
+            <!-- Reset Period Tab -->
+            <div class="tab-pane fade" id="reset_period" role="tabpanel" aria-labelledby="resetPeriod-tab" >
+              <div style="width:100%; margin:0 auto;">
+                <br>
+                <!-- Heading giving the user directions -->
+                <h5 style="color:#333; text-align:center;">Clicking the button below will update the period. This is intended to be used at the beginning of the year.</h5><br>
+                <!-- Creating the form for the user -->
+                  <div class="form-group row">
+                    <div class="col-sm-12">
+                      <button type="submit" class="btn btn-primary" onclick="resetPeriod()">Reset Period</button>
+                    </div>
+                  </div>
+                  <br>
+              </div>
+            </div>
+
             <!-- Update Password Tab -->
             <div class="tab-pane fade" id="change_credentials" role="tabpanel" aria-labelledby="changeCredentials-tab" >
               <div style="width:100%; margin:0 auto;">
@@ -190,5 +209,5 @@
 
   </body>
 
-  
+
 </html>

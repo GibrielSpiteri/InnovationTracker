@@ -44,7 +44,7 @@ const db_config = {
   port: '3306',
   user: 'root',
   password: 'Zebra123',
-  database: 'innovation_tracker'
+  database: 'innovationtracker'
 };
 
 /*---------------------------------VARIABLES----------------------------------*/
@@ -108,7 +108,7 @@ var transporter = nodemailer.createTransport({
 
 /*Auto Reset the period - Occurs every January 1st*/
 var yearlyReset = schedule.scheduleJob('0 0 1 1 *', function(){
-  resetPeriod();
+  // resetPeriod();
 });
 
 /**
@@ -200,8 +200,19 @@ app.get('/admin', function(req, res){
 * Reject IE browser
 */
 app.get('/NoIE', function(req, res) {
-  res.render('pages/RejectIE');
+  res.render('pages/unsupported');
 });
+
+app.get('/resetEmployeeDatabase', function(req, res) {
+  var drop = "DROP TABLE employees_" + connection.escape(periodID);
+  //Reset the table
+  var create = "CREATE TABLE employees_" + connection.escape(periodID) + "(coreID VARCHAR(50) PRIMARY KEY, emp_name VARCHAR(255), job VARCHAR(100), supervisor VARCHAR(255), total_points INT(2))";
+  executeQuery(drop);
+  executeQuery(create);
+  sortEmps(periodID);
+  res.send("You have just reset the employee list!");
+});
+
 /*------------------------------APP POST REQUESTS-----------------------------*/
 
 /**
@@ -211,7 +222,7 @@ app.post("/logout", function(req, res){
   sesh = req.session;
   sesh.logged_in = false;
   sesh.username = "";
-  return res.redirect("/login"); 
+  return res.redirect("/login");
 });
 
 /**
@@ -243,6 +254,21 @@ app.post('/auth', function(req, res) {
   }
   else{
     return res.redirect('/login');
+  }
+});
+
+/**
+* Accessed through the admin page.
+* This function updates the admin's password.
+*/
+app.post('/resetPeriodManual', function(req, res){
+  sesh = req.session;
+  if(sesh.logged_in){
+    resetPeriod();
+    res.send("Success");
+  }
+  else {
+    res.send("Failure");
   }
 });
 
@@ -1240,7 +1266,7 @@ function resetTables(periodName){
     else{
       return false;
     }
-    var newPeriodTable = "INSERT INTO `period` (`name`, `startTime`, `endTime`, `currentPeriod`) VALUES (" + connection.escape(periodName)+ ", NOW(), null, TRUE)";
+    var newPeriodTable = "INSERT INTO `period` (`periodID`, `name`, `startTime`, `endTime`, `currentPeriod`) VALUES (" + (periodID + 1) + ", " + connection.escape(periodName)+ ", NOW(), null, TRUE)";
     executeQuery(newPeriodTable);
 
     periodID += 1;
@@ -1312,12 +1338,12 @@ function handleDisconnect() {
 /**
 * Listen to the IP:Port
 */
-// app.listen(process.env.PORT);
-var server = app.listen(3006, "localhost", function() {
-  var host = server.address().address;
-  var port = server.address().port;
-  console.log("Listening at http://%s:%s", host, port);
-});
+app.listen(process.env.PORT);
+// var server = app.listen(3006, "localhost", function() {
+//   var host = server.address().address;
+//   var port = server.address().port;
+//   console.log("Listening at http://%s:%s", host, port);
+// });
 
 function compileApplication(){
   //Gets the period ID of the current years period
@@ -1342,7 +1368,6 @@ function compileApplication(){
         sortEmps(key);
       }
     });
-
   });
 }
 
@@ -1362,4 +1387,3 @@ function startApplication(){
 /* RUNNING THE APP */
 //Calling the main function below
 startApplication();
-

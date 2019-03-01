@@ -48,6 +48,25 @@ $(document).ready(function () {
 });
 
 /**
+* Request to reset the current period
+*/
+function resetPeriod() {
+  $.ajax({
+    type: "POST",
+    url: "/resetPeriodManual",
+    cache: false,
+    success: function(response){
+      if(response == "Success"){
+        alert("You have succesfully reset the period.");
+        return false;
+      } else {
+        return true;
+      }
+    }
+  });
+}
+
+/**
 * Request to change admin password
 */
 function changePass() {
